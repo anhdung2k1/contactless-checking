@@ -1,0 +1,4 @@
+ultralytics
+flask
+flask-cors
+opencv-python>=4.1.2
