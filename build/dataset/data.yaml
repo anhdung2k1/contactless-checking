@@ -1,0 +1,5 @@
+train: /home/master/code/contactless-checking/build/dataset/train/images
+val: /home/master/code/contactless-checking/build/dataset/train/images
+test: /home/master/code/contactless-checking/build/dataset/test/images
+nc: 1
+names: ['face']

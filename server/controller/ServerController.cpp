@@ -1,0 +1,26 @@
+// Copyright [2024] <Anh Dung>
+#include "ServerController.h"
+#include "../services/ServerService.h"
+
+struct ServerService::Client {
+    int sock;
+    User user;
+    CURL *curl;
+    struct curl_slist *slist;
+};
+
+void ServerController::connectToClient() {
+    int serverFd, addrlen;
+    struct sockaddr_in address;
+    int maxClient=10;
+    // string apiIp = "http://"
+    string mysqlIp = "172.17.0.2"
+    map<int, ServerService::Client> clientMap;
+    bool establishConnection = ServerService::handleConnect(serverFd, maxClient, addrlen, address, false, PORT);
+    if (establishConnection) {
+        pollfd fds[maxClient];
+        ServerService::HandleMultiClient(clientMap, maxClient, serverFd, address, addrlen, fds, apiIp, mysqlIp);
+    } else {
+        exit(1);
+    }
+}
