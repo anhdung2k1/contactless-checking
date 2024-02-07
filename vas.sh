@@ -3,10 +3,15 @@
 ## vas.sh
 ##--------
 
+# Directory
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
 test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
+test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
+test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
+
+# Prequiste compiler
 test -n "$PYTHON_VERSION" || export PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+\.\d+' | awk -F '.' '{print $2}')
 test -n "$JAVA_VERSION" || export JAVA_VERSION=$(java --version | grep -oP '\d+\.\d+\.\d+' -m 1 | awk -F '.' '{print $1}')
 test -n "$MAVEN_VERSION" || export MAVEN_VERSION=$(mvn --version | grep -oP '\d+\.\d+\.\d+' -m 1 | awk -F '.' '{print $2}')
@@ -76,7 +81,7 @@ get_train_dataset() {
 
 build_all() {
     buildenv
-    buildtrain
+    build_repo
 }
 
 get_version() {
@@ -125,8 +130,22 @@ buildenv() {
     pip install -r requirements.txt
 }
 
+## Build Spring boot *.tar and socket binary
+build_repo() {
+    test -n "$API_DIR" || die "Not set [API_DIR]"
+
+    echo "##################################"
+    echo "# Prepare the build repository : #"
+    echo "##################################"
+    pushd .
+    cd $API_DIR
+    mvn clean install -Dskiptest
+    cp -f $API_DIR/target/*.jar $DOCKER_DIR/api-server
+    popd
+}
+
 ## Train the dataset
-buildtrain() {
+train_dataset() {
     test -n "$DATASET_DIR" || die "DATASET folder does not exists"
     test -n "$MODEL_DIR" || die "YOLO model folder doest not exists"
     # Push the current dir to stack
@@ -166,13 +185,13 @@ case $option in
             init
     ;;
     "train") echo "STEP: Train with custom dataset"
-            buildtrain
+            train_dataset
     ;;
     "buildenv") echo "STEP: Build environment"
             buildenv
     ;;
     "build_all") echo "STEP: Build all processes"
-             build_all
+            build_all
     ;;
     "get_version") get_version
     ;;
