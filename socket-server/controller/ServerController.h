@@ -3,4 +3,4 @@
 class ServerController {
     public:
         static void connectToClient();
-}
+};

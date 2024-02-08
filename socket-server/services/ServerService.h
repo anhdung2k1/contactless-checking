@@ -7,16 +7,16 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include"../view/ServerView.h"
 #include <sstream>
 #include"../model/User.h"
+#include"../repository/Repository.h"
 #include"../utils/CurlUtils.h"
 #include <poll.h>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
-using std::thred;
+using std::thread;
 using std::map;
 
 class ServerService {
@@ -34,4 +34,4 @@ class ServerService {
         static void ProcessPollValue(map<int, Client>& clientMap, int maxClient, pollfd fds[], int serverFd, int& addrlen, struct sockaddr_in& address, int timeout, string apiIp, string mysqlIp);
         static void ListenToClient(pollfd fds[], int serverFd, int maxClient);
         static void ShutDownServer(int serverFd);
-}
+};

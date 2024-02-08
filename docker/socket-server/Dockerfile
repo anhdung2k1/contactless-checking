@@ -1,6 +1,7 @@
 ARG VERSION=22.04
 FROM ubuntu:$VERSION
 
+#Install the neccessary packages 
 RUN apt-get update && \
     apt-get install build-essential -y
 RUN apt-get install g++ -y && \ 
@@ -13,6 +14,7 @@ RUN apt-get install libcurl4-gnutls-dev -y &&\
 
 RUN apt-get install libboost-all-dev -y
 
+#Label for application
 ARG COMMIT
 ARG APP_VERSION
 ARG BUILD_TIME
@@ -25,7 +27,15 @@ LABEL \
 
 WORKDIR /app/socket-server
 
+#Mount folder to execute
 COPY socket-server/ /app/socket-server
-RUN g++ main.cpp -o server controller/ServerController.cpp services/ServerService.cpp model/User.cpp repository/Repository.cpp utils/CurlUtils.cpp -lcurl -lmysqlclient -lpthread
+#Compile g++ binary
+RUN g++ main.cpp -o server \ 
+        controller/ServerController.cpp \ 
+        services/ServerService.cpp \ 
+        model/User.cpp \ 
+        repository/Repository.cpp \ 
+        utils/CurlUtils.cpp \ 
+        -lcurl -lmysqlclient -lpthread
 
 CMD ["./server"]

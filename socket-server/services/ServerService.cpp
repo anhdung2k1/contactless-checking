@@ -88,7 +88,7 @@ bool ServerService::handleClient(map<int, Client> &clientMap, Client &client, po
 
     if (pattern == "LOGIN_USER")
     {
-        flag = ChatRepository::CheckUserName(value, mysqlIp);
+        flag = Repository::CheckUserName(value, mysqlIp);
         if (flag)
         {
             client.user.setName(value);
@@ -115,7 +115,7 @@ bool ServerService::handleClient(map<int, Client> &clientMap, Client &client, po
     }
     else if (pattern == "REGISTER_USER")
     {
-        flag = !ChatRepository::CheckUserName(value, mysqlIp);
+        flag = !Repository::CheckUserName(value, mysqlIp);
         if (flag)
         {
             client.user.setName(value);
@@ -242,22 +242,6 @@ bool ServerService::handleClient(map<int, Client> &clientMap, Client &client, po
             client.user.setId(j.at("user_id"));
         }
         SendResponse(client.sock, "RECONNECT|");
-    }
-    else if (pattern == "RESEND")
-    {
-        nlohmann::json j = nlohmann::json::parse(value);
-        for (string i : j)
-        {
-            formData << "{\"text\": "
-                     << "\"" + i + "\"}";
-            Message newMessage(client.user, i);
-            curlUtils.postUtil(client.curl, client.res, apiIp + "/user/" + ConvertIntToString(client.user.getId()) + "/room/" + ConvertIntToString(client.joinedRoom.getChatId()) + "/message", formData.str(), flag);
-            if (flag)
-            {
-                bool sendSuccess = false;
-                HandleMessage(clientMap, client, newMessage, sendSuccess);
-            }
-        }
     }
     return flag;
 }
