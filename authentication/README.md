@@ -159,22 +159,4 @@ public class SecurityConfiguration {
 | 6 | /api/accounts/:id | Done | - | Update Account Password | PUT | Bearer | admin | id | attributes | Account | 
 | 7 | /api/accounts/:id | Done | Delete Account need delete User respective with that account | Delete Account | DELETE | Bearer | admin | id | - | boolean |
 | |
-|Chat|
-| 1 | /api/user/{user_id}/room | Done | - | Create room with user admin | POST | Bearer | client | - | - | String |
-| 2 | /api/useradmin/{user_id_created}/user/{user_id_joined}/room | Done | - | create a private room | POST | Bearer | client | user_id, user_id | - | String |
-| 3 | /api/room | Done | - | Get list of room (forum type, everyone can see) | GET | Bearer | client | - | - | List Chat |
-| 4 | /api/room/{room_id} | Done | - | Get room by room ID | GET | Bearer | client | room_id | - | Dictionary (String, Object) |
-| 5 | /api/room/{room_id}/members | Done | - | Show members in room | GET | Bearer | client | room_id | - | List( Map (String, String) ) |
-| 6 | /api/room/{room_id}/members/search | Done | - | find a user in a room | GET | Bearer | client | room_id | - | Map (String, Object) |
-| 7 | /api/useradmin/{user_id_created}/user/{user_id_joined}/room | Done | - | Get private room | GET | Bearer | client | user_id, user_id | - | Map (String, Object) |
-| 8 | /api/user/{user_id}/room/{room_id}/update | Done | - | Update room information, just for admin of the room | PUT | Bearer | client | user_id, room_id | roomName | Chat |
-| 9 | /api/user/{user_id}/room/{room_id} | Done | - | Delete room, just for admin | DELETE | Bearer | client | user_id, room_id | - | Boolean |
-| |
-| Message|
-| 1 | user/{user_id}/room/{room_id}/message | Done | - | Create a new message | POST | Bearer | client | user_id, room_id | content | String |
-| 2 | /room/{room_id}/message | Done | - | Get all message in a chat room | GET | Bearer | client | room_id | - | List (Dictionary (String, String)) |
-| 3 | /room/{room_id}/message/{message_id} | Done | - | Get a message from message_id | GET | Bearer | client | room_id, message_id | - | Dictionary (String, String) |
-| 4 | user/{user_id}/room/{room_id}/message/{message_id} | Done | - | Update message content | PUT | Bearer | client | user_id, room_id, message_id | content | String |
-| 5 | user/{user_id}/room/{room_id}/message/{id} | Done | - | Delete message, just the one who write it can delete it | DELETE | Bearer | client | user_id, room_id, message_id | - | String |
-
 
