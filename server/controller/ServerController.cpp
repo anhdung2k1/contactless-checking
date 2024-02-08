@@ -13,8 +13,8 @@ void ServerController::connectToClient() {
     int serverFd, addrlen;
     struct sockaddr_in address;
     int maxClient=10;
-    // string apiIp = "http://"
-    string mysqlIp = "172.17.0.2"
+    string apiIp = "http://172.17.0.2";
+    string mysqlIp = "172.17.0.3";
     map<int, ServerService::Client> clientMap;
     bool establishConnection = ServerService::handleConnect(serverFd, maxClient, addrlen, address, false, PORT);
     if (establishConnection) {

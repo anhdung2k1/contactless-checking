@@ -10,6 +10,7 @@ test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
 test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
+test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
 test -n "$PYTHON_VERSION" || export PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+\.\d+' | awk -F '.' '{print $2}')
@@ -39,7 +40,7 @@ clean() {
 }
 
 die() {
-    echo "ERROR: $*" >&2
+    echo "ERROR: $1" >&2
     exit 1
 }
 
@@ -144,6 +145,24 @@ build_repo() {
     popd
 }
 
+## build_image
+## Buil docker image from Dockerfile
+build_image() {
+    test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
+    test -n "$__name" || die "Module name required"
+    image_name=ck-$__name
+
+    version=$(get_version)
+    docker build $VAS_GIT/docker/$__name \
+            --file $VAS_GIT/docker/$__name/Dockerfile \
+            --tag "$DOCKER_REGISTRY/$image_name:$version" \
+            --build-arg COMMIT=$git_commit \
+            --build-arg APP_VERSION=$version \
+            --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
+        || die "Failed to build docker images: $__name"
+
+}
+
 ## Train the dataset
 train_dataset() {
     test -n "$DATASET_DIR" || die "DATASET folder does not exists"
@@ -176,24 +195,27 @@ train_dataset() {
     popd
 }
 
-# CLI to get to vas option
-case $option in
-    "clean") echo "STEP: Clean"
-             clean
-    ;;
-    "init") echo "STEP: Initialize the build process"
-            init
-    ;;
-    "train") echo "STEP: Train with custom dataset"
-            train_dataset
-    ;;
-    "buildenv") echo "STEP: Build environment"
-            buildenv
-    ;;
-    "build_all") echo "STEP: Build all processes"
-            build_all
-    ;;
-    "get_version") get_version
-    ;;
-    esac
+#Get the command
+cmd=$1
+shift
+grep -q "^$cmd()" $0 || die "Invalid command [$cmd]"
 
+while echo "$1" | grep -q '^--'; do
+    if echo $1 | grep -q =; then
+        o=$(echo "$1" | cut -d= -f1 | sed -e 's,-,_,g')
+        v=$(echo "$1" | cut -d= -f2-)
+        eval "$o=\"$v\""
+    else
+        o=$(echo "$1" | sed -e 's,-,_,g')
+		eval "$o=yes"
+    fi
+    shift
+done
+unset o
+long_opts=`set | grep '^__' | cut -d= -f1`
+
+#Execute command
+trap "die Interrupted" INT TERM
+$cmd "$@"
+status=$?
+exit $status
