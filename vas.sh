@@ -134,23 +134,44 @@ buildenv() {
 ## Build Spring boot *.tar and socket binary
 build_repo() {
     test -n "$API_DIR" || die "Not set [API_DIR]"
+    test -n "$__name" || die "Module name required"
 
     echo "##################################"
     echo "# Prepare the build repository : #"
     echo "##################################"
-    pushd .
-    cd $API_DIR
-    mvn clean install -Dskiptest
-    cp -f $API_DIR/target/*.jar $DOCKER_DIR/api-server
-    popd
+
+    case $__name in
+    "socket-server")
+        echo "Copy folder to docker"
+        cp -rf $VAS_GIT/$__name/ $DOCKER_DIR/$__name \
+            || die "Source directory does not exists $VAS_GIT/$__name"
+    ;;
+    "authentication")
+        pushd .
+        cd $API_DIR
+        echo "Start to build Spring boot compile"
+        mvn clean install -Dskiptest \
+            || die "[ERROR] Failed to compile"
+        echo "Copy target file to docker dir"
+        cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
+            || die "Target file does not exists in $API_DIR/target/"
+        popd
+    ;;
+    esac
 }
 
 ## build_image
 ## Buil docker image from Dockerfile
+##
+## --name=<module name>
+##
 build_image() {
     test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
     test -n "$__name" || die "Module name required"
     image_name=ck-$__name
+
+    ## Clean target file if exists before build image
+    rm -rf $DOCKER_DIR/$__name/*.jar
 
     version=$(get_version)
     docker build $VAS_GIT/docker/$__name \
@@ -160,7 +181,6 @@ build_image() {
             --build-arg APP_VERSION=$version \
             --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
         || die "Failed to build docker images: $__name"
-
 }
 
 ## Train the dataset

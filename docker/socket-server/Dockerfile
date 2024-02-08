@@ -12,8 +12,9 @@ RUN apt-get install libcurl4-gnutls-dev -y &&\
 
 RUN apt-get install libboost-all-dev -y
 
+WORKDIR /app/socket-server
 
-WORKDIR /app
+COPY server/ /app/socket-server
+RUN g++ main.cpp -o server controller/ServerController.cpp services/ServerService.cpp model/User.cpp repository/Repository.cpp utils/CurlUtils.cpp -lcurl -lmysqlclient -lpthread
 
-COPY server /app/server
-CMD ["./app/server"]
+CMD ["./server"]

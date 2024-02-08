@@ -6,9 +6,9 @@
 *.lo
 *.o
 *.obj
-/docker/socket-server/server
-/docker/client-server/client
-/docker/api-server/*.jar
+/docker/socket-server/socket-server/
+/docker/client-server/client-server/
+/docker/authentication/*.jar
 !**/unittest/Gtest
 # Precompiled Headers
 *.gch
