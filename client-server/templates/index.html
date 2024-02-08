@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket and WebApp Example</title>
+</head>
+<body>
+    <h1>Socket and WebApp Example</h1>
+    <input type="text" id="messageInput" placeholder="Type a message">
+    <button onclick="sendMessage()">Send Message</button>
+    <ul id="messages"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value;
+            socket.emit('message_from_client', message);
+            messageInput.value = '';
+        }
+
+        socket.on('message_from_server', function(message) {
+            var messagesList = document.getElementById('messages');
+            var listItem = document.createElement('li');
+            listItem.appendChild(document.createTextNode(message));
+            messagesList.appendChild(listItem);
+        });
+    </script>
+</body>
+</html>

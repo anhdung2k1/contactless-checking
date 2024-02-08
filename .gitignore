@@ -8,8 +8,11 @@
 *.obj
 /docker/socket-server/socket-server/
 /docker/client-server/client-server/
+/docker/client-server/requirements.txt
 /docker/authentication/*.jar
 !**/unittest/Gtest
+
+/client-server/__pycache__/
 # Precompiled Headers
 *.gch
 *.pch

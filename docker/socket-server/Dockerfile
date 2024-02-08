@@ -38,4 +38,5 @@ RUN g++ main.cpp -o server \
         utils/CurlUtils.cpp \ 
         -lcurl -lmysqlclient -lpthread
 
+EXPOSE 8000
 CMD ["./server"]

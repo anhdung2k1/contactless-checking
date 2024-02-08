@@ -141,11 +141,6 @@ build_repo() {
     echo "##################################"
 
     case $__name in
-    "socket-server")
-        echo "Copy folder to docker"
-        cp -rf $VAS_GIT/$__name/ $DOCKER_DIR/$__name \
-            || die "Source directory does not exists $VAS_GIT/$__name"
-    ;;
     "authentication")
         pushd .
         cd $API_DIR
@@ -156,6 +151,15 @@ build_repo() {
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
             || die "Target file does not exists in $API_DIR/target/"
         popd
+    ;;
+    *)
+        echo "Copy folder $__name to docker"
+        cp -rf $VAS_GIT/$__name/ $DOCKER_DIR/$__name \
+            || die "Source directory does not exists $VAS_GIT/$__name"
+        if [[ $__name == "client-server" ]]; then
+            cp -f $VAS_GIT/requirements.txt $DOCKER_DIR/$__name \
+                || die "Requirements file doest not exists"
+        fi
     ;;
     esac
 }
@@ -202,8 +206,9 @@ train_dataset() {
     echo "nc: 1" >> $DATASET_DIR/data.yaml
     echo "names: ['face']" >> $DATASET_DIR/data.yaml
 
-    if [[ -f "$MODEL_DIR/runs/detect/train/weights/best.pt" ]]; then
-    	DEFAULT_MODEL="$MODEL_DIR/runs/detect/train/weights/best.pt"
+    MODEL_BUILD_DIR="runs/detect/train/weights"
+    if [[ -f "$MODEL_DIR/$MODEL_BUILD_DIR/best.pt" ]]; then
+    	DEFAULT_MODEL="$MODEL_DIR/$MODEL_BUILD_DIR/best.pt"
     fi
 
     yolo task=$TASK_TYPE \
