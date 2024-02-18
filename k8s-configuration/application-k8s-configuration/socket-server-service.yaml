@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: socket-server
+spec:
+ selector:
+  app: socket-server
+ ports:
+  - port: 8000
+    targetPort: 8000
+ externalTrafficPolicy: Local
+ externalIPs: 
+ -  192.168.122.239
+ type: LoadBalancer

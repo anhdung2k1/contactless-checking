@@ -12,8 +12,11 @@ class SocketClient:
         self.client_socket.connect(server_address)
         print("Connected to the server")
 
-    def sendRequest(self,message):
+    def sendRequest(self, message):
         self.client_socket.send(message.encode())
+    
+    def receiveResponse(self):
+        return self.client_socket.recv(1024).decode()
         
     def socket_close(self):
         self.client_socket.close()

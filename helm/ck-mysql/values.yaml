@@ -1,0 +1,86 @@
+#global:
+# registry:
+#   url: anhdung12399
+#   repoPath:
+# timezone: UTC
+# nodeSelector: {}
+# annotations: {}
+# labels: {}
+# networkPolicy:
+#   enabled:
+# topologySpreadConstraints:
+# podSecurityContext:
+#   supplementalGroups: []
+# fsGroup:
+#   # 'manual' to enforce a specific value (highest precedence)
+#   manual:
+#   # 'namespace' to use the value defined for the namespace set by cluster admin (second highest precedence)
+#   namespace:
+
+updateStrategy:
+  mysqlServer:
+    type: RollingUpdate
+
+server:
+  mysqlServer:
+    name: mysql-server
+    replicaCount: 1
+
+    #serviceAccountName: ""
+
+probes:
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 30
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 3
+    successThreshold: 1
+
+resources:
+  ck-initcontainer:
+    limits:
+      cpu: "1"
+      memory: "200Mi"
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+  ck-xtrabackup:
+    limits:
+      cpu: "1"
+      memory: "200Mi"
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+  ck-mysql:
+    limits:
+      cpu: "2"
+      memory: "2048Mi"
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    
+annotations: {}
+
+seccompProfile:
+  type:
+  # ck-mysql:
+  #   type:
+  #   localhostProfile:
+  # ck-authentication:
+  #   type:
+  #   localhostProfile:
+  # ck-client:
+  #   type:
+  #   localhostProfile:
+  # ck-socket-server:
+  #   type:
+  #   localhostProfile:
+
+imageCredentials:
+  pullPolicy: IfNotPresent

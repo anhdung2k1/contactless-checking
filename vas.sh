@@ -14,8 +14,7 @@ test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
 test -n "$PYTHON_VERSION" || export PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+\.\d+' | awk -F '.' '{print $2}')
-test -n "$JAVA_VERSION" || export JAVA_VERSION=$(java --version | grep -oP '\d+\.\d+\.\d+' -m 1 | awk -F '.' '{print $1}')
-test -n "$MAVEN_VERSION" || export MAVEN_VERSION=$(mvn --version | grep -oP '\d+\.\d+\.\d+' -m 1 | awk -F '.' '{print $2}')
+test -n "$MAVEN_IMAGE" || export MAVEN_IMAGE="maven:latest"
 # Hyper parameters
 test -n "$TASK_TYPE" || export TASK_TYPE=detect #DEFAULT task=detect is one of [detect, segment, classify]
 test -n "$MODE_TYPE" || export MODE_TYPE=train #DEFAULT mode=train is one of [train, val, predict, export, track]
@@ -96,8 +95,6 @@ get_version() {
 buildenv() {
     test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
     test -n "$PYTHON_VERSION" || die "Python version is not specify"
-    test -n "$JAVA_VERSION" || die "Java version is not specify"
-    test -n "$MAVEN_VERSION" || die "Maven version is not specify"
     
     echo "##################################"
     echo "# Check Python3 version"
@@ -109,24 +106,9 @@ buildenv() {
     fi
 
     echo "##################################"
-    echo "# Check Java and Maven version"
-    if [[ "$JAVA_VERSION" -ge 17 ]]; then
-        echo "Java version available to use: Java version $JAVA_VERSION"
-    else
-        echo "Java version unavailable to use: Java version $JAVA_VERSION"
-        exit 1
-    fi
-
-    if [[ "$MAVEN_VERSION" -ge 9 ]]; then
-        echo "Maven version available to use: Maven version $MAVEN_VERSION"
-    else
-        echo "Maven version unavailable to use: Maven version $MAVEN_VERSION"
-        exit 1
-    fi
-
-    echo "##################################"
     echo "# Prepare the build environment: #"
     echo "##################################"
+    echo "# Pip install the requirement packages"
     pip install --upgrade pip
     pip install -r requirements.txt
 }
@@ -134,6 +116,7 @@ buildenv() {
 ## Build Spring boot *.tar and socket binary
 build_repo() {
     test -n "$API_DIR" || die "Not set [API_DIR]"
+    test -n "$MAVEN_IMAGE" || die "Not set image [MAVEN_IMAGE]"
     test -n "$__name" || die "Module name required"
 
     echo "##################################"
@@ -145,8 +128,8 @@ build_repo() {
         pushd .
         cd $API_DIR
         echo "Start to build Spring boot compile"
-        mvn clean install -Dskiptest \
-            || die "[ERROR] Failed to compile"
+        docker run -it --rm -v "$(pwd -P)":/app -w /app $MAVEN_IMAGE mvn clean install -Dskiptest \
+		    || die "[ERROR]: Failed to compile"
         echo "Copy target file to docker dir"
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
             || die "Target file does not exists in $API_DIR/target/"
@@ -165,7 +148,7 @@ build_repo() {
 }
 
 ## build_image
-## Buil docker image from Dockerfile
+## Build docker image from Dockerfile
 ##
 ## --name=<module name>
 ##
@@ -185,6 +168,23 @@ build_image() {
             --build-arg APP_VERSION=$version \
             --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
         || die "Failed to build docker images: $__name"
+}
+
+## Push image
+## Push docker image to Docker Registry
+##
+## --name=<module name>
+##
+push_image() {
+   test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
+   test -n "$__name" || die "Module name required"
+   test -n "$DOCKER_REGISTRY" || die "Not set [DOCKER_REGISTRY]"
+   image_name=ck-$__name
+   version=$(get_version)
+
+   ## Docker push to docker registry
+   docker push $DOCKER_REGISTRY/$image_name:$version \
+	   || die "Failed to push docker registry: $DOCKER_REGISTRY"
 }
 
 ## Train the dataset

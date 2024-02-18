@@ -1,0 +1,11 @@
+# Patterns to ignore when building packages
+# Common VSC dirs
+.git/
+.gitignore
+*.swp
+*.bak
+*.tmp
+# Various IDEs
+.project
+.idea/
+*.tmproj
