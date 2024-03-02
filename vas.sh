@@ -18,7 +18,7 @@ test -n "$MAVEN_IMAGE" || export MAVEN_IMAGE="maven:latest"
 # Hyper parameters
 test -n "$TASK_TYPE" || export TASK_TYPE=detect #DEFAULT task=detect is one of [detect, segment, classify]
 test -n "$MODE_TYPE" || export MODE_TYPE=train #DEFAULT mode=train is one of [train, val, predict, export, track]
-test -n "$EPOCHS" || export EPOCHS=10 #DEFAULT EPOCHS=10
+test -n "$EPOCHS" || export EPOCHS=50 #DEFAULT EPOCHS=50
 test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
 test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
 
