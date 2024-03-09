@@ -25,39 +25,44 @@ server:
   mysqlServer:
     name: mysql-server
     replicaCount: 1
+    port: 3306
+  xtrabackup:
+    name: xtrabackup
+    port: "3307"
 
     #serviceAccountName: ""
 
 probes:
-  readinessProbe:
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 30
-    failureThreshold: 3
-    successThreshold: 1
-  livenessProbe:
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 15
-    failureThreshold: 3
-    successThreshold: 1
+  mysql:
+    readinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 30
+      failureThreshold: 3
+      successThreshold: 1
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 3
+      successThreshold: 1
 
 resources:
-  ck-initcontainer:
+  initcontainer:
     limits:
       cpu: "1"
       memory: "200Mi"
     requests:
       cpu: "50m"
       memory: "50Mi"
-  ck-xtrabackup:
+  xtrabackup:
     limits:
       cpu: "1"
       memory: "200Mi"
     requests:
       cpu: "50m"
       memory: "50Mi"
-  ck-mysql:
+  mysql:
     limits:
       cpu: "2"
       memory: "2048Mi"
@@ -84,3 +89,11 @@ seccompProfile:
 
 imageCredentials:
   pullPolicy: IfNotPresent
+
+storageClassName:
+  mysql: local-storage
+
+storageCapacity:
+  mysql: 10Gi
+
+dbPass: ""

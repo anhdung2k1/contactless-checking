@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pv-claim-ck
+  name: mysql-pv-claim
   labels:
     app: mysql
     tier: database

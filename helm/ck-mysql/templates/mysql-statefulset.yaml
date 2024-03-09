@@ -8,7 +8,7 @@ spec:
   replicas: {{ .Values.server.mysqlServer.replicaCount }}
   updateStrategy:
 {{ toYaml .Values.updateStrategy.mysqlServer | indent 4 }}
-    serviceName: {{ .Values.server.mysqlServer.name | quote }}
+  serviceName: {{ .Values.server.mysqlServer.name | quote }}
   selector:
     matchLabels: {{- include "ck-mysql.selectorLabels" . | nindent 6 }}
   template:
@@ -20,7 +20,8 @@ spec:
         fsGroup: {{ template "ck-mysql.fsGroup.coordinated" . }}
         {{- include "ck-mysql.podSeccompProfile" . | indent 8 }}
         {{- include "ck-mysql.supplementalGroups" . }}
-      serviceAccountName: {{ template "ck-mysql.serviceAccountName" . }}
+      # serviceAccountName: {{ template "ck-mysql.serviceAccountName" . }}
       initContainers:
-        {{- include "ck-mysql.initContainer" (list . "ck-mysql") | nindent 8 }}
-        
+      {{- include "ck-mysql.initContainer" (list . "ck-mysql") | nindent 6 }}
+      containers:
+      {{- include "ck-mysql.container" (list . "ck-mysql") | nindent 6 }}

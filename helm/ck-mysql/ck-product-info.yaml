@@ -4,9 +4,9 @@ images:
     productName: CK XtraBackup IMAGE
     registry: anhdung12399
     name: xtrabackup
-    tag: 1.0
+    tag: "1.0"
   ck-mysql:
     productName: CK MySQL Database
     registry: anhdung12399
     name: mysql
-    tag: 8.0.32
+    tag: "8.0.32"

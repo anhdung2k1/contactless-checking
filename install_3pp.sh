@@ -1,5 +1,6 @@
 HELM_URL="https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
-KUBECTL_LATEST_VERSION="curl -L -s https://dl.k8s.io/release/stable.txt"
+KUBECTL_LATEST_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+echo $KUBECTL_LATEST_VERSION
 KUBECTL_URL="https://dl.k8s.io/release/${KUBECTL_LATEST_VERSION}/bin/linux/amd64/kubectl"
 KUBECTL_CHECKSUM_URL="https://dl.k8s.io/release/${KUBECTL_LATEST_VERSION}/bin/linux/amd64/kubectl.sha256"
 
