@@ -1,8 +1,8 @@
 {{- define "ck-mysql.initContainer" -}}
 {{- $top := index . 0 }}
 - name: ck-mysql-initcontainer
-  image: {{ template "ck-mysql.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
-  imagePullPolicy: {{ template "ck-mysql.imagePullPolicy" $top }}
+  image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
+  imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   securityContext:
     allowPrivilegeEscalation: false
     privileged: false
@@ -39,8 +39,8 @@
   - name: config-map
     mountPath: /mnt/config-map
 - name: clone-mysql
-  image: {{ template "ck-mysql.imagePath" (merge (dict "imageName" "ck-xtrabackup") $top) }}
-  imagePullPolicy: {{ template "ck-mysql.imagePullPolicy" $top }}
+  image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-xtrabackup") $top) }}
+  imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   command:
   - bash
   - "-c"

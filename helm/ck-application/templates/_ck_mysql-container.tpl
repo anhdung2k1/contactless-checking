@@ -1,8 +1,8 @@
 {{- define "ck-mysql.container" -}}
 {{- $top := index . 0 -}}
-- name: mysql
-  image: {{ template "ck-mysql.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
-  imagePullPolicy: {{ template "ck-mysql.imagePullPolicy" $top }}
+- name: {{ $top.Values.server.mysqlServer.name }}
+  image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
+  imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   env:
   - name: MYSQL_PASSWORD
     valueFrom:
@@ -36,8 +36,13 @@
   resources:
 {{- include "ck-mysql.resources" (index $top.Values "resources" "mysql") | indent 2 }}
   livenessProbe:
-    tcpSocket:
-        port: {{ $top.Values.server.mysqlServer.port }}
+    exec:
+        command:
+        - /bin/bash
+        - -ec
+        - |
+          password_aux="${MYSQL_ROOT_PASSWORD}"
+          mysqladmin status -uroot -p"${password_aux}"
 {{ toYaml $top.Values.probes.mysql.livenessProbe | indent 4 }}
   readinessProbe:
     exec:
@@ -49,7 +54,7 @@
           mysqladmin status -uroot -p"${password_aux}"
 {{ toYaml $top.Values.probes.mysql.readinessProbe | indent 4 }}
 - name: {{ $top.Values.server.xtrabackup.name }}
-  image: {{ template "ck-mysql.imagePath" (merge (dict "imageName" "ck-xtrabackup") $top) }}
+  image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-xtrabackup") $top) }}
   ports:
   - name: {{ $top.Values.server.xtrabackup.name }}
     containerPort: {{ $top.Values.server.xtrabackup.port }}

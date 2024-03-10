@@ -12,7 +12,8 @@ LABEL \
     ck.app.version=$APP_VERSION \
     ck.image.title="CK API Server" \
     ck.image.created="$BUILD_TIME"
-    
+
+#Mount jar target file  
 ADD *.jar app.jar
 
 EXPOSE 8080

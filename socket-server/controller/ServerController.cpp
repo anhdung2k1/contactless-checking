@@ -14,7 +14,7 @@ void ServerController::connectToClient() {
     int serverFd, addrlen;
     struct sockaddr_in address;
     int maxClient=10;
-    string apiIp = "http://172.17.0.3:8080/api";
+    string apiIp = "http://" + string(getenv("API_HOST")) + ":8080/api";
     string mysqlIp = string(getenv("DB_HOST"));
     map<int, ServerService::Client> clientMap;
     bool establishConnection = ServerService::handleConnect(serverFd, maxClient, addrlen, address, false, PORT);

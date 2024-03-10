@@ -7,7 +7,7 @@ spec:
   ports:
   - name: {{ template "ck-mysql.name" . }}
     port: {{ .Values.server.mysqlServer.port }}
-  clusterIP: None #Get the service name rather than IP
+  clusterIP: None
   selector:
     app: {{ template "ck-mysql.name" . }}
 ---

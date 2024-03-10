@@ -1,4 +1,4 @@
-{{- define "ck-mysql.aggregatedMerge" -}}
+{{- define "ck-application.aggregatedMerge" -}}
 {{- $merged := dict -}}
 {{- $context := .context -}}
 {{- $location := .location -}}
@@ -38,10 +38,10 @@
 {{- end -}}
 {{- end}}
 
-{{- define "ck-mysql.mergeAnnotations" -}}
-    {{- include "ck-mysql.aggregatedMerge" (dict "context" "annotations" "location" .location "sources" .sources) }}
+{{- define "ck-application.mergeAnnotations" -}}
+    {{- include "ck-application.aggregatedMerge" (dict "context" "annotations" "location" .location "sources" .sources) }}
 {{- end -}}
 
-{{- define "ck-mysql.mergeLabels" -}}
-    {{- include "ck-mysql.aggregatedMerge" (dict "context" "labels" "location" .location "sources" .sources) }}
+{{- define "ck-application.mergeLabels" -}}
+    {{- include "ck-application.aggregatedMerge" (dict "context" "labels" "location" .location "sources" .sources) }}
 {{- end -}}

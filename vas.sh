@@ -128,11 +128,33 @@ build_repo() {
         pushd .
         cd $API_DIR
         echo "Start to build Spring boot compile"
-        docker run -it --rm -v "$(pwd -P)":/app -w /app $MAVEN_IMAGE mvn clean install -Dskiptest \
-		    || die "[ERROR]: Failed to compile"
+        # To compile the Spring boot, must start the mysql docker for temporaly -> remove after build
+        docker run -d --name mysql_container \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=dummy \
+            -e MYSQL_USER=dummy \
+            -e MYSQL_PASSWORD=dummy \
+            -p 3306:3306 \
+            mysql:latest \
+            || die "[ERROR]: Failed to run mysql docker"
+        mysql_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container)
+        echo $mysql_IP
+        docker run -it --rm -v "$(pwd -P)":/app \
+                    -w /app \
+                    -e DB_HOST=$mysql_IP \
+                    -e DB_USERNAME=dummy \
+                    -e DB_NAME=dummy \
+                    -e DB_PASSWORD=dummy \
+                    $MAVEN_IMAGE mvn clean install -Dskiptest \
+		            || die "[ERROR]: Failed to compile"
         echo "Copy target file to docker dir"
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
             || die "Target file does not exists in $API_DIR/target/"
+        #Rename
+        mv $DOCKER_DIR/$__name/*.jar $DOCKER_DIR/$__name/app.jar
+        # Remove the mysql container
+        docker rm -f mysql_container \
+            || die "Could not remove mysql container"
         popd
     ;;
     *)
@@ -157,9 +179,6 @@ build_image() {
     test -n "$__name" || die "Module name required"
     image_name=ck-$__name
 
-    ## Clean target file if exists before build image
-    rm -rf $DOCKER_DIR/$__name/*.jar
-
     version=$(get_version)
     docker build $VAS_GIT/docker/$__name \
             --file $VAS_GIT/docker/$__name/Dockerfile \
@@ -168,6 +187,11 @@ build_image() {
             --build-arg APP_VERSION=$version \
             --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
         || die "Failed to build docker images: $__name"
+    
+    ## Clean target file if exists
+    if [[ $__name == "authentication" ]]; then
+        rm -rf $DOCKER_DIR/$__name/*.jar
+    fi
 }
 
 ## Push image

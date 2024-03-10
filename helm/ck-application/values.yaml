@@ -18,10 +18,10 @@
 #   namespace:
 
 updateStrategy:
-  mysqlServer:
-    type: RollingUpdate
+  type: RollingUpdate
 
 server:
+  replicaCount: 1
   mysqlServer:
     name: mysql-server
     replicaCount: 1
@@ -30,7 +30,14 @@ server:
     name: xtrabackup
     port: "3307"
 
-    #serviceAccountName: ""
+  #serviceAccountName: ""
+  authentication:
+    name: authentication
+    port: "8080"
+
+  socketServer:
+    name: socket-server
+    port: "8000"
 
 probes:
   mysql:
