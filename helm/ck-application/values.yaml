@@ -39,6 +39,10 @@ server:
     name: socket-server
     port: "8000"
 
+  client:
+    name: client-web
+    port: "5000"
+
 probes:
   mysql:
     readinessProbe:

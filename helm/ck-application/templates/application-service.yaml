@@ -19,7 +19,7 @@ spec:
   selector:
     app: {{ template "ck-server.name" . }}
   ports:
-    - port: {{ .Values.server.socketServer.port }}
+    - protocol: "TCP"
+      port: {{ .Values.server.socketServer.port }}
       targetPort: {{ .Values.server.socketServer.port }}
-  externalTrafficPolicy: Local
-  type: LoadBalancer
+  clusterIP: None

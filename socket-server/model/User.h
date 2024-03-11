@@ -1,4 +1,4 @@
-// Copyright [2023] <Anh Dung>
+// Copyright [2024] <Anh Dung>
 #pragma once
 
 #include<string>

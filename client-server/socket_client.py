@@ -1,11 +1,12 @@
 import socket
+import os
 import time
 
 class SocketClient:
     def __init__(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_ip = "172.17.0.4"
-        self.server_port = 8000
+        self.server_ip = os.getenv('SERVER_HOST')
+        self.server_port = os.getenv('SERVER_PORT')
         
     def socket_init(self):
         server_address = (self.server_ip, self.server_port)

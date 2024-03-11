@@ -39,6 +39,14 @@ Expand the name of the server chart
 {{- end -}}
 
 {{/*
+Expand the name of the server chart
+*/}}
+{{- define "ck-client.name" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-client" $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Selector labels for mysql.
 */}}
 {{- define "ck-mysql.selectorLabels" -}}
@@ -64,6 +72,16 @@ Selector labels for server.
 {{- define "ck-server.selectorLabels" -}}
 component: {{ .Values.server.socketServer.name | quote }}
 app: {{ template "ck-server.name" . }}
+release: {{ .Release.Name | quote }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- end }}
+
+{{/*
+Selector labels for server.
+*/}}
+{{- define "ck-client.selectorLabels" -}}
+component: {{ .Values.server.client.name | quote }}
+app: {{ template "ck-client.name" . }}
 release: {{ .Release.Name | quote }}
 app.kubernetes.io/instance: {{ .Release.Name | quote }}
 {{- end }}
@@ -173,6 +191,19 @@ Merged labels for common server
     {{- $g := fromJson (include "ck-application.global" .) -}}
     {{- $selector := include "ck-server.selectorLabels" . | fromYaml -}}
     {{- $name := (include "ck-server.name" .) }}
+    {{- $static := include "ck-application.static-labels" (list . $name) | fromYaml -}}
+    {{- $global := $g.label -}}
+    {{- $service := .Values.labels -}}
+    {{- include "ck-application.mergeLabels" (dict "location" .Template.Name "sources" (list $selector $static $global $service)) | trim }}
+{{- end -}}
+
+{{/*
+Merged labels for common server
+*/}}
+{{- define "ck-client.labels" -}}
+    {{- $g := fromJson (include "ck-application.global" .) -}}
+    {{- $selector := include "ck-client.selectorLabels" . | fromYaml -}}
+    {{- $name := (include "ck-client.name" .) }}
     {{- $static := include "ck-application.static-labels" (list . $name) | fromYaml -}}
     {{- $global := $g.label -}}
     {{- $service := .Values.labels -}}
