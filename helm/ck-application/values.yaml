@@ -24,7 +24,6 @@ server:
   replicaCount: 1
   mysqlServer:
     name: mysql-server
-    replicaCount: 1
     port: 3306
   xtrabackup:
     name: xtrabackup

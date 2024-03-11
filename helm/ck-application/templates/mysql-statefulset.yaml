@@ -5,7 +5,7 @@ metadata:
   labels: {{- include "ck-mysql.labels" . | nindent 4 }}
   name: {{ template "ck-mysql.name" . }}
 spec:
-  replicas: {{ .Values.server.mysqlServer.replicaCount }}
+  replicas: {{ .Values.server.replicaCount }}
   serviceName: {{ .Values.server.mysqlServer.name | quote }}
   selector:
     matchLabels: {{- include "ck-mysql.selectorLabels" . | nindent 6 }}

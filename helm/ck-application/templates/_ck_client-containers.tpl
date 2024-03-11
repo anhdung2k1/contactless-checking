@@ -9,5 +9,5 @@
   - name: SERVER_HOST
     value: {{ template "ck-server.name" $top }}
   - name: SERVER_PORT
-    value: {{ $top.Values.server.socketServer.port }}
+    value: {{ $top.Values.server.socketServer.port | quote }}
 {{- end -}}
