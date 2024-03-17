@@ -16,6 +16,7 @@ The repository using socket connection with Spring Boot web as main hosting APIs
 
 The socket architecture can be view as following picture:
 
+![socket-architect](https://github.com/anhdung2k1/contactless-checking/assets/86148510/808231fd-ab3b-4d0f-bc70-6cee355f199c)
 
 ## Contents
 
