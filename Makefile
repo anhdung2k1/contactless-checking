@@ -24,8 +24,7 @@ init:
 build: build-env \
 	package-helm \
 	build-authentication \
-	build-socket-server \
-	build-client-server
+	build-socket-server 
 
 build-env:
 	@echo "Build Repository"
@@ -42,9 +41,6 @@ build-authentication:
 build-socket-server:
 	@echo "build socket-server"
 	./vas.sh build_repo --name=socket-server
-build-client-server:
-	@echo "build client-server"
-	./vas.sh build_repo --name=client-server
 
 ## Train dataset
 train:
@@ -53,8 +49,8 @@ train:
 	./vas.sh train_dataset
 
 image: image-authentication \
-	image-socket-server \
-	image-client-server
+	image-socket-server 
+
 image-authentication:
 	@echo "build authentication Image"
 	./vas.sh build_image --name=authentication
@@ -63,14 +59,9 @@ image-socket-server:
 	@echo "build socket-server Image"
 	./vas.sh build_image --name=socket-server
 	./vas.sh save_image --name=socket-server
-image-client-server:
-	@echo "build client-server Image"
-	./vas.sh build_image --name=client-server
-	./vas.sh save_image --name=client-server
 
 push: push-authentication \
-	push-socket-server \
-	push-client-server
+	push-socket-server 
 
 push-authentication:
 	@echo "push image-authentication"
@@ -78,6 +69,3 @@ push-authentication:
 push-socket-server:
 	@echo "push image-socket-server"
 	./vas.sh push_image --name=socket-server
-push-client-server:
-	@echo "push image-client-server"
-	./vas.sh push_image --name=client-server

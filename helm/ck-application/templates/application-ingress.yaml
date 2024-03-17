@@ -2,6 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
     name: {{ template "ck-server.name" . }}-ingress
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
     ingressClassName: nginx
     rules:
@@ -12,6 +14,6 @@ spec:
           pathType: Prefix
           backend:
             service:
-                name: {{ template "ck-server.name". }}
-                port:
-                    number: {{ .Values.server.socketServer.port }}
+              name: {{ template "ck-server.name". }}
+              port:
+                number: {{ int (.Values.server.socketServer.port) }}

@@ -18,8 +18,9 @@ metadata:
 spec:
   selector:
     app: {{ template "ck-server.name" . }}
+  type: LoadBalancer
   ports:
-    - protocol: "TCP"
+    - name: http
+      protocol: "TCP"
       port: {{ .Values.server.socketServer.port }}
       targetPort: {{ .Values.server.socketServer.port }}
-  clusterIP: None

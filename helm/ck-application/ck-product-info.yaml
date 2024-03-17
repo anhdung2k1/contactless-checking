@@ -20,8 +20,3 @@ images:
     registry: anhdung12399
     name: ck-socket-server
     tag: '%%VERSION%%'
-  ck-client:
-    productName: CK Socket TCP client-web
-    registry: anhdung12399
-    name: ck-client-server
-    tag: '%%VERSION%%'

@@ -151,8 +151,6 @@ build_repo() {
         echo "Copy target file to docker dir"
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
             || die "Target file does not exists in $API_DIR/target/"
-        #Rename
-        mv $DOCKER_DIR/$__name/*.jar $DOCKER_DIR/$__name/app.jar
         # Remove the mysql container
         docker rm -f mysql_container \
             || die "Could not remove mysql container"
@@ -181,6 +179,9 @@ build_image() {
     image_name=ck-$__name
 
     version=$(get_version)
+
+    #remove the docker images before create new ones
+    docker rmi -f $image_name:$version
     docker build $VAS_GIT/docker/$__name \
             --file $VAS_GIT/docker/$__name/Dockerfile \
             --tag "$DOCKER_REGISTRY/$image_name:$version" \
@@ -209,8 +210,8 @@ save_image() {
     cd $BUILD_DIR/images
     version=$(get_version)
 
-    echo "docker pull from $DOCKER_REGISTRY"
-    docker pull $DOCKER_REGISTRY/${image_name}:$version
+    echo "Save image: $image_name"
+    rm -rf ${image_name}:$version.tgz && rm -rf ${image_name}:$version.sha256
     docker save $DOCKER_REGISTRY/${image_name}:$version \
             | gzip -vf - > ${image_name}-$version.tgz
     sha256sum "${image_name}-$version.tgz" > "${image_name}-$version.sha256"

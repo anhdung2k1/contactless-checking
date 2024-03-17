@@ -3,10 +3,10 @@ import os
 import time
 
 class SocketClient:
-    def __init__(self):
+    def __init__(self, server_address, server_port):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_serviceName = socket.gethostbyname(os.getenv('SERVER_HOST'))
-        self.server_port = 8000
+        self.server_serviceName = server_address
+        self.server_port = server_port
         
     def socket_init(self):
         server_address = (self.server_serviceName, self.server_port)

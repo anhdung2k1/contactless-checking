@@ -14,7 +14,7 @@ LABEL \
     ck.image.created="$BUILD_TIME"
 
 #Mount jar target file  
-ADD *.jar app.jar
+COPY --chmod=0755 --chown=0:0  *.jar app.jar
 
 EXPOSE 8080
 VOLUME [ "/api-server" ]
