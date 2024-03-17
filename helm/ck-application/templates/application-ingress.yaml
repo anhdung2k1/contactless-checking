@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: {{ template "ck-server.name" . }}-ingress
+spec:
+    ingressClassName: nginx
+    rules:
+    - host: {{ .Release.Namespace }}.ck-server.com
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+                name: {{ template "ck-server.name". }}
+                port:
+                    number: {{ .Values.server.socketServer.port }}

@@ -51,11 +51,6 @@ help() {
 test -n "$1" || help
 echo "$1" | grep -qi "^help\|-h" && help
 
-init() {
-    dir_ests
-    get_train_dataset
-}
-
 dir_est() {
     echo "Create [BUILD,DATASET,MODEL] Folder"
     mkdir "$BUILD_DIR"
@@ -129,6 +124,12 @@ build_repo() {
         cd $API_DIR
         echo "Start to build Spring boot compile"
         # To compile the Spring boot, must start the mysql docker for temporaly -> remove after build
+        
+        mysql_container=$(docker ps --format "{{.Names}}" | grep -i mysql_container)
+        if [[ -n "$mysql_container" ]]; then
+            docker rm -f $mysql_container
+        fi
+        # Start docker mysql container
         docker run -d --name mysql_container \
             -e MYSQL_ROOT_PASSWORD=root \
             -e MYSQL_DATABASE=dummy \
@@ -192,6 +193,80 @@ build_image() {
     if [[ $__name == "authentication" ]]; then
         rm -rf $DOCKER_DIR/$__name/*.jar
     fi
+}
+
+## save_image
+## Save image from local build repository
+##
+## --name=<module name>
+##
+save_image() {
+    test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
+    test -n "$__name" || die "Module name required"
+    image_name=ck-$__name
+
+    mkdir -p $BUILD_DIR/images
+    cd $BUILD_DIR/images
+    version=$(get_version)
+
+    echo "docker pull from $DOCKER_REGISTRY"
+    docker pull $DOCKER_REGISTRY/${image_name}:$version
+    docker save $DOCKER_REGISTRY/${image_name}:$version \
+            | gzip -vf - > ${image_name}-$version.tgz
+    sha256sum "${image_name}-$version.tgz" > "${image_name}-$version.sha256"
+    cat "${image_name}-$version.sha256"
+}
+
+## create helm_md5sum
+## Create the md5sum file for Helm chart
+##
+create_helm_md5sum() {
+    cd $BUILD_DIR/helm-build/ck-application
+    version=$(get_version)
+    md5sum "ck-application-$version.tgz" > "ck-application-$version.md5sum"
+    cat "ck-application-$version.md5sum"
+}
+
+## build_helm
+## Packages the helm chart for checking application
+##
+## --release=<true/false>
+##
+build_helm() {
+    test -n "$__release" && export RELEASE=$__release
+    test -n "$__user" || __user=$USER
+
+    local version=$(get_version)
+
+    destination="${VAS_GIT}/build/helm-build"
+    rm -rf $destination && mkdir $destination
+    chart="${VAS_GIT}/helm/ck-application/Chart.yaml"
+    ck_chart_name=$(basename $(dirname $chart))
+    
+    source_tmp="${VAS_GIT}/build/.helm_temp_ws"
+    source="$source_tmp/$ck_chart_name"
+    rm -rf $source_tmp && mkdir $source_tmp
+    if [ ! -d $source ]; then
+        cp -r ${VAS_GIT}/helm/$ck_chart_name $source
+    fi 
+
+    mkdir -p "$destination/$ck_chart_name"
+
+    sed -i -e "s/^version: .*/version: ${version}/" $source/Chart.yaml
+    sed -i -e "s/%%VERSION%%/${version}/" $source/ck-product-info.yaml
+    
+    helm package $source \
+        --dependency-update \
+        --destination $destination/$ck_chart_name \
+        --version $version \
+    || die "Failed to package helm chart"
+
+    ck_chart_path="$destination/$ck_chart_name/$ck_chart_name-$version.tgz"
+
+    #Untar the ck chart
+    tar -xvf $ck_chart_path -C "$(dirname $ck_chart_path)"
+
+    create_helm_md5sum
 }
 
 ## Push image

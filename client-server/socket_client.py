@@ -5,11 +5,11 @@ import time
 class SocketClient:
     def __init__(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_ip = os.getenv('SERVER_HOST')
-        self.server_port = os.getenv('SERVER_PORT')
+        self.server_serviceName = socket.gethostbyname(os.getenv('SERVER_HOST'))
+        self.server_port = 8000
         
     def socket_init(self):
-        server_address = (self.server_ip, self.server_port)
+        server_address = (self.server_serviceName, self.server_port)
         self.client_socket.connect(server_address)
         print("Connected to the server")
 
