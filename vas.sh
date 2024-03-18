@@ -22,8 +22,10 @@ test -n "$EPOCHS" || export EPOCHS=50 #DEFAULT EPOCHS=50
 test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
 test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
 
-# Select options
-option=$1
+prg=$(basename $0) # vas.sh filename
+dir=$(dirname $0); dir=$(cd $dir; pwd) #Get root dir
+me=$dir/$prg #Get absolutely path vas.sh
+vas=$me
 #Get the release commit
 git_commit=$(git --git-dir="$VAS_GIT/.git" rev-parse --short=7 HEAD)
 change_id=$(git show $git_commit | grep '^\ *Change-Id' | awk '{print $2}')
@@ -160,10 +162,6 @@ build_repo() {
         echo "Copy folder $__name to docker"
         cp -rf $VAS_GIT/$__name/ $DOCKER_DIR/$__name \
             || die "Source directory does not exists $VAS_GIT/$__name"
-        if [[ $__name == "client-server" ]]; then
-            cp -f $VAS_GIT/requirements.txt $DOCKER_DIR/$__name \
-                || die "Requirements file doest not exists"
-        fi
     ;;
     esac
 }
@@ -318,6 +316,98 @@ train_dataset() {
          epochs=$EPOCHS \
          imgsz=$IMAGE_SIZE
     popd
+}
+
+## Docker test running on local for building
+test_repo() {
+    test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
+    test -n "$__name" || die "Module name required"
+    COMMON_DB="dummy"
+    image_name=ck-$__name
+    version=$(get_version)
+
+    echo "##################################"
+    echo "# Prepare the docker local build : #"
+    echo "##################################"
+
+    case $__name in
+    "authentication")
+        echo "Start to build Spring boot compile"
+        # To compile the Spring boot, must start the mysql docker for temporaly -> remove after build
+        
+        mysql_container=$(docker ps --format "{{.Names}}" | grep -i mysql_container)
+        if [[ -n "$mysql_container" ]]; then
+            docker rm -f mysql_container
+        fi
+        # Start docker mysql container
+        docker run -d --name mysql_container \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=${COMMON_DB} \
+            -e MYSQL_USER=${COMMON_DB} \
+            -e MYSQL_PASSWORD=${COMMON_DB} \
+            -p 3306:3306 \
+            mysql:latest \
+        || die "[ERROR]: Failed to run mysql docker"
+        mysql_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container)
+        echo $mysql_IP
+        chmod +x $VAS_GIT/test/application.properties
+        cp -f $VAS_GIT/test/application.properties $API_DIR/src/main/resources/application.properties
+
+        sed -i -e "s/REPLACE_WITH_DB_IP/${mysql_IP}/g" $API_DIR/src/main/resources/application.properties
+        sed -i -e "s/REPLACE_WITH_DB_COMMON/${COMMON_DB}/g" $API_DIR/src/main/resources/application.properties
+
+        ## Move to API directory
+        pushd .
+        cd $API_DIR
+
+        echo "Start to build Spring boot compile"
+        docker run -it --rm -v "$(pwd -P)":/app \
+            -w /app \
+            -e DB_HOST=${mysql_IP} \
+            -e DB_USERNAME=${COMMON_DB} \
+            -e DB_NAME=${COMMON_DB} \
+            -e DB_PASSWORD=${COMMON_DB} \
+            $MAVEN_IMAGE mvn clean install -Dskiptest \
+            || die "[ERROR]: Failed to compile"
+
+        rm -rf $API_DIR/src/main/resources/application.properties
+        cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
+            || die "Target file does not exists in $API_DIR/target/"
+        popd
+
+        docker rm -f $__name
+
+        $vas build_image --name=$__name
+        docker run -it -d --name $__name \
+                ${DOCKER_REGISTRY}/${image_name}:${version} \
+                || die "[ERROR]: Failed to compile"
+    ;;
+    "socket-server")
+        echo "Copy folder $__name to docker"
+        cp -rf $VAS_GIT/$__name/ $DOCKER_DIR/$__name \
+            || die "Source directory does not exists $VAS_GIT/$__name"
+        echo "Start to build socket-server docker image"
+        #Need to build image first
+        server_image=$(docker images | awk '$1 {print $1}' | grep -v -w "REPOSITORY" | grep -i "${DOCKER_REGISTRY}/${image_name}")
+        if [[ -n "${server_image}" ]]; then 
+            docker rmi -f ${server_image}:$version
+        fi
+
+        docker rm -f $__name
+        
+        API_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' authentication)
+        mysql_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container)
+        echo $API_HOST
+        $vas build_image --name=$__name
+        docker run -it -d --name $__name \
+                -e API_HOST=${API_HOST} \
+                -e DB_HOST=${mysql_IP} \
+                -e DB_USERNAME=${COMMON_DB} \
+                -e DB_NAME=${COMMON_DB} \
+                -e DB_PASSWORD=${COMMON_DB} \
+                ${DOCKER_REGISTRY}/${image_name}:${version} \
+                || die "[ERROR]: Failed to compile"
+    esac
 }
 
 #Get the command

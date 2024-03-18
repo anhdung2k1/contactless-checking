@@ -69,3 +69,14 @@ push-authentication:
 push-socket-server:
 	@echo "push image-socket-server"
 	./vas.sh push_image --name=socket-server
+
+## Docker test local -> this test for local development
+test: test-authentication \
+	test-socket-server
+
+test-authentication:
+	@echo "test image-authentication local build image"
+	./vas.sh test_repo --name=authentication
+test-socket-server:
+	@echo "test image-socket-server local build image"
+	./vas.sh test_repo --name=socket-server
