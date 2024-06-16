@@ -178,6 +178,12 @@ build_repo() {
         popd
     ;;
     *)
+        if [ $__name == "face_model" ]; then
+            echo "Copy requirements.txt to $__name"
+            cp -f $VAS_GIT/requirements.txt $DOCKER_DIR/$__name \
+            || die "Unable to copy the requirements.txt"
+        fi
+
         echo "Copy folder $__name to docker"
         cp -rf $VAS_GIT/$__name/ $DOCKER_DIR/$__name \
             || die "Source directory does not exists $VAS_GIT/$__name"
@@ -210,6 +216,9 @@ build_image() {
     ## Clean target file if exists
     if [[ $__name == "authentication" ]]; then
         rm -rf $DOCKER_DIR/$__name/*.jar
+    else
+        rm -rf $DOCKER_DIR/$__name/$__name
+        rm -f $DOCKER_DIR/$__name/requirements.txt
     fi
 }
 

@@ -37,3 +37,13 @@ class ArcFaceModel(nn.Module):
         output = self.fc2(x)
         _, predicted = torch.max(output, 1)
         return predicted
+    
+    def resize_final_layer(self, num_classes):
+        if self.fc2.out_features != num_classes:
+            self.fc2 = nn.Linear(256, num_classes)
+            self.num_classes = num_classes
+
+    def load_state_dict(self, state_dict, strict=True):
+        if 'fc2.weight' in state_dict and state_dict['fc2.weight'].size(0) != self.fc2.out_features:
+            self.resize_final_layer(state_dict['fc2.weight'].size(0))
+        super().load_state_dict(state_dict, strict)

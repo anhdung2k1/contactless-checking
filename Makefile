@@ -24,7 +24,8 @@ init:
 build: build-env \
 	package-helm \
 	build-authentication \
-	build-socket-server 
+	build-face-client \
+       	build-face-model	
 
 build-env:
 	@echo "Build Repository"
@@ -38,9 +39,14 @@ package-helm:
 build-authentication:
 	@echo "build authentication Repository"
 	./vas.sh build_repo --name=authentication
-build-socket-server:
-	@echo "build socket-server"
-	./vas.sh build_repo --name=socket-server
+build-face-client:
+	@echo "build face-client for web service"
+	./vas.sh build_repo --name=face_client
+
+build-face-model:
+	@echo "build face-model"
+	./vas.sh build_repo --name=face_model
+
 
 ## Train dataset
 train:
@@ -48,35 +54,36 @@ train:
 	@echo "training dataset"
 	./vas.sh train_dataset
 
-image: image-authentication \
-	image-socket-server 
+image: 	image-authentication \
+	image-face-client \
+	image-face-model
 
 image-authentication:
 	@echo "build authentication Image"
 	./vas.sh build_image --name=authentication
 	./vas.sh save_image --name=authentication
-image-socket-server:
-	@echo "build socket-server Image"
-	./vas.sh build_image --name=socket-server
-	./vas.sh save_image --name=socket-server
+image-face-client:
+	@echo "build face_client Image"
+	./vas.sh build_image --name=face_client
+	./vas.sh save_image --name=face_client
 
-push: push-authentication \
-	push-socket-server 
+image-face-model:
+	@echo "build face_model Image"
+	./vas.sh build_image --name=face_model
+	./vas.sh save_image --name=face_model
+
+
+push: 	push-authentication \
+	push-face-client \
+	push-face-model
 
 push-authentication:
 	@echo "push image-authentication"
 	./vas.sh push_image --name=authentication
-push-socket-server:
-	@echo "push image-socket-server"
-	./vas.sh push_image --name=socket-server
+push-face-client:
+	@echo "push image-face-client"
+	./vas.sh push_image --name=face_client
+push-face-model:
+	@echo "push image-face-model"
+	./vas.sh push_image --name=face_model
 
-## Docker test local -> this test for local development
-test: test-authentication \
-	test-socket-server
-
-test-authentication:
-	@echo "test image-authentication local build image"
-	./vas.sh test_repo --name=authentication
-test-socket-server:
-	@echo "test image-socket-server local build image"
-	./vas.sh test_repo --name=socket-server
