@@ -1,0 +1,75 @@
+### C++ ###
+# Prerequisites
+*.d
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+/docker/socket-server/socket-server/
+/docker/client-server/client-server/
+/docker/client-server/requirements.txt
+/docker/authentication/*.jar
+/face_model/__pycache__/
+/face_mode/argface_mode/__pycache__/
+
+/client-server/__pycache__/
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.vscode
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+
+# Ignore cmake and make file
+CMakeFiles/*
+*.cmake
+CMakeCache.txt
+*/Makefile
+*/CMakeFiles/*
+
+# Ignore _exec file
+*_exec
+
+# Ignore build file
+build/*
+
+# Ignore GoogleTest build
+_deps/*

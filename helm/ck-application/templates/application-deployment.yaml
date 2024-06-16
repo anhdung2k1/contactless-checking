@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "ck-server.name" . }}
+  labels: {{- include "ck-server.labels" . | nindent 4 }}
+  annotations: {{- include "ck-application.annotations" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.server.replicaCount }}
+  strategy:
+{{ toYaml .Values.updateStrategy | indent 4 }}
+  selector:
+    matchLabels: {{- include "ck-authentication.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations: {{- include "ck-application.annotations" . | nindent 8 }}
+      labels: {{- include "ck-authentication.labels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: {{ template "ck-application.fsGroup.coordinated" . }}
+        {{- include "ck-application.podSeccompProfile" . | indent 8 }}
+        {{- include "ck-application.supplementalGroups" . }}
+      containers:
+      {{- include "ck-application-containers" (list . "ck-authentication") | nindent 6 }}

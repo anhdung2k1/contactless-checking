@@ -1,0 +1,22 @@
+productName: Contactless Checking Monitoring System
+images:
+  ck-xtrabackup:
+    productName: CK XtraBackup IMAGE
+    registry: anhdung12399
+    name: xtrabackup
+    tag: "1.0"
+  ck-mysql:
+    productName: CK MySQL Database
+    registry: anhdung12399
+    name: mysql
+    tag: "8.0.32"
+  ck-authentication:
+    productName: CK Authentication API server
+    registry: anhdung12399
+    name: ck-authentication
+    tag: '%%VERSION%%'
+  ck-socket-server:
+    productName: CK Socket TCP server
+    registry: anhdung12399
+    name: ck-socket-server
+    tag: '%%VERSION%%'

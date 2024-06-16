@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "ck-authentication.name" . }}
+spec:
+  selector:
+    app: {{ template "ck-authentication.name" . }}
+  ports:
+    - protocol: "TCP"
+      port: {{ .Values.server.authentication.port }}
+      targetPort: {{ .Values.server.authentication.port }}
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "ck-server.name" . }}
+spec:
+  selector:
+    app: {{ template "ck-server.name" . }}
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.server.socketServer.port }}
+      targetPort: {{ .Values.server.socketServer.port }}
+      nodePort: 30036

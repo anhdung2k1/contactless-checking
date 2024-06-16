@@ -1,0 +1,109 @@
+#global:
+# registry:
+#   url: anhdung12399
+#   repoPath:
+# timezone: UTC
+# nodeSelector: {}
+# annotations: {}
+# labels: {}
+# networkPolicy:
+#   enabled:
+# topologySpreadConstraints:
+# podSecurityContext:
+#   supplementalGroups: []
+# fsGroup:
+#   # 'manual' to enforce a specific value (highest precedence)
+#   manual:
+#   # 'namespace' to use the value defined for the namespace set by cluster admin (second highest precedence)
+#   namespace:
+
+updateStrategy:
+  type: RollingUpdate
+
+server:
+  replicaCount: 1
+  mysqlServer:
+    name: mysql-server
+    port: 3306
+  xtrabackup:
+    name: xtrabackup
+    port: "3307"
+
+  #serviceAccountName: ""
+  authentication:
+    name: authentication
+    port: "8080"
+
+  socketServer:
+    name: socket-server
+    port: "8000"
+
+  client:
+    name: client-web
+    port: "5000"
+
+probes:
+  mysql:
+    readinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 30
+      failureThreshold: 3
+      successThreshold: 1
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 15
+      failureThreshold: 3
+      successThreshold: 1
+
+resources:
+  initcontainer:
+    limits:
+      cpu: "1"
+      memory: "200Mi"
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+  xtrabackup:
+    limits:
+      cpu: "1"
+      memory: "200Mi"
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+  mysql:
+    limits:
+      cpu: "2"
+      memory: "2048Mi"
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    
+annotations: {}
+
+seccompProfile:
+  type:
+  # ck-mysql:
+  #   type:
+  #   localhostProfile:
+  # ck-authentication:
+  #   type:
+  #   localhostProfile:
+  # ck-client:
+  #   type:
+  #   localhostProfile:
+  # ck-socket-server:
+  #   type:
+  #   localhostProfile:
+
+imageCredentials:
+  pullPolicy: IfNotPresent
+
+storageClassName:
+  mysql: local-storage
+
+storageCapacity:
+  mysql: 10Gi
+
+dbPass: ""

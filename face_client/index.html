@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Detection</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Image or Capture from Camera</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="imageInput" accept="image/*">
+            <button type="submit">Upload Image</button>
+        </form>
+        <h2>Or capture an image</h2>
+        <video id="video" width="640" height="480" autoplay></video>
+        <button id="captureButton">Capture Image</button>
+        <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+        <button id="submitCaptureButton" style="display: none;">Submit Captured Image</button>
+        <button id="downloadButton" style="display: none;">Download Captured Image</button>
+
+        <h2>Detection Results</h2>
+        <div id="results">
+            <canvas id="resultCanvas"></canvas>
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>

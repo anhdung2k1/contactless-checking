@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations: {{- include "ck-application.annotations" . | nindent 4 }}
+  labels: {{- include "ck-mysql.labels" . | nindent 4 }}
+  name: {{ template "ck-mysql.name" . }}
+spec:
+  replicas: {{ .Values.server.replicaCount }}
+  serviceName: {{ .Values.server.mysqlServer.name | quote }}
+  selector:
+    matchLabels: {{- include "ck-mysql.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations: {{- include "ck-application.annotations" . | nindent 8 }}
+      labels: {{- include "ck-mysql.labels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: {{ template "ck-application.fsGroup.coordinated" . }}
+        {{- include "ck-application.podSeccompProfile" . | indent 8 }}
+        {{- include "ck-application.supplementalGroups" . }}
+      # serviceAccountName: {{ template "ck-mysql.serviceAccountName" . }}
+      initContainers:
+      {{- include "ck-mysql.initContainer" (list . "ck-mysql") | nindent 6 }}
+      containers:
+      {{- include "ck-mysql.container" (list . "ck-mysql") | nindent 6 }}

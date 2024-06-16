@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "ck-mysql.name" . }}
+  labels: {{- include "ck-mysql.labels" . | nindent 4 }}
+spec:
+  ports:
+  - name: {{ template "ck-mysql.name" . }}
+    port: {{ .Values.server.mysqlServer.port }}
+  clusterIP: None
+  selector:
+    app: {{ template "ck-mysql.name" . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "ck-mysql.name" . }}-read
+  labels: {{- include "ck-mysql.labels" . | nindent 4 }}
+spec:
+  ports:
+  - name: {{ template "ck-mysql.name" . }}
+    port: {{ .Values.server.mysqlServer.port }}
+  selector:
+    app: {{ template "ck-mysql.name" . }}
