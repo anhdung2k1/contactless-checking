@@ -61,16 +61,12 @@ image: 	image-authentication \
 image-authentication:
 	@echo "build authentication Image"
 	./vas.sh build_image --name=authentication
-	./vas.sh save_image --name=authentication
 image-face-client:
 	@echo "build face_client Image"
 	./vas.sh build_image --name=face_client
-	./vas.sh save_image --name=face_client
-
 image-face-model:
 	@echo "build face_model Image"
 	./vas.sh build_image --name=face_model
-	./vas.sh save_image --name=face_model
 
 
 push: 	push-authentication \
