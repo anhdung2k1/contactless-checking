@@ -1,0 +1,5 @@
+train: /mnt/d/code/contactless-service/build/dataset/train/images
+val: /mnt/d/code/contactless-service/build/dataset/train/images
+test: /mnt/d/code/contactless-service/build/dataset/test/images
+nc: 1
+names: ['face']

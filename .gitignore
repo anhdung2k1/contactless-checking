@@ -6,9 +6,9 @@
 *.lo
 *.o
 *.obj
-/docker/socket-server/socket-server/
-/docker/client-server/client-server/
-/docker/client-server/requirements.txt
+/docker/face_client/face_client/
+/docker/face_model/face_mode/
+/docker/face_model/requirements.txt
 /docker/authentication/*.jar
 /face_model/__pycache__/
 /face_mode/argface_mode/__pycache__/
@@ -69,7 +69,7 @@ CMakeCache.txt
 *_exec
 
 # Ignore build file
-build/*
+#build/*
 
 # Ignore GoogleTest build
 _deps/*

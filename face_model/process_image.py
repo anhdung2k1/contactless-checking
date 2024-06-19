@@ -73,7 +73,7 @@ class ImageProcessor:
                 print(f"Error identifying person: {e}")
 
             # Clean up temporary image file
-            # os.remove(temp_face_path)
+            os.remove(temp_face_path)
 
         return {
             'status': 'success',

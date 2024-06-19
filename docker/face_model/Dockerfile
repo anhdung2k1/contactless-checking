@@ -1,30 +1,30 @@
 # Base image with necessary build tools
-FROM ubuntu:latest as base
+FROM ubuntu:22.04 as base
 
-# Install Python and common dependencies
+# Install Python 3.10 and common dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-venv \
-    python3-dev \
+    python3.10 \
+    python3.10-venv \
+    python3.10-dev \
     python3-pip \
     libffi-dev \
     libssl-dev \
     build-essential \
+    libgl1 \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.10 as the default python3
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
 # Builder stage
 FROM base as builder
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 # Copy application files and requirements.txt into the container
-COPY face_model/* /app/
-COPY requirements.txt /app/
+COPY --chmod=0755 --chown=0:0 face_model/ /app/face_model/
+COPY --chmod=0755 --chown=0:0 requirements.txt /app/
 
 # Create a virtual environment and install dependencies
 RUN python3 -m venv venv && \
@@ -39,7 +39,8 @@ WORKDIR /app
 
 # Copy virtual environment from builder stage
 COPY --from=builder /app/venv /app/venv
-COPY face_model/* /app/
+COPY --chmod=0755 --chown=0:0 face_model/ /app/face_model
+COPY --chmod=0755 --chown=0:0 build/ /app
 
 # Ensure the virtual environment is used
 ENV PATH="/app/venv/bin:$PATH"
@@ -48,4 +49,4 @@ ENV PATH="/app/venv/bin:$PATH"
 EXPOSE 5000
 
 # Run the application
-CMD ["python", "main.py"]
+CMD ["python", "/app/face_model/main.py"]
