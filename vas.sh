@@ -182,6 +182,8 @@ build_repo() {
             echo "Copy requirements.txt to $__name"
             cp -f $VAS_GIT/requirements.txt $DOCKER_DIR/$__name \
             || die "Unable to copy the requirements.txt"
+            cp -rf $BUILD_DIR $DOCKER_DIR/$__name \
+            || die "Unable to copy the $BUILD_DIR"
         fi
 
         echo "Copy folder $__name to docker"
