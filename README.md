@@ -87,14 +87,3 @@ The recommend standard development environment is Ubuntu 18.04 LTS or later
     test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
     test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
     ```
-
-5. For local development only, the docker used can be executed
-   ```bash
-   make test
-   ```
-   This to run both API and Socket-server tests. To specify the sub task in make can execute with
-   ```bash
-   make test-authentication
-   make test-socket-server
-   ```
-   This will automatically build image and running the docker container.
