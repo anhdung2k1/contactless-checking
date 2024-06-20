@@ -38,8 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        submitCaptureButton.style.display = 'block';
-        downloadButton.style.display = 'block';
+        canvas.classList.remove('d-none');
+        submitCaptureButton.classList.remove('d-none');
+        downloadButton.classList.remove('d-none');
     });
 
     // Handle captured image submission
