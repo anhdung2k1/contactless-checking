@@ -34,7 +34,7 @@
   - name: conf
     mountPath: /etc/mysql/conf.d
   resources:
-{{- include "ck-mysql.resources" (index $top.Values "resources" "mysql") | indent 2 }}
+{{- include "ck-application.resources" (index $top.Values "resources" "mysql") | indent 2 }}
   livenessProbe:
     exec:
         command:
@@ -106,7 +106,7 @@
   - name: conf
     mountPath: /etc/mysql/conf.d
   resources:
-{{- include "ck-mysql.resources" (index $top.Values "resources" "xtrabackup") | indent 2 }}
+{{- include "ck-application.resources" (index $top.Values "resources" "xtrabackup") | indent 2 }}
 volumes:
 - name: conf
   emptyDir: {}

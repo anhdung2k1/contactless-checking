@@ -20,4 +20,4 @@ spec:
         {{- include "ck-application.podSeccompProfile" . | indent 8 }}
         {{- include "ck-application.supplementalGroups" . }}
       containers:
-      {{- include "ck-application-containers" (list . "ck-authentication") | nindent 6 }}
+      {{- include "ck-application-containers" (list .) | nindent 6 }}

@@ -34,13 +34,15 @@ server:
     name: authentication
     port: "8080"
 
-  socketServer:
-    name: socket-server
-    port: "8000"
-
-  client:
-    name: client-web
+  faceModel:
+    name: face-model
     port: "5000"
+    nodePort: "32500"
+
+  faceClient:
+    name: face-client
+    port: "80"
+    nodePort: "32080"
 
 probes:
   mysql:
@@ -79,6 +81,27 @@ resources:
     requests:
       cpu: "500m"
       memory: "512Mi"
+  authentication:
+    limits:
+      cpu: "2"
+      memory: "2048Mi"
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+  face-model:
+    limits:
+      cpu: "4"
+      memory: "4048Mi"
+    requests:
+      cpu: "1"
+      memory: "1024Mi"
+  face-client:
+    limits:
+      cpu: "1"
+      memory: "1024Mi"
+    requests:
+      cpu: "200m"
+      requests: "100Mi"
     
 annotations: {}
 
@@ -107,3 +130,6 @@ storageCapacity:
   mysql: 10Gi
 
 dbPass: ""
+
+ingress:
+  enabled: true

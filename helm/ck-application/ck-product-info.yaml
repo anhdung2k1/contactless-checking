@@ -15,8 +15,13 @@ images:
     registry: anhdung12399
     name: ck-authentication
     tag: '%%VERSION%%'
-  ck-socket-server:
-    productName: CK Socket TCP server
+  ck-face-model:
+    productName: CK Face Model server
     registry: anhdung12399
-    name: ck-socket-server
+    name: ck-face_model
+    tag: '%%VERSION%%'
+  ck-face-client:
+    productName: CK Face Web Client
+    registry: anhdung12399
+    name: ck-face_client
     tag: '%%VERSION%%'

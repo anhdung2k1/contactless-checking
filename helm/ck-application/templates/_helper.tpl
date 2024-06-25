@@ -70,7 +70,7 @@ app.kubernetes.io/instance: {{ .Release.Name | quote }}
 Selector labels for server.
 */}}
 {{- define "ck-server.selectorLabels" -}}
-component: {{ .Values.server.socketServer.name | quote }}
+component: {{ .Values.server.faceModel.name | quote }}
 app: {{ template "ck-server.name" . }}
 release: {{ .Release.Name | quote }}
 app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -80,7 +80,7 @@ app.kubernetes.io/instance: {{ .Release.Name | quote }}
 Selector labels for server.
 */}}
 {{- define "ck-client.selectorLabels" -}}
-component: {{ .Values.server.client.name | quote }}
+component: {{ .Values.server.faceClient.name | quote }}
 app: {{ template "ck-client.name" . }}
 release: {{ .Release.Name | quote }}
 app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -349,7 +349,7 @@ Define securityPolicy
 {{/*
 Define resources
 */}}
-{{- define "ck-mysql.resources" -}}
+{{- define "ck-application.resources" -}}
 {{- if .limits }}
   limits:
   {{- if .limits.cpu }}
