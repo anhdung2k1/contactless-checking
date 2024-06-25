@@ -32,7 +32,7 @@
     cp /mnt/config-map/replica.cnf /mnt/conf.d/
     fi
   resources:
-{{- include "ck-mysql.resources" (index $top.Values "resources" "initcontainer") | indent 2 }}
+{{- include "ck-application.resources" (index $top.Values "resources" "initcontainer") | indent 2 }}
   volumeMounts:
   - name: conf
     mountPath: /mnt/conf.d
@@ -57,7 +57,7 @@
     # Prepare the backup.
     xtrabackup --prepare --target-dir=/var/lib/mysql
   resources:
-{{- include "ck-mysql.resources" (index $top.Values "resources" "xtrabackup") | indent 2 }}
+{{- include "ck-application.resources" (index $top.Values "resources" "xtrabackup") | indent 2 }}
   volumeMounts:
   - name: {{ template "ck-mysql.name" $top }}-persistent-storage
     mountPath: /var/lib/mysql
