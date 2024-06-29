@@ -37,12 +37,10 @@ server:
   faceModel:
     name: face-model
     port: "5000"
-    nodePort: "32500"
 
   faceClient:
     name: face-client
     port: "80"
-    nodePort: "32080"
 
 probes:
   mysql:

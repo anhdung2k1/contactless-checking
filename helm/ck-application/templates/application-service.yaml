@@ -18,12 +18,11 @@ metadata:
 spec:
   selector:
     app: {{ template "ck-server.name" . }}
-  type: NodePort
   ports:
     - protocol: TCP
       port: {{ .Values.server.faceModel.port }}
       targetPort: {{ .Values.server.faceModel.port }}
-      nodePort: {{ .Values.server.faceModel.nodePort | default "32500" }}
+  clusterIP: None
 ---
 apiVersion: v1
 kind: Service
@@ -32,9 +31,10 @@ metadata:
 spec:
   selector:
     app: {{ template "ck-client.name" . }}
-  type: NodePort
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: {{ .Values.server.faceClient.port }}
       targetPort: {{ .Values.server.faceClient.port }}
-      nodePort: {{ .Values.server.faceClient.nodePort | default "32080" }}
+  externalTrafficPolicy: Local
+  type: LoadBalancer
