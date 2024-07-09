@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const BASE_URL = 'http://localhost:5000';  // Define the base URL
+    const BASE_URL = `http://localhost:5000`;  // Define the base URL
 
     const uploadForm = document.getElementById('uploadForm');
     const imageInput = document.getElementById('imageInput');

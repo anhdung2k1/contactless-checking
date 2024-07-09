@@ -1,6 +1,11 @@
 package com.example.authentication.builder;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.sql.Timestamp;
 
 @Data
 @Builder
@@ -8,5 +13,5 @@ import lombok.*;
 @NoArgsConstructor
 public class AuthenticationResponse {
     private String token;
-    
+    private Timestamp expireDate;
 }

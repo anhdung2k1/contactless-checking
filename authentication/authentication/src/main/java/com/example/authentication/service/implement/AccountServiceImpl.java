@@ -1,5 +1,6 @@
 package com.example.authentication.service.implement;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -48,7 +49,12 @@ public class AccountServiceImpl implements AccountService{
             SecurityContextHolder.getContext().setAuthentication(authentication);
             AccountBuilder account = accountBuilderRepository.findByUserName(accounts.getUserName()).orElseThrow();
             var jwtToken = jwtService.generateToken(account);
-            return AuthenticationResponse.builder().token(jwtToken).build();
+            var expireDate = jwtService.extractExpiration(jwtToken);
+
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .expireDate(new Timestamp(expireDate.getTime()))
+                    .build();
         }
         catch(NoSuchElementException e){
             throw new AccountNotFoundException(String.format("Account is existed"));
@@ -81,8 +87,12 @@ public class AccountServiceImpl implements AccountService{
                     .updateAt(accounts.getUpdateAt())
                     .build();
         var jwtToken = jwtService.generateToken(user);
+        var expireDate = jwtService.extractExpiration(jwtToken);
 
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .expireDate(new Timestamp(expireDate.getTime()))
+                .build();
        }catch(Exception e){
             throw new Exception(e.getMessage());
        }

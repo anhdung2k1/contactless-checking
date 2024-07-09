@@ -2,15 +2,7 @@ package com.example.authentication.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Dictionary;
 import java.util.List;
@@ -19,7 +11,7 @@ import com.example.authentication.exception.UserNotFoundException;
 import com.example.authentication.model.Users;
 import com.example.authentication.service.interfaces.UserService;
 
-
+@CrossOrigin(origins = "http://localhost:8000")
 @RestController 
 @RequestMapping("/api")
 public class UserController {
