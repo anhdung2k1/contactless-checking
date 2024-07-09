@@ -9,16 +9,10 @@
 ![MySQL](https://img.shields.io/badge/MySQL-blue?style=for-the-badge&logo=MYSQL&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-green?style=for-the-badge&logo=spring-boot&logoColor=white)
 
-Contacless checking repository works as TPC client-server connection within microservices running on Kubernetes environment. This repository based on the YOLO-v8 serves as checking the people registered and recognize by the system.
+Contacless checking repository works as client-server connection within microservices running on Kubernetes environment. This repository based on the YOLO-v8, FaceNet, ArcFace serves as checking the people registered and recognize by the system.
 
 ---
 The repository using socket connection with Spring Boot web as main hosting APIs to ensure the security connection in each API request. The MYSQL database serves as a relational-database to perform query and storage datasets.
-
-The socket architecture can be view as following picture:
-
-<p align="center">
-  <img src="https://github.com/anhdung2k1/contactless-checking/assets/86148510/808231fd-ab3b-4d0f-bc70-6cee355f199c" alt="Socket Architecture">
-</p>
 
 ## Contents
 
