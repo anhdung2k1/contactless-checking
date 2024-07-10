@@ -355,7 +355,7 @@ train_dataset() {
 
 wsl_test() {
     test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
-    COMMON_DB="dummy"
+    COMMON_DB="checking"
     # This for test in Windows compiler -> expose the ip address of the WSL
     wsl_ip=$(ip addr show eth0 | grep -oP 'inet \K[\d.]+')
     chmod +x $VAS_GIT/test/application.properties

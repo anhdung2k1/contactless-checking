@@ -14,4 +14,5 @@ import java.sql.Timestamp;
 public class AuthenticationResponse {
     private String token;
     private Timestamp expireDate;
+    private String userName;
 }

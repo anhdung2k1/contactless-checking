@@ -1,4 +1,4 @@
-#Get the ENV from k8s env
+#Get the ENV from k8s, docker env
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -11,3 +11,20 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+# AWS Cloud Configuration
+cloud:
+  aws:
+    credentials:
+      access-key:
+      secret-key:
+    region:
+      static: us-east-1
+    stack:
+      auto: false
+
+bucket:
+  name: contactless-checking
+
+jwt:
+  signerKey: "655368566D597133743677397A244326452948404D635166546A576E5A723475"

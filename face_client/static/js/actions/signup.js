@@ -2,7 +2,7 @@ const HOST_IP=window.config.HOST_IP
 // Function to handle signup
 const signup = async (formData) => {
     try {
-        const response = await fetch(`http://${HOST_IP}/api/accounts/signup`, {
+        const response = await fetch(`${HOST_IP}/api/accounts/signup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

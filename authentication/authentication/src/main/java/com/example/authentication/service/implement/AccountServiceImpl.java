@@ -54,6 +54,7 @@ public class AccountServiceImpl implements AccountService{
             return AuthenticationResponse.builder()
                     .token(jwtToken)
                     .expireDate(new Timestamp(expireDate.getTime()))
+                    .userName(accounts.getUserName())
                     .build();
         }
         catch(NoSuchElementException e){
@@ -92,6 +93,7 @@ public class AccountServiceImpl implements AccountService{
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .expireDate(new Timestamp(expireDate.getTime()))
+                .userName(accounts.getUserName())
                 .build();
        }catch(Exception e){
             throw new Exception(e.getMessage());
