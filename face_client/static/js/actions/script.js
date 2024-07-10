@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const BASE_URL = `http://localhost:5000`;  // Define the base URL
+const MODEL_URL = window.config.BASE_URL;  // Define the base URL
 
+document.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('uploadForm');
     const imageInput = document.getElementById('imageInput');
     const video = document.getElementById('video');
@@ -53,16 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle download captured image
-    downloadButton.addEventListener('click', () => {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = 'captured_image.png';
-        link.click();
+    downloadButton.addEventListener('click', async () => {
+        canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append('image', blob, 'captured_image.png');
+            await downloadImage(formData);
+        }, 'image/png');
     });
 
     async function sendImage(formData, imageSource) {
         try {
-            const response = await fetch(`${BASE_URL}/upload`, {  // Use the base URL
+            const response = await fetch(`${MODEL_URL}/upload`, {  // Use the base URL
                 method: 'POST',
                 body: formData,
             });
@@ -70,6 +71,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (data.status === 'success') {
                 displayResults(data, imageSource);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+    
+    async function downloadImage(formData) {
+        try {
+            const response = await fetch(`${MODEL_URL}/retrieve`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                alert('Download Image success');
             } else {
                 alert(`Error: ${data.error}`);
             }

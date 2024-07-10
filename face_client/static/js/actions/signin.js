@@ -1,7 +1,8 @@
+const HOST_IP=window.config.HOST_IP
 // Function to handle signin
 const signin = async (formData) => {
     try {
-        const response = await fetch('http://localhost:8080/api/accounts/signin', {
+        const response = await fetch(`http://${HOST_IP}/api/accounts/signin`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

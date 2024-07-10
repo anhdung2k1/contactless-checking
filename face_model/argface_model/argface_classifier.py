@@ -69,7 +69,7 @@ class ArcFaceClassifier:
         return os.path.exists(model_save_path)
 
 
-    def identify_person(self, image_file, save_image_path=None):
+    def identify_person(self, image_file):
         if not os.path.exists(image_file):
             raise FileNotFoundError(f"Image file not found: {image_file}")
 
@@ -84,12 +84,7 @@ class ArcFaceClassifier:
             embedding = self.model.get_embedding(image_tensor)
         predicted = self.model.predict(embedding)
         person_name = self.label_map[predicted.item()]
-
-        if save_image_path:
-            draw = ImageDraw.Draw(image)
-            draw.text((10, 10), person_name, fill=(255, 0, 0))
-            image.save(save_image_path)
-
+        
         return person_name
     
     def identify_person_from_embedding(self, embedding):
