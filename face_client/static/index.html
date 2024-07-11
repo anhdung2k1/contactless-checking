@@ -19,6 +19,7 @@
 			// Check if token is valid
 			console.log("Check Token Valid: ", isTokenValid())
 			if (!isTokenValid()) {
+				logout();
 				window.location.href = 'pages-sign-in.html';
 			}
 		})
@@ -59,6 +60,13 @@
 							<span class="align-middle">Detection</span>
 						</a>
 					</li>
+
+					<li class="sidebar-item">
+                        <a class="sidebar-link" href="pages-customer.html">
+                            <i class="align-middle" data-feather="user"></i>
+							<span class="align-middle">Customer</span>
+                        </a>
+                    </li>
 				</ul>
 			</div>
 		</nav>

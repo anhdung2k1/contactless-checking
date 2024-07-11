@@ -48,7 +48,7 @@ public class AccountController {
 
     // Get account id by user id
     @GetMapping(value = "/accounts/find")
-    public ResponseEntity<Long> getAccIdByUserName (@RequestParam("userName") String userName) throws UserNotFoundException {
+    public ResponseEntity<Long> getAccIdByUserName(@RequestParam("userName") String userName) throws UserNotFoundException {
         return ResponseEntity.ok(accountService.getAccIdByUserName(userName));
     }
 

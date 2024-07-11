@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Data
 @Builder
@@ -13,6 +13,6 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class AuthenticationResponse {
     private String token;
-    private Timestamp expireDate;
+    private Date expireDate;
     private String userName;
 }

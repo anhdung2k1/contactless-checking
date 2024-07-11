@@ -11,9 +11,12 @@
 /docker/face_model/requirements.txt
 /docker/authentication/*.jar
 /face_model/__pycache__/
-/face_mode/argface_model/__pycache__/
+/face_model/argface_model/__pycache__/
 /face_model/s3_config/__pycache__/
 /client-server/__pycache__/
+
+/venv/
+/authentication/authentication/target/
 # Precompiled Headers
 *.gch
 *.pch

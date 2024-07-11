@@ -144,6 +144,8 @@ build_repo() {
     echo "# Prepare the build repository : #"
     echo "##################################"
 
+    COMMON_DB="checking"
+
     case $__name in
     "authentication")
         pushd .
@@ -158,9 +160,9 @@ build_repo() {
         # Start docker mysql container
         docker run -d --name mysql_container \
             -e MYSQL_ROOT_PASSWORD=root \
-            -e MYSQL_DATABASE=dummy \
-            -e MYSQL_USER=dummy \
-            -e MYSQL_PASSWORD=dummy \
+            -e MYSQL_DATABASE=$COMMON_DB \
+            -e MYSQL_USER=$COMMON_DB \
+            -e MYSQL_PASSWORD=$COMMON_DB \
             -p 3306:3306 \
             mysql:latest \
             || die "[ERROR]: Failed to run mysql docker"
@@ -169,9 +171,9 @@ build_repo() {
         docker run -it --rm -v "$(pwd -P)":/app \
                     -w /app \
                     -e DB_HOST=$mysql_IP \
-                    -e DB_USERNAME=dummy \
-                    -e DB_NAME=dummy \
-                    -e DB_PASSWORD=dummy \
+                    -e DB_USERNAME=$COMMON_DB \
+                    -e DB_NAME=$COMMON_DB \
+                    -e DB_PASSWORD=$COMMON_DB \
                     $MAVEN_IMAGE mvn clean install -Dskiptest \
 		            || die "[ERROR]: Failed to compile"
         echo "Copy target file to docker dir"
@@ -363,6 +365,111 @@ wsl_test() {
 
     sed -i -e "s/REPLACE_WITH_DB_IP/${wsl_ip}/g" $API_DIR/src/main/resources/application.properties
     sed -i -e "s/REPLACE_WITH_DB_COMMON/${COMMON_DB}/g" $API_DIR/src/main/resources/application.properties
+}
+
+## image_testcon
+# Build docker image from Dockerfile for testcon
+##
+image_testcon() {
+    version="1.0.0"
+    name=testcon
+    export DOCKER_BUILDKIT=1
+    docker build $VAS_GIT/test/$name \
+        --no-cache \
+        --file $VAS_GIT/test/$name/Dockerfile \
+        --tag "${DOCKER_REGISTRY}/$name:$version" \
+        || die "Failed to build docker image: $name"
+    docker images | grep $name
+}
+
+## testcon_up
+# Push docker image to docker registry
+##
+testcon_up() {
+    local version="1.0.0"
+    name=testcon
+    docker push $DOCKER_REGISTRY/$name:$version \
+	   || die "Failed to push docker registry: $DOCKER_REGISTRY"
+}
+
+## Docker test running on local for building
+test_repo() {
+    test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
+    test -n "$__name" || die "Module name required"
+    COMMON_DB="checking"
+    image_name=ck-$__name
+    version=$(get_version)
+
+    echo "##################################"
+    echo "# Prepare the docker local build : #"
+    echo "##################################"
+
+    echo "Start to test $__name"
+
+    case $__name in
+    "authentication")        
+        mysql_container=$(docker ps --format "{{.Names}}" | grep -i mysql_container)
+        if [[ ! -n "$mysql_container" ]]; then
+             # Start docker mysql container
+            docker run -d --name mysql_container \
+                -e MYSQL_ROOT_PASSWORD=root \
+                -e MYSQL_DATABASE=${COMMON_DB} \
+                -e MYSQL_USER=${COMMON_DB} \
+                -e MYSQL_PASSWORD=${COMMON_DB} \
+                -p 3306:3306 \
+                mysql:latest \
+            || die "[ERROR]: Failed to run mysql docker"
+        else
+            docker start mysql_container
+        fi
+       
+        mysql_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container)
+        echo $mysql_IP
+
+        authentication_container=$(docker ps --format "{{.Names}}" | grep -i $__name)
+        if [[ -n "$authentication_container" ]]; then
+            docker rm -f $__name
+        fi
+
+        docker run -it --rm -d --name $__name \
+                -e DB_HOST=${mysql_IP} \
+                -e DB_USERNAME=${COMMON_DB} \
+                -e DB_NAME=${COMMON_DB} \
+                -e DB_PASSWORD=${COMMON_DB} \
+                -p 8080:8080 \
+                ${DOCKER_REGISTRY}/${image_name}:${version} \
+                || die "[ERROR]: Failed to run docker $__name"
+    ;;
+    "face_model")
+        AWS_ACCESS_KEY_ID=$(echo $AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY=$(echo $AWS_SECRET_ACCESS_KEY)
+        test -n $AWS_ACCESS_KEY_ID || die "ENV AWS_ACCESS_KEY_ID required"
+        test -n $AWS_SECRET_ACCESS_KEY || die "ENV AWS_SECRET_ACCESS_KEY required"
+
+        face_model_container=$(docker ps --format "{{.Names}}" | grep -i $__name)
+        if [[ -n "$face_model_container" ]]; then
+            docker rm -f $__name
+        fi
+
+        docker run -it --rm -d --name $__name \
+                -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+                -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+                -p 5000:5000 \
+                ${DOCKER_REGISTRY}/${image_name}:${version} \
+                || die "[ERROR]: Failed to run docker $__name"
+    ;;
+    "face_client")
+        face_client_container=$(docker ps --format "{{.Names}}" | grep -i $__name)
+        if [[ -n "$face_client_container" ]]; then
+            docker rm -f $__name
+        fi
+
+        docker run -it --rm -d --name $__name \
+                -p 80:80 \
+                ${DOCKER_REGISTRY}/${image_name}:${version} \
+                || die "[ERROR]: Failed to run docker $__name"
+    ;;
+    esac
 }
 
 #Get the command

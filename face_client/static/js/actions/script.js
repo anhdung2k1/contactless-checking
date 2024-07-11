@@ -1,6 +1,5 @@
-const MODEL_URL = window.config.BASE_URL;  // Define the base URL
-
 document.addEventListener('DOMContentLoaded', () => {
+    const MODEL_URL = window.config.MODEL_URL;  // Define the base URL
     const uploadForm = document.getElementById('uploadForm');
     const imageInput = document.getElementById('imageInput');
     const video = document.getElementById('video');

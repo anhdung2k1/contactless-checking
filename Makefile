@@ -55,8 +55,8 @@ train:
 	./vas.sh train_dataset
 
 image: 	image-authentication \
-	image-face-client \
-	image-face-model
+		image-face-client \
+		image-face-model
 
 image-authentication:
 	@echo "build authentication Image"
@@ -70,8 +70,8 @@ image-face-model:
 
 
 push: 	push-authentication \
-	push-face-client \
-	push-face-model
+		push-face-client \
+		push-face-model
 
 push-authentication:
 	@echo "push image-authentication"

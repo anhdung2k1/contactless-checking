@@ -34,6 +34,7 @@ public class CustomerServiceImpl implements CustomerService {
         try {
             CustomerEntity customerEntity = new CustomerEntity();
             BeanUtils.copyProperties(customers, customerEntity);
+            customerEntity.setCustomerBirthDay(Utils.stringToDate(customers.getCustomerBirthDay()));
             customerRepository.save(customerEntity);
             return true;
         } catch (Exception e) {

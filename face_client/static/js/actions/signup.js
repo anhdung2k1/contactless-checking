@@ -1,4 +1,4 @@
-const HOST_IP=window.config.HOST_IP
+const HOST_IP = window.config.HOST_IP;
 // Function to handle signup
 const signup = async (formData) => {
     try {
