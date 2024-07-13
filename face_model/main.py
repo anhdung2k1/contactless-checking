@@ -4,7 +4,10 @@ from PIL import Image
 import io
 import os
 from process_image import ImageProcessor
-from s3_config.s3Config import S3Config
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 CORS(app)
@@ -14,10 +17,6 @@ root_directory = os.path.dirname(file_location)  # Get root dir
 
 yolo_dir = "yolo_model/runs/detect/train/weights/best.pt"
 yolo_path = os.path.join(root_directory, '..', 'build', yolo_dir)
-s3Config = S3Config()
-
-if not os.path.exists(yolo_path):
-    s3Config.retrieve_file(yolo_dir, yolo_path)
 
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
@@ -33,20 +32,41 @@ def upload_image():
         result = image_processor.process_image(image)
         return jsonify(result), 200
     except Exception as e:
+        logging.error(f"Error in /process: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to process image: {str(e)}'}), 500
 
 @app.route('/retrieve', methods=['POST'])
 def retrieve_image():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image provided'}), 400
+    if 'image' not in request.files or 'customerName' not in request.form:
+        return jsonify({'error': 'No image or customerName provided'}), 400
     
     file = request.files['image']
+    customer_name = request.form['customerName']
+    
     try:
         image = Image.open(io.BytesIO(file.read()))
-        result = image_processor.retrieve_image(image)
+        # Initialize new Image Processor instance with customer name
+        image_processor_with_name = ImageProcessor(yolo_path, customer_name)
+        result = image_processor_with_name.retrieve_image(image)
         return jsonify(result), 200
     except Exception as e:
+        logging.error(f"Error in /retrieve: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to retrieve image: {str(e)}'}), 500
+    
+@app.route('/verify', methods=['POST'])
+def verify_images():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image provided'}), 400
+
+    file = request.files['image']
+    
+    try:
+        image_verify = Image.open(io.BytesIO(file.read()))
+        result = image_processor.verify_images(image_verify)
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"Error in /verify: {str(e)}", exc_info=True)
+        return jsonify({'error': f'Failed to verify images: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

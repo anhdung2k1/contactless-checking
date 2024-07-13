@@ -2,6 +2,7 @@ package com.example.authentication.controller;
 
 import com.example.authentication.model.Customers;
 import com.example.authentication.service.interfaces.CustomerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +13,9 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:8000")
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class CustomerController {
     private final CustomerService customerService;
-    public CustomerController(CustomerService customerService) {
-        this.customerService = customerService;
-    }
     // Create new Customer
     @PostMapping(value = "/customers")
     public ResponseEntity<Boolean> createCustomer(@RequestBody Customers customers) throws Exception {
@@ -31,6 +30,11 @@ public class CustomerController {
     @GetMapping(value = "/customers/{customerId}")
     public ResponseEntity<Map<String, Object>> getCustomerByCustomerId(@PathVariable("customerId") Long customerId) throws Exception {
         return ResponseEntity.ok(customerService.getCustomerByCustomerId(customerId));
+    }
+    // Count Customer
+    @GetMapping(value = "/customers/count")
+    public ResponseEntity<Long> getAllRecords() throws Exception {
+        return ResponseEntity.ok(customerService.countCustomers());
     }
     // Update Customer Information
     @PatchMapping(value = "/customers/{customerId}")

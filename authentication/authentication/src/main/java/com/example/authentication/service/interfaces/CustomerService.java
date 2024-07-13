@@ -7,6 +7,7 @@ import java.util.Map;
 
 public interface CustomerService {
     Boolean createCustomer(Customers customers) throws Exception;
+    Long countCustomers() throws Exception;
     List<Map<String, Object>> getAllCustomersWithName(String customerName) throws Exception;
     Map<String, Object> getCustomerByCustomerId(Long customerId) throws Exception;
     Customers updateCustomerInformation(Long customerId, Customers customers) throws Exception;

@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService{
     public AmazonS3 s3Client;
 
     private final UserRepository userRepository;
+    private static final String filePath = "checking_images/";
 
     private Map<String, Object> userMap(UserEntity userEntity) {
         return new HashMap<>() {{
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService{
             user.setUpdateAt(LocalDateTime.now());
             if (!user.getImageUrl().isEmpty()) {
                 // Save to S3 Bucket
-                URL objectURL = s3Utils.getS3URL(user.getImageUrl());
+                URL objectURL = s3Utils.getS3URL(filePath, user.getImageUrl());
                 user.setImageUrl(objectURL.toString());
             }
             BeanUtils.copyProperties(user, userEntity);
@@ -143,7 +144,7 @@ public class UserServiceImpl implements UserService{
             userEntity.setGender(user.getGender());
             userEntity.setUpdateAt(LocalDateTime.now());
             if (user.getImageUrl() != null) {
-                URL objectURL = s3Utils.getS3URL(user.getImageUrl());
+                URL objectURL = s3Utils.getS3URL(filePath, user.getImageUrl());
                 userEntity.setImageUrl(objectURL.toString());
             }
             userRepository.save(userEntity);

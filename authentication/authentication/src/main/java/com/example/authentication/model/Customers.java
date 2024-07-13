@@ -18,4 +18,5 @@ public class Customers {
     private String customerBirthDay;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    private String photoUrl;
 }

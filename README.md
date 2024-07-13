@@ -81,9 +81,9 @@ The recommend standard development environment is Ubuntu 18.04 LTS or later
     test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
     test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
     ```
+5. Using `testcon` image which integrate the environment for run requirement `face_model`. Check at `test/testcon`.
 
-5. Config AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your env. Found in IAM roles in AWS.
+In order to using your docker registry. Update `DOCKER_REGISTRY` in ./vas.sh. Or simply export DOCKER_REGISTRY in your enviroment.
 ```
-export AWS_ACCESS_KEY_ID=<your-AWS_ACCESS_KEY_ID>
-export AWS_SECRET_ACCESS_KEY=<your-AWS_SECRET_ACCESS_KEY>
+$ export DOCKER_REGISTRY=<your docker-registry>
 ```

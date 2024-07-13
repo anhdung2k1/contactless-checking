@@ -1,29 +1,26 @@
 package com.example.authentication.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.example.authentication.builder.AuthenticationResponse;
 import com.example.authentication.exception.AccountNotFoundException;
 import com.example.authentication.exception.UserNotFoundException;
 import com.example.authentication.model.Accounts;
 import com.example.authentication.service.interfaces.AccountService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:8000")
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class AccountController {
     @Autowired
     private final AccountService accountService;
-
-    public AccountController(AccountService accountService){
-        this.accountService = accountService;
-    }
 
     //Sign Up new account
     @PostMapping(value="/accounts/signup")

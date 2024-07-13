@@ -29,11 +29,10 @@ public class S3Utils {
     @Autowired
     private AmazonS3 s3Client;
 
-    public URL getS3URL(String fileBase64) throws IOException {
+    public URL getS3URL(String filePath, String fileBase64) throws IOException {
         byte[] fileBytes = Base64.getDecoder().decode(fileBase64.split(",")[1]);
         MultipartFile file = new Base64DecodedMultipartFile(fileBytes);
         File fileObj = convertMultiPartFileToFile(file);
-        String filePath = "checking_images/";
         String fileName = filePath + UUID.randomUUID() + "__" + file.getOriginalFilename() + ".jpg";
         s3Client.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
         return s3Client.getUrl(bucketName, fileName);

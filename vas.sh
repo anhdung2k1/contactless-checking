@@ -153,10 +153,7 @@ build_repo() {
         echo "Start to build Spring boot compile"
         # To compile the Spring boot, must start the mysql docker for temporaly -> remove after build
         
-        mysql_container=$(docker ps --format "{{.Names}}" | grep -i mysql_container)
-        if [[ -n "$mysql_container" ]]; then
-            docker rm -f $mysql_container
-        fi
+        docker ps -a | grep -i mysql_container | awk '$1 {print $1}' | xargs docker rm -f
         # Start docker mysql container
         docker run -d --name mysql_container \
             -e MYSQL_ROOT_PASSWORD=root \
@@ -408,7 +405,7 @@ test_repo() {
 
     case $__name in
     "authentication")        
-        mysql_container=$(docker ps --format "{{.Names}}" | grep -i mysql_container)
+        mysql_container=$(docker ps -a --format "{{.Names}}" | grep -i mysql_container)
         if [[ ! -n "$mysql_container" ]]; then
              # Start docker mysql container
             docker run -d --name mysql_container \
@@ -426,10 +423,8 @@ test_repo() {
         mysql_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container)
         echo $mysql_IP
 
-        authentication_container=$(docker ps --format "{{.Names}}" | grep -i $__name)
-        if [[ -n "$authentication_container" ]]; then
-            docker rm -f $__name
-        fi
+        # Remove existing authentication repo
+        docker ps -a | grep -i $__name | awk '$1 {print $1}' | xargs docker rm -f
 
         docker run -it --rm -d --name $__name \
                 -e DB_HOST=${mysql_IP} \
@@ -441,10 +436,6 @@ test_repo() {
                 || die "[ERROR]: Failed to run docker $__name"
     ;;
     "face_model")
-        AWS_ACCESS_KEY_ID=$(echo $AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY=$(echo $AWS_SECRET_ACCESS_KEY)
-        test -n $AWS_ACCESS_KEY_ID || die "ENV AWS_ACCESS_KEY_ID required"
-        test -n $AWS_SECRET_ACCESS_KEY || die "ENV AWS_SECRET_ACCESS_KEY required"
 
         face_model_container=$(docker ps --format "{{.Names}}" | grep -i $__name)
         if [[ -n "$face_model_container" ]]; then
@@ -452,8 +443,6 @@ test_repo() {
         fi
 
         docker run -it --rm -d --name $__name \
-                -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-                -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
                 -p 5000:5000 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"

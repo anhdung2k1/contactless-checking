@@ -2,6 +2,7 @@ package com.example.authentication.controller;
 
 import com.example.authentication.model.Users;
 import com.example.authentication.service.interfaces.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +13,10 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:8000")
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    public UserController(UserService userService){
-        this.userService = userService;
-    }
+
     // Get all users
     @GetMapping(value = "/users")
     public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
