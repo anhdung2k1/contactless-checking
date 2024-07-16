@@ -44,9 +44,6 @@ COPY --chmod=0755 --chown=0:0 build/ /app/build
 
 # Ensure the virtual environment is used
 ENV PATH="/app/venv/bin:$PATH"
-# ENV AWS Key Configuration
-ENV AWS_ACCESS_KEY_ID=""
-ENV AWS_SECRET_ACCESS_KEY=""
 
 # Expose the application port
 EXPOSE 5000

@@ -35,24 +35,6 @@
     mountPath: /etc/mysql/conf.d
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "mysql") | indent 2 }}
-  livenessProbe:
-    exec:
-        command:
-        - /bin/bash
-        - -ec
-        - |
-          password_aux="${MYSQL_ROOT_PASSWORD}"
-          mysqladmin status -uroot -p"${password_aux}"
-{{ toYaml $top.Values.probes.mysql.livenessProbe | indent 4 }}
-  readinessProbe:
-    exec:
-        command:
-        - /bin/bash
-        - -ec
-        - |
-          password_aux="${MYSQL_ROOT_PASSWORD}"
-          mysqladmin status -uroot -p"${password_aux}"
-{{ toYaml $top.Values.probes.mysql.readinessProbe | indent 4 }}
 - name: {{ $top.Values.server.xtrabackup.name }}
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-xtrabackup") $top) }}
   ports:

@@ -15,6 +15,14 @@ Create a map from ".Values.global" with defaults if missing in values file.
 {{ end }}
 
 {{/*
+Get current Namespace
+*/}}
+{{- define "ck-application.namespace" -}}
+{{- $namespace := .Release.Namespace -}}
+{{- printf "%s" $namespace -}}
+{{- end -}}
+
+{{/*
 Expand the name of the mysql chart
 */}}
 {{- define "ck-mysql.name" -}}

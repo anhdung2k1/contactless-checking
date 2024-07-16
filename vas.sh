@@ -102,9 +102,9 @@ build_all() {
 
 get_version() {
     test -n "$BUILD/var" || mkdir $BUILD/var
-    if [[ -d $BUILD_DIR/var/.version ]]; then
+    if [[ -s $BUILD_DIR/var/.version ]]; then
     	cat $BUILD_DIR/var/.version
-	exit 0
+	    exit 0
     fi
     suffix=$(git rev-parse HEAD | sed 's/^0*//g' | cut -c1-7 | tr 'a-f' '1-6')
     suffix+=$(git diff --quiet && git diff --cached --quiet || echo '9999')
@@ -454,7 +454,7 @@ test_repo() {
         fi
 
         docker run -it --rm -d --name $__name \
-                -p 80:80 \
+                -p 8000:80 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"
     ;;
