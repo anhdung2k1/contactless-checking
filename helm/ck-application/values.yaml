@@ -22,7 +22,7 @@ updateStrategy:
 
 server:
   replicaCount: 1
-  externalIP: 10.63.133.245
+  externalIP: 192.168.49.2
   mysqlServer:
     name: mysql-server
     port: 3306
@@ -34,29 +34,17 @@ server:
   authentication:
     name: authentication
     port: "8080"
+    nodePort: "30800"
 
   faceModel:
     name: face-model
     port: "5000"
+    nodePort: "30500"
 
   faceClient:
     name: face-client
     port: "80"
-
-probes:
-  mysql:
-    readinessProbe:
-      initialDelaySeconds: 30
-      periodSeconds: 10
-      timeoutSeconds: 30
-      failureThreshold: 3
-      successThreshold: 1
-    livenessProbe:
-      initialDelaySeconds: 30
-      periodSeconds: 10
-      timeoutSeconds: 15
-      failureThreshold: 3
-      successThreshold: 1
+    nodePort: "30080"
 
 resources:
   initcontainer:

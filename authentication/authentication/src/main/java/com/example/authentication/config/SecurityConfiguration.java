@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import org.springframework.security.config.Customizer;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -20,7 +20,7 @@ public class SecurityConfiguration {
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        return http.cors().and().csrf().disable()
+        return http.cors(Customizer.withDefaults()).csrf().disable()
             .authorizeHttpRequests()
             .requestMatchers("/api/accounts/signin", "/api/accounts/signup")
             .permitAll()

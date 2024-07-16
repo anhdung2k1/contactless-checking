@@ -21,15 +21,11 @@ init:
 	@git tag | grep -v + | sort -V | tail -1 | sed 's/-/+/g' > build/var/.released-version
 
 #Build process 
-build: build-env \
-	package-helm \
+build: 	package-helm \
 	build-authentication \
 	build-face-client \
        	build-face-model	
 
-build-env:
-	@echo "Build Repository"
-	./vas.sh buildenv
 ## Package the helm chart
 package-helm:
 	@echo "Package helm"

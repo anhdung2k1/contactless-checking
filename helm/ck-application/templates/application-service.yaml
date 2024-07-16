@@ -9,10 +9,9 @@ spec:
     - protocol: "TCP"
       port: {{ .Values.server.authentication.port }}
       targetPort: {{ .Values.server.authentication.port }}
+      nodePort: {{ .Values.server.authentication.nodePort }} # Assign static NodePort
       name: {{ template "ck-authentication.name" . }}
-  type: LoadBalancer
-  allocateLoadBalancerNodePorts: false
-  externalTrafficPolicy: Cluster
+  type: NodePort
 ---
 apiVersion: v1
 kind: Service
@@ -24,11 +23,10 @@ spec:
   ports:
     - protocol: TCP
       port: {{ .Values.server.faceModel.port }}
+      nodePort: {{ .Values.server.faceModel.nodePort }} # Assign static NodePort
       targetPort: {{ .Values.server.faceModel.port }}
       name: {{ template "ck-server.name" . }}
-  type: LoadBalancer
-  allocateLoadBalancerNodePorts: false
-  externalTrafficPolicy: Cluster
+  type: NodePort
 ---
 apiVersion: v1
 kind: Service
@@ -41,7 +39,9 @@ spec:
     - name: {{ template "ck-client.name" . }}
       protocol: TCP
       port: {{ .Values.server.faceClient.port }}
+      # nodePort: {{ .Values.server.faceClient.nodePort }} # Assign static NodePort
       targetPort: {{ .Values.server.faceClient.port }}
   type: LoadBalancer
   allocateLoadBalancerNodePorts: false
   externalTrafficPolicy: Cluster
+  loadBalancerIP: {{ .Values.server.externalIP }}

@@ -86,3 +86,8 @@ In order to using your docker registry. Update `DOCKER_REGISTRY` in ./vas.sh. Or
 ```
 $ export DOCKER_REGISTRY=<your docker-registry>
 ```
+
+6. To install helm chart parse
+```
+$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-66801239999.tgz --set <options>
+```
