@@ -4,6 +4,7 @@ from PIL import Image
 import io
 import os
 from process_image import ImageProcessor
+from s3_config.s3Config import S3Config
 import logging
 
 # Configure logging
@@ -18,6 +19,11 @@ build_dir = os.path.join(root_directory, '..', 'build')
 
 yolo_dir = "yolo_model/runs/detect/train/weights/best.pt"
 yolo_path = os.path.join(root_directory, '..', 'build', yolo_dir)
+
+s3Config = S3Config()
+
+if not os.path.exists(yolo_path):
+    s3Config.download_all_objects('yolo_model/', build_dir)
 
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
