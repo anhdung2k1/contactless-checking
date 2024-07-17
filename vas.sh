@@ -130,7 +130,7 @@ get_version() {
             cat $BUILD_DIR/var/.released-version
             exit 0
         fi
-        release_version=$(git tag | grep -v + | sort -V | tail -1 | sed 's/-/+/g')
+        release_version=$(git tag | sort -V | tail -1)
         echo "${release_version}"
     else
         if [[ -s $BUILD_DIR/var/.version ]]; then
