@@ -1,12 +1,16 @@
 from argface_model.argface_classifier import ArcFaceClassifier
 import argparse
 import os
+from s3_config.s3Config import S3Config
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
 
 build_dir = os.path.join(root_directory, '..', 'build')
 arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
+arcface_model = os.path.join(build_dir, '.insightface')
+# Export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION in your env
+s3Config = S3Config()
 
 ##### HOW TO USE ####
 # To continue training existing model
@@ -25,6 +29,7 @@ def parse_arguments():
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for training')
     parser.add_argument('--momentum', type=float, default=0.9, help='Momentum for training')
     parser.add_argument('--continue_training', action='store_true', help='Flag to continue training from an existing model')
+    parser.add_argument('--is_upload', action='store_true', help='Flag to upload to S3 bucket')
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -32,8 +37,9 @@ if __name__ == "__main__":
 
     # Initialize the classifier
     classifier = ArcFaceClassifier(arcface_dataset)
-
+    
     if args.mode == 'train':
+        s3Config.download_all_objects('arcface_train_dataset/', build_dir)
         if classifier.model_exists() and args.continue_training:
             print("Loading existing model and continuing training.")
             classifier.load_model()
@@ -44,6 +50,10 @@ if __name__ == "__main__":
             classifier.extract_features()
         classifier.train(num_epochs=args.num_epochs, lr=args.learning_rate, momentum=args.momentum)
         print("Training completed.")
+        if args.is_upload:
+            s3Config.upload_folder('.insightface',folder_path=arcface_model)
+            print(f"Uploaded Model to S3 successfully")
+        classifier.plot_training_metrics(os.path.join(build_dir, 'arcface_train_loss'))
     elif args.mode == 'identify':
         if not args.image_path:
             raise ValueError("Image path is required for identification mode.")

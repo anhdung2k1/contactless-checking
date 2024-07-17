@@ -1,6 +1,7 @@
 import os
 import torch
-from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+from PIL import Image
 from torchvision import transforms
 
 from .argface_extract_features import FeatureExtractor
@@ -21,6 +22,8 @@ class ArcFaceClassifier:
         self.feature_extractor = FeatureExtractor(data_path)
         self.features, self.labels, self.label_map = None, None, None
         self.model = None
+        self.training_losses = []
+        self.training_accuracies = []
 
     def initialize_model(self, num_classes=None):
         self.extract_labels()
@@ -53,9 +56,41 @@ class ArcFaceClassifier:
         if self.features is None or self.labels is None:
             raise ValueError("Features or labels are None. Ensure they are extracted correctly.")
         trainer = ArcFaceTrainer(self.model, self.features, self.labels, lr, momentum)
-        trainer.train(num_epochs)
+        
+        for epoch in range(num_epochs):
+            loss, accuracy = trainer.train_epoch()
+            self.training_losses.append(loss)
+            self.training_accuracies.append(accuracy)
+            print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
+
         torch.save(self.model.state_dict(), model_save_path)
 
+    def plot_training_metrics(self, save_path=None):
+        epochs = range(1, len(self.training_losses) + 1)
+        plt.figure(figsize=(10, 5))
+
+        # Plot training loss
+        plt.subplot(1, 2, 1)
+        plt.plot(epochs, self.training_losses, 'b', label='Training loss')
+        plt.title('Training Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend()
+
+        # Plot training accuracy
+        plt.subplot(1, 2, 2)
+        plt.plot(epochs, self.training_accuracies, 'r', label='Training Accuracy')
+        plt.title('Training Accuracy')
+        plt.xlabel('Epochs')
+        plt.ylabel('Accuracy')
+        plt.legend()
+
+        if save_path:
+            plt.savefig(save_path)
+            print(f'Plot saved to {save_path}')
+        else:
+            plt.show()
+    
     def load_model(self):
         if not ArcFaceClassifier._model_loaded:
             self.initialize_model()

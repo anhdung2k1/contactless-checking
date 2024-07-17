@@ -80,14 +80,22 @@ The recommend standard development environment is Ubuntu 18.04 LTS or later
     test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
     test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
     ```
-5. Using `testcon` image which integrate the environment for run requirement `face_model`. Check at `test/testcon`.
+5. Using `testcon` image which integrate the environment for run requirement `face_model`. Check at `test/testcon`. In case you don't want to rebuild all necessary library with pip which takes a lot of efforts and time.
 
 In order to using your docker registry. Update `DOCKER_REGISTRY` in ./vas.sh. Or simply export DOCKER_REGISTRY in your enviroment.
-```
+```bash
 $ export DOCKER_REGISTRY=<your docker-registry>
 ```
 
-6. To install helm chart parse
+6. Config AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your env to retrieve all dataset in S3 bucket. Found in IAM roles in AWS.
+```bash
+export AWS_ACCESS_KEY_ID=<your-AWS_ACCESS_KEY_ID>
+export AWS_SECRET_ACCESS_KEY=<your-AWS_SECRET_ACCESS_KEY>
+export AWS_DEFAULT_REGION=<your-AWS_DEFAULT_REGION> | <DEFAULT us-east-1>
 ```
-$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-66801239999.tgz --set <options>
+
+7. To install helm chart, must build-image=push image to registry before running helm. If could not retrieve the image to pull.
+```bash
+$ make package-helm
+$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-15925039999.tgz --set <options>
 ```

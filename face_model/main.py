@@ -14,6 +14,7 @@ CORS(app)
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
+build_dir = os.path.join(root_directory, '..', 'build')
 
 yolo_dir = "yolo_model/runs/detect/train/weights/best.pt"
 yolo_path = os.path.join(root_directory, '..', 'build', yolo_dir)
@@ -63,6 +64,7 @@ def verify_images():
     try:
         image_verify = Image.open(io.BytesIO(file.read()))
         result = image_processor.verify_images(image_verify)
+        image_processor.plot_and_save_distances(os.path.join(build_dir, 'facenet_distance'))
         return jsonify(result), 200
     except Exception as e:
         logging.error(f"Error in /verify: {str(e)}", exc_info=True)
