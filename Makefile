@@ -10,12 +10,12 @@ clean:
 
 # Init the repository
 init:
+	@echo "Create build dataset and model directory"
+	./vas.sh dir_est
 	@echo "mkdir variables folder"
 	mkdir -p build/var
 	@echo "Get version"
 	./vas.sh get_version | tee build/var/.version
-	@echo "Create build dataset and model directory"
-	./vas.sh dir_est
 	@echo "Create training dataset"
 	./vas.sh get_train_dataset
 	@echo "Generate release version"

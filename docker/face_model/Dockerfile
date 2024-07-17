@@ -40,7 +40,6 @@ WORKDIR /app
 # Copy virtual environment from builder stage
 COPY --from=builder /app/venv /app/venv
 COPY --chmod=0755 --chown=0:0 face_model/ /app/face_model
-COPY --chmod=0755 --chown=0:0 build/ /app/build
 
 # Ensure the virtual environment is used
 ENV PATH="/app/venv/bin:$PATH"
