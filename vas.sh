@@ -57,10 +57,33 @@ test -n "$1" || help
 echo "$1" | grep -qi "^help\|-h" && help
 
 dir_est() {
-    echo "Create [BUILD,DATASET,MODEL] Folder"
-    mkdir "$BUILD_DIR"
-    mkdir "$DATASET_DIR"
-    mkdir "$MODEL_DIR"
+    echo "Creating [BUILD, DATASET, MODEL] directories if they do not exist..."
+
+    # Check and create BUILD_DIR if it does not exist
+    if [ ! -d "$BUILD_DIR" ]; then
+        echo "Creating $BUILD_DIR..."
+        mkdir -p "$BUILD_DIR"
+    else
+        echo "$BUILD_DIR already exists. Skipping creation."
+    fi
+
+    # Check and create DATASET_DIR if it does not exist
+    if [ ! -d "$DATASET_DIR" ]; then
+        echo "Creating $DATASET_DIR..."
+        mkdir -p "$DATASET_DIR"
+    else
+        echo "$DATASET_DIR already exists. Skipping creation."
+    fi
+
+    # Check and create MODEL_DIR if it does not exist
+    if [ ! -d "$MODEL_DIR" ]; then
+        echo "Creating $MODEL_DIR..."
+        mkdir -p "$MODEL_DIR"
+    else
+        echo "$MODEL_DIR already exists. Skipping creation."
+    fi
+
+    echo "Directory setup complete."
 }
 
 get_train_dataset() {
@@ -107,6 +130,8 @@ get_version() {
             cat $BUILD_DIR/var/.released-version
             exit 0
         fi
+        release_version=$(git tag | grep -v + | sort -V | tail -1 | sed 's/-/+/g')
+        echo "${release_version}"
     else
         if [[ -s $BUILD_DIR/var/.version ]]; then
             cat $BUILD_DIR/var/.version
