@@ -22,8 +22,8 @@ init:
 
 #Build process 
 build: 	package-helm \
-	build-authentication \
-	build-face-client \
+		build-authentication \
+		build-face-client \
        	build-face-model	
 
 ## Package the helm chart

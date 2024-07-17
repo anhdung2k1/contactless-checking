@@ -368,7 +368,7 @@ wsl_test() {
 # Build docker image from Dockerfile for testcon
 ##
 image_testcon() {
-    version="1.0.0"
+    version="1.1.0"
     name=testcon
     export DOCKER_BUILDKIT=1
     docker build $VAS_GIT/test/$name \
@@ -383,7 +383,7 @@ image_testcon() {
 # Push docker image to docker registry
 ##
 testcon_up() {
-    local version="1.0.0"
+    local version="1.1.0"
     name=testcon
     docker push $DOCKER_REGISTRY/$name:$version \
 	   || die "Failed to push docker registry: $DOCKER_REGISTRY"

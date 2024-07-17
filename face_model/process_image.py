@@ -7,7 +7,9 @@ import uuid
 import torch
 from torchvision import transforms
 from facenet_pytorch import InceptionResnetV1
+from s3_config.s3Config import S3Config
 import logging
+import matplotlib.pyplot as plt
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -27,6 +29,8 @@ class ImageProcessor:
         self.person_name = person_name
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.facenet_model = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
+        self.s3Config = S3Config()
+        self.distances = []
 
     def verify_images(self, image2):
         try:
@@ -51,7 +55,7 @@ class ImageProcessor:
                 transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
             ])
 
-            image1 = Image.open(first_image_path)
+            image1 = Image.open(first_image_path).convert('RGB')
             if image2.mode != 'RGB':
                 image2 = image2.convert('RGB')
 
@@ -61,16 +65,24 @@ class ImageProcessor:
             with torch.no_grad():
                 embedding1 = self.facenet_model(image1_tensor).cpu().numpy()
                 embedding2 = self.facenet_model(image2_tensor).cpu().numpy()
+                
+            logging.info(f"Embeddings shapes: {embedding1.shape}, {embedding2.shape}")
+
+            if embedding1.shape != embedding2.shape:
+                logging.error(f"Embedding shapes do not match: {embedding1.shape} vs {embedding2.shape}")
+                return {'status': 'error', 'message': 'Embedding shapes do not match'}
 
             logging.info("Embeddings calculated for both images")
 
             distance = np.linalg.norm(embedding1 - embedding2).item()
             logging.info(f"Distance between embeddings: {distance}")
 
-            threshold = 2.0
+            threshold = 1.0
 
             is_same_person = distance < threshold
             logging.info("Images are of the same person" if is_same_person else "Images are of different persons")
+            
+            self.distances.append(distance)
 
             return {
                 'status': 'success',
@@ -107,6 +119,7 @@ class ImageProcessor:
             if os.path.isfile(model_save_path):
                 self.argface_model.load_model()
             else:
+                self.s3Config.download_all_objects('.insightface/', build_dir)
                 self.argface_model.initialize_model()
                 self.argface_model.extract_features()
                 self.argface_model.train()
@@ -173,3 +186,21 @@ class ImageProcessor:
             'status': 'success',
             'message': 'Image downloaded'
         }
+    
+    def plot_and_save_distances(self, save_path):
+        # Create directory if it does not exist
+        save_dir = os.path.dirname(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+            logging.info(f"Directory {save_dir} created.")
+        else:
+            logging.info(f"Directory {save_dir} already exists.")
+        
+        plt.figure(figsize=(10, 5))
+        plt.plot(self.distances, marker='o', linestyle='-')
+        plt.title('Distances Between Image Embeddings')
+        plt.xlabel('Image Pair Index')
+        plt.ylabel('Distance')
+        plt.grid(True)
+        plt.savefig(save_path)
+        logging.info(f"Plot saved to {save_path}")

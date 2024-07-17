@@ -63,6 +63,7 @@
 							<span class="align-middle">Customer</span>
 						</a>
 					</li>
+					<li class="sidebar-item"><a class="sidebar-link" href="pages-train.html"><i class="align-middle" data-feather="box"></i> <span class="align-middle">Train</span></a></li>
 				</ul>
 			</div>
 		</nav>
@@ -165,6 +166,7 @@
 						</div>
 					</div>
 				</div>
+				<button id="exportButton">Export to Excel</button>
 			</main>
 
 			<footer class="footer">
@@ -203,6 +205,40 @@
 	<script src="js/actions/records.js"></script>
 	<script src="js/markup/cards.js"></script>
 	<script src="js/actions/notifications.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+	<script>
+		document.getElementById('exportButton').addEventListener('click', function() {
+			// Get the table data
+			let table = document.getElementById('recordTable');
+			let data = [];
+			let headers = [];
+			
+			// Get headers
+			for (let i = 0; i < table.rows[0].cells.length; i++) {
+				headers[i] = table.rows[0].cells[i].innerText.trim();
+			}
+			data.push(headers);
+			
+			// Get rows data
+			for (let i = 1; i < table.rows.length; i++) {
+				let rowData = [];
+				for (let j = 0; j < table.rows[i].cells.length; j++) {
+					rowData.push(table.rows[i].cells[j].innerText.trim());
+				}
+				data.push(rowData);
+			}
+			
+			// Create a workbook and a worksheet
+			let wb = XLSX.utils.book_new();
+			let ws = XLSX.utils.aoa_to_sheet(data);
+			
+			// Add the worksheet to the workbook
+			XLSX.utils.book_append_sheet(wb, ws, 'Records');
+			
+			// Export the workbook
+			XLSX.writeFile(wb, 'records.xlsx');
+		});
+		</script>
 </body>
 
 </html>
