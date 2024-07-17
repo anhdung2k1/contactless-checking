@@ -1,24 +1,27 @@
-RELEASE := false
+# Makefile
+
+RELEASE := $(RELEASE)
 USERNAME := $(USER)
 
 # Clean the repository
 clean:
 	@echo "Clean Repository"
 	./vas.sh clean
-# init the repository
+
+# Init the repository
 init:
-	@echo "mkdir variables"
-	test -d build/var || mkdir build/var
+	@echo "mkdir variables folder"
+	mkdir -p build/var
 	@echo "Get version"
-	./vas.sh get_version > build/var/.version
+	./vas.sh get_version | tee build/var/.version
 	@echo "Create build dataset and model directory"
 	./vas.sh dir_est
 	@echo "Create training dataset"
 	./vas.sh get_train_dataset
-	@echo "Get commit hash"
-	git rev-parse --short=7 HEAD > build/var/.version
 	@echo "Generate release version"
-	@git tag | grep -v + | sort -V | tail -1 | sed 's/-/+/g' > build/var/.released-version
+	@if [ "$(RELEASE)" = "true" ]; then \
+		./vas.sh get_version | tee build/var/.release_version; \
+	fi
 
 #Build process 
 build: 	package-helm \

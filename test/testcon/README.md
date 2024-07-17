@@ -11,12 +11,12 @@ Build testcon for create env for `face_model`. To save time for rebuild image.
 
 To run `face_model` locally to initial server session.
 ```bash
-docker run -it --rm -v $PWD:$PWD:rw -w $PWD -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -p 5000:5000 anhdung12399/testcon:1.0.0 python face_model/main.py
+docker run -it --rm -v $PWD:$PWD:rw -w $PWD -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -p 5000:5000 anhdung12399/testcon:1.1.0 python face_model/main.py
 ```
 
 To run `argface_main.py` locally to run train model. Parse the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to environment.
 ```bash
-docker run -it --rm -v $PWD:$PWD:rw -w $PWD -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY anhdung12399/testcon:1.0.0 python face_model/argface_main.py --mode train --num_epochs 10000 --learning_rate 0.001 --momentum 0.9 --continue_training
+docker run -it --rm -v $PWD:$PWD:rw -w $PWD -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY anhdung12399/testcon:1.1.0 python face_model/argface_main.py --mode train --num_epochs 10000 --learning_rate 0.001 --momentum 0.9 --continue_training
 ```
 
 ### HOW TO USE MODEL TRAIN
