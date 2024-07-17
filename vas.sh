@@ -7,7 +7,7 @@
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
-
+test -n "$RELEASE" || export RELEASE=false
 test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
@@ -102,36 +102,20 @@ build_all() {
 
 get_version() {
     test -n "$BUILD/var" || mkdir $BUILD/var
-    if [[ -s $BUILD_DIR/var/.version ]]; then
-    	cat $BUILD_DIR/var/.version
-	    exit 0
-    fi
-    suffix=$(git rev-parse HEAD | sed 's/^0*//g' | cut -c1-7 | tr 'a-f' '1-6')
-    suffix+=$(git diff --quiet && git diff --cached --quiet || echo '9999')
-    echo "$(<$VAS_GIT/VERSION_PREFIX)-${suffix}"
-}
-
-## buildenv
-##  Set up the build environment
-buildenv() {
-    test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
-    test -n "$PYTHON_VERSION" || die "Python version is not specify"
-    
-    echo "##################################"
-    echo "# Check Python3 version"
-    if [[ "$PYTHON_VERSION" -ge 8 ]]; then
-        echo "Python3 version available to use: 3.$PYTHON_VERSION"
+    if [[ "$RELEASE" = true ]]; then
+        if [[ -s $BUILD_DIR/var/.released-version ]]; then
+            cat $BUILD_DIR/var/.released-version
+            exit 0
+        fi
     else
-        echo "Python3 version unavailable to use: 3.$PYTHON_VERSION"
-        exit 1
+        if [[ -s $BUILD_DIR/var/.version ]]; then
+            cat $BUILD_DIR/var/.version
+            exit 0
+        fi
+        suffix=$(git rev-parse HEAD | sed 's/^0*//g' | cut -c1-7 | tr 'a-f' '1-6')
+        suffix+=$(git diff --quiet && git diff --cached --quiet || echo '9999')
+        echo "$(<$VAS_GIT/VERSION_PREFIX)-${suffix}"
     fi
-
-    echo "##################################"
-    echo "# Prepare the build environment: #"
-    echo "##################################"
-    echo "# Pip install the requirement packages"
-    pip install --upgrade pip
-    pip install -r requirements.txt
 }
 
 ## Build Spring boot *.tar and socket binary
