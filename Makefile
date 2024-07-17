@@ -14,13 +14,14 @@ init:
 	./vas.sh dir_est
 	@echo "mkdir variables folder"
 	mkdir -p build/var
-	@echo "Get version"
-	./vas.sh get_version > build/var/.version
 	@echo "Create training dataset"
 	./vas.sh get_train_dataset
-	@echo "Generate release version"
 	@if [ "$(RELEASE)" = "true" ]; then \
+		echo "Generate release version"; \
 		./vas.sh get_version > build/var/.release_version; \
+	else \
+		echo "Get version prefix"; \
+		./vas.sh get_version > build/var/.version; \
 	fi
 
 #Build process 
@@ -33,8 +34,8 @@ build: 	package-helm \
 package-helm:
 	@echo "Package helm"
 	./vas.sh build_helm \
-		--release=${RELEASE}
-		--user=${USERNAME}
+		--release=$(RELEASE)
+		--user=$(USERNAME)
 build-authentication:
 	@echo "build authentication Repository"
 	./vas.sh build_repo --name=authentication
