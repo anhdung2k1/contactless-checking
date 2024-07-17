@@ -15,12 +15,12 @@ init:
 	@echo "mkdir variables folder"
 	mkdir -p build/var
 	@echo "Get version"
-	./vas.sh get_version | tee build/var/.version
+	./vas.sh get_version > build/var/.version
 	@echo "Create training dataset"
 	./vas.sh get_train_dataset
 	@echo "Generate release version"
 	@if [ "$(RELEASE)" = "true" ]; then \
-		./vas.sh get_version | tee build/var/.release_version; \
+		./vas.sh get_version > build/var/.release_version; \
 	fi
 
 #Build process 
