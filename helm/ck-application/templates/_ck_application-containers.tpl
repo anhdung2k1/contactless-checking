@@ -42,4 +42,11 @@
     - containerPort: {{ $top.Values.server.faceModel.port }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-model") | indent 2 }}
+  env:
+  - name: AWS_ACCESS_KEY_ID
+    value: {{ $top.Values.aws.key }}
+  - name: AWS_SECRET_ACCESS_KEY
+    value: {{ $top.Values.aws.secret }}
+  - name: AWS_DEFAULT_REGION
+    value: {{ $top.Values.aws.region }}
 {{- end -}}

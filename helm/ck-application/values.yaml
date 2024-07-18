@@ -78,10 +78,10 @@ resources:
   face-model:
     limits:
       cpu: "4"
-      memory: "4096Mi"
+      memory: "4048Mi"
     requests:
-      cpu: "2"
-      memory: "2048Mi"
+      cpu: "1"
+      memory: "1024Mi"
   face-client:
     limits:
       cpu: "1"
@@ -120,3 +120,8 @@ dbPass: ""
 
 ingress:
   enabled: true
+
+aws:
+  key:
+  secret:
+  region: us-east-1
