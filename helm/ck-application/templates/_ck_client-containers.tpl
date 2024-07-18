@@ -14,6 +14,7 @@
       value: {{ $hostIP }}
   ports:
     - containerPort: {{ $top.Values.server.faceClient.port }}
+    - containerPort: {{ $top.Values.server.faceClient.tlsPort }}
   resources:
     {{- include "ck-application.resources" (index $top.Values "resources" "face-client") | indent 2 }}
 {{- end -}}
