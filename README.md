@@ -97,5 +97,5 @@ export AWS_DEFAULT_REGION=<your-AWS_DEFAULT_REGION> | <DEFAULT us-east-1>
 7. To install helm chart, must build-image=push image to registry before running helm. If could not retrieve the image to pull.
 ```bash
 $ make package-helm
-$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-15925039999.tgz --set <options>
+$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-3.tgz --set <options>
 ```

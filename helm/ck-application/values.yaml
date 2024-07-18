@@ -78,10 +78,10 @@ resources:
   face-model:
     limits:
       cpu: "4"
-      memory: "4048Mi"
+      memory: "4096Mi"
     requests:
-      cpu: "1"
-      memory: "1024Mi"
+      cpu: "2"
+      memory: "2048Mi"
   face-client:
     limits:
       cpu: "1"
