@@ -56,7 +56,7 @@ if __name__ == "__main__":
         if args.is_upload:
             s3Config.upload_folder('.insightface', folder_path=arcface_model)
             print(f"Uploaded Model to S3 successfully")
-        classifier.plot_training_metrics(os.path.join(build_dir, 'arcface_train_loss'))
+        classifier.plot_training_metrics(os.path.join(arcface_model, 'arcface_train_loss'))
     elif args.mode == 'identify':
         if not args.image_path:
             raise ValueError("Image path is required for identification mode.")

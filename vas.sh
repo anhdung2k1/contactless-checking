@@ -86,6 +86,7 @@ dir_est() {
     echo "Directory setup complete."
 }
 
+# Get Roflow Dataset for training YOLO
 get_train_dataset() {
     if [[ -d "$DATASET_DIR" && -z $(ls -A $DATASET_DIR) ]]; then
         echo "Roboflow zip file"
@@ -445,7 +446,6 @@ test_repo() {
                 || die "[ERROR]: Failed to run docker $__name"
     ;;
     "face_model")
-
         face_model_container=$(docker ps --format "{{.Names}}" | grep -i $__name)
         if [[ -n "$face_model_container" ]]; then
             docker rm -f $__name
@@ -463,7 +463,8 @@ test_repo() {
         fi
 
         docker run -it --rm -d --name $__name \
-                -p 8000:80 \
+                -p 80:80 \
+                -p 443:443 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"
     ;;
