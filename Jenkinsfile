@@ -4,6 +4,8 @@ pipeline {
     parameters {
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/anhdung2k1/contactless-checking.git', description: 'Git repository URL')
         string(name: 'DOCKER_IMAGE', defaultValue: 'anhdung12399/testcon:1.1.0', description: 'Docker image to use')
+        string(name: 'AWS_ACCESS_KEY_ID', defaultValue: '', description: 'AWS_ACCESS_KEY_ID')
+        string(name: 'AWS_SECRET_ACCESS_KEY', defaultValue: '', description: 'AWS_SECRET_ACCESS_KEY')
         string(name: 'SCRIPT_PATH', defaultValue: 'face_model', description: 'Path to the Python script')
         string(name: 'MODE', defaultValue: 'train', description: 'Mode to run the script in')
         string(name: 'NUM_EPOCHS', defaultValue: '10000', description: 'Number of epochs')
@@ -45,7 +47,7 @@ pipeline {
                 script {
                     def continueTraining = params.CONTINUE_TRAINING ? '--continue_training' : ''
                     sh """
-                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} ${params.DOCKER_IMAGE} \
+                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} -e AWS_ACCESS_KEY_ID=${params.AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${params.AWS_SECRET_ACCESS_KEY} ${params.DOCKER_IMAGE} \
                         python ${params.SCRIPT_PATH}/argface_main.py --mode ${params.MODE} --num_epochs ${params.NUM_EPOCHS} \
                         --learning_rate ${params.LEARNING_RATE} --momentum ${params.MOMENTUM} ${continueTraining}
                     """
@@ -56,7 +58,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} ${params.DOCKER_IMAGE} \
+                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} -e AWS_ACCESS_KEY_ID=${params.AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${params.AWS_SECRET_ACCESS_KEY} ${params.DOCKER_IMAGE} \
                         python ${params.SCRIPT_PATH}/facenet_main.py
                     """
                 }
