@@ -36,11 +36,14 @@ spec:
   selector:
     app: {{ template "ck-client.name" . }}
   ports:
-    - name: {{ template "ck-client.name" . }}
+    - name: {{ template "ck-client.name" . }}-http
       protocol: TCP
       port: {{ .Values.server.faceClient.port }}
-      # nodePort: {{ .Values.server.faceClient.nodePort }} # Assign static NodePort
       targetPort: {{ .Values.server.faceClient.port }}
+    - name: {{ template "ck-client.name" . }}-https
+      protocol: TCP
+      port: {{ .Values.server.faceClient.tlsPort }}
+      targetPort: {{ .Values.server.faceClient.tlsPort }}
   type: LoadBalancer
   allocateLoadBalancerNodePorts: false
   externalTrafficPolicy: Cluster

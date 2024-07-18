@@ -44,6 +44,7 @@ server:
   faceClient:
     name: face-client
     port: "80"
+    tlsPort: "443"
     nodePort: "30080"
 
 resources:
@@ -120,3 +121,8 @@ dbPass: ""
 
 ingress:
   enabled: true
+
+aws:
+  key:
+  secret:
+  region: us-east-1

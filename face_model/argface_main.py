@@ -34,12 +34,15 @@ def parse_arguments():
 
 if __name__ == "__main__":
     args = parse_arguments()
-
+    
+    if not os.path.exists(arcface_dataset):
+        print(f"{arcface_dataset} not found. Downloading from S3...")
+        s3Config.download_all_objects('arcface_train_dataset/', build_dir)
+        
     # Initialize the classifier
     classifier = ArcFaceClassifier(arcface_dataset)
     
     if args.mode == 'train':
-        s3Config.download_all_objects('arcface_train_dataset/', build_dir)
         if classifier.model_exists() and args.continue_training:
             print("Loading existing model and continuing training.")
             classifier.load_model()
@@ -51,9 +54,9 @@ if __name__ == "__main__":
         classifier.train(num_epochs=args.num_epochs, lr=args.learning_rate, momentum=args.momentum)
         print("Training completed.")
         if args.is_upload:
-            s3Config.upload_folder('.insightface',folder_path=arcface_model)
+            s3Config.upload_folder('.insightface', folder_path=arcface_model)
             print(f"Uploaded Model to S3 successfully")
-        classifier.plot_training_metrics(os.path.join(build_dir, 'arcface_train_loss'))
+        classifier.plot_training_metrics(os.path.join(arcface_model, 'arcface_train_loss'))
     elif args.mode == 'identify':
         if not args.image_path:
             raise ValueError("Image path is required for identification mode.")
