@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import csv
 from PIL import Image
 from ultralytics import YOLO
 from argface_model.argface_classifier import ArcFaceClassifier
@@ -7,6 +8,7 @@ import uuid
 import torch
 from torchvision import transforms
 from facenet_pytorch import InceptionResnetV1
+from facenet_main import FaceNetModel
 from s3_config.s3Config import S3Config
 import logging
 import matplotlib.pyplot as plt
@@ -21,6 +23,10 @@ build_dir = os.path.join(root_directory, '..', 'build')
 arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
 arcface_model_dir = os.path.join(build_dir, '.insightface')
 model_save_path = os.path.join(build_dir, '.insightface/arcface_model.pth')
+ground_truth_csv = os.path.join(build_dir, 'ground_truth_labels.csv')  # Path to ground truth CSV
+# Face Net
+facenet_model_dir = os.path.join(build_dir, 'face_net_train')
+facenet_model_file_path = os.path.join(facenet_model_dir, 'facenet_model.pth')
 
 class ImageProcessor:
     def __init__(self, yolo_model_path, person_name="UNKNOWN"):
@@ -28,9 +34,17 @@ class ImageProcessor:
         self.argface_model = ArcFaceClassifier(arcface_dataset)
         self.person_name = person_name
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.facenet_model = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
         self.s3Config = S3Config()
         self.distances = []
+        
+        if os.path.exists(facenet_model_file_path):
+            self.facenet_trainer = FaceNetModel(device=self.device, save_path=facenet_model_file_path)
+            self.facenet_trainer.load_model(facenet_model_file_path)
+            self.facenet_model = self.facenet_trainer.model
+            logging.info(f"Loaded FaceNet model from {facenet_model_file_path}")
+        else:
+            self.facenet_model = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
+            logging.info("Using pretrained InceptionResnetV1 model")
 
     def verify_images(self, image2):
         try:
