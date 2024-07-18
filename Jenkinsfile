@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/anhdung2k1/contactless-checking.git', description: 'Git repository URL')
-        string(name: 'DOCKER_IMAGE', defaultValue: 'anhdung12399/testcon:1.0.0', description: 'Docker image to use')
+        string(name: 'DOCKER_IMAGE', defaultValue: 'anhdung12399/testcon:1.1.0', description: 'Docker image to use')
         string(name: 'SCRIPT_PATH', defaultValue: 'face_model', description: 'Path to the Python script')
         string(name: 'MODE', defaultValue: 'train', description: 'Mode to run the script in')
         string(name: 'NUM_EPOCHS', defaultValue: '10000', description: 'Number of epochs')
