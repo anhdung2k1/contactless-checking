@@ -6,6 +6,9 @@
   ports:
     - name: http-server-svc
       containerPort: {{ $top.Values.server.faceModel.port }}
+  volumeMounts:
+  - name: {{ template "ck-server.name" $top }}-persistent-storage
+    mountPath: /app/build
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-model") | indent 2 }}
   env:
@@ -15,4 +18,8 @@
     value: {{ $top.Values.aws.secret }}
   - name: AWS_DEFAULT_REGION
     value: {{ $top.Values.aws.region }}
+volumes:
+- name: {{ template "ck-server.name" $top }}-persistent-storage
+  persistentVolumeClaim:
+    claimName: {{ template "ck-server.name" $top }}-pv-claim
 {{- end -}}

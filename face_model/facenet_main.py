@@ -2,7 +2,6 @@ import os
 import random
 import torch
 from PIL import Image, UnidentifiedImageError
-import numpy as np
 from torchvision import transforms
 from facenet_pytorch import InceptionResnetV1
 import torch.nn as nn

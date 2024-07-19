@@ -116,7 +116,8 @@ storageClassName:
   mysql: local-storage
 
 storageCapacity:
-  mysql: 10Gi
+  mysql: 5Gi
+  faceModel: 5Gi
 
 dbPass: ""
 
