@@ -77,4 +77,6 @@ def verify_images():
         return jsonify({'error': f'Failed to verify images: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    cert_path = os.path.join(root_directory, 'ssl', 'tls.crt')
+    key_path = os.path.join(root_directory, 'ssl', 'tls.key')
+    app.run(host='0.0.0.0', port=5000, ssl_context=(cert_path, key_path))
