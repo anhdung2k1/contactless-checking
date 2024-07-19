@@ -6,11 +6,11 @@ spec:
   selector:
     app: {{ template "ck-authentication.name" . }}
   ports:
-    - protocol: "TCP"
+    - name: {{ template "ck-authentication.name" . }}-http
+      protocol: "TCP"
       port: {{ .Values.server.authentication.port }}
-      targetPort: {{ .Values.server.authentication.port }}
+      targetPort: https-auth-svc
       nodePort: {{ .Values.server.authentication.nodePort }} # Assign static NodePort
-      name: {{ template "ck-authentication.name" . }}
   type: NodePort
 ---
 apiVersion: v1
@@ -21,30 +21,39 @@ spec:
   selector:
     app: {{ template "ck-server.name" . }}
   ports:
-    - protocol: TCP
+    - name: {{ template "ck-server.name" . }}-http
+      protocol: TCP
       port: {{ .Values.server.faceModel.port }}
       nodePort: {{ .Values.server.faceModel.nodePort }} # Assign static NodePort
-      targetPort: {{ .Values.server.faceModel.port }}
-      name: {{ template "ck-server.name" . }}
+      targetPort: http-server-svc
   type: NodePort
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "ck-client.name" . }}
+  name: {{ template "ck-client.name" . }}-http
 spec:
   selector:
     app: {{ template "ck-client.name" . }}
   ports:
     - name: {{ template "ck-client.name" . }}-http
       protocol: TCP
-      port: {{ .Values.server.faceClient.port }}
-      targetPort: {{ .Values.server.faceClient.port }}
+      port: {{ .Values.server.faceClient.httpPort }}
+      nodePort: {{ .Values.server.faceClient.httpNodePort }} # Assign static NodePort
+      targetPort: http-client-svc
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "ck-client.name" . }}-https
+spec:
+  selector:
+    app: {{ template "ck-client.name" . }}
+  ports:
     - name: {{ template "ck-client.name" . }}-https
       protocol: TCP
       port: {{ .Values.server.faceClient.tlsPort }}
-      targetPort: {{ .Values.server.faceClient.tlsPort }}
-  type: LoadBalancer
-  allocateLoadBalancerNodePorts: false
-  externalTrafficPolicy: Cluster
-  loadBalancerIP: {{ .Values.server.externalIP }}
+      nodePort: {{ .Values.server.faceClient.tlsNodePort }} # Assign static NodePort
+      targetPort: tls-client-svc
+  type: NodePort

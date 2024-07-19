@@ -441,7 +441,7 @@ test_repo() {
                 -e DB_USERNAME=${COMMON_DB} \
                 -e DB_NAME=${COMMON_DB} \
                 -e DB_PASSWORD=${COMMON_DB} \
-                -p 8080:8080 \
+                -p 8443:8443 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"
     ;;

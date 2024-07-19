@@ -10853,7 +10853,7 @@
                     },
                     "./src/default-attrs.json": function(e) {
                         e.exports = {
-                            xmlns: "http://www.w3.org/2000/svg",
+                            xmlns: "https://www.w3.org/2000/svg",
                             width: 24,
                             height: 24,
                             viewBox: "0 0 24 24",
@@ -12253,7 +12253,7 @@
                     }
                     var t = e.prototype;
                     return t._createElement = function(e) {
-                        return document.createElementNS("http://www.w3.org/2000/svg", e)
+                        return document.createElementNS("https://www.w3.org/2000/svg", e)
                     }
                     ,
                     t.addClass = function(e) {
@@ -12342,7 +12342,7 @@
                         "image" === e ? ("object" == typeof n ? (i = n.url,
                         this.offset = n.offset || [0, 0]) : (i = n,
                         this.offset = [0, 0]),
-                        this.node.setAttributeNS("http://www.w3.org/1999/xlink", "href", i),
+                        this.node.setAttributeNS("https://www.w3.org/1999/xlink", "href", i),
                         this.width = 23,
                         this.height = 23,
                         this.applyAttr("width", this.width),
@@ -24417,7 +24417,7 @@
                         var n, i = sn;
                         if (t.abbr = e,
                         null != dn[e])
-                            S("defineLocaleOverride", "use moment.updateLocale(localeName, config) to change an existing locale. moment.defineLocale(localeName, config) should only be used for creating a new locale See http://momentjs.com/guides/#/warnings/define-locale/ for more info."),
+                            S("defineLocaleOverride", "use moment.updateLocale(localeName, config) to change an existing locale. moment.defineLocale(localeName, config) should only be used for creating a new locale See https://momentjs.com/guides/#/warnings/define-locale/ for more info."),
                             i = dn[e]._config;
                         else if (null != t.parentLocale)
                             if (null != dn[t.parentLocale])
@@ -24740,7 +24740,7 @@
                 function Gn(e, t, n, i) {
                     return Un(e, t, n, i, !1)
                 }
-                a.createFromInputFallback = Y("value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are discouraged. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.", (function(e) {
+                a.createFromInputFallback = Y("value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are discouraged. Please refer to https://momentjs.com/guides/#/warnings/js-date/ for more info.", (function(e) {
                     e._d = new Date(e._i + (e._useUTC ? " UTC" : ""))
                 }
                 )),
@@ -24748,12 +24748,12 @@
                 ,
                 a.RFC_2822 = function() {}
                 ;
-                var qn = Y("moment().min is deprecated, use moment.max instead. http://momentjs.com/guides/#/warnings/min-max/", (function() {
+                var qn = Y("moment().min is deprecated, use moment.max instead. https://momentjs.com/guides/#/warnings/min-max/", (function() {
                     var e = Gn.apply(null, arguments);
                     return this.isValid() && e.isValid() ? e < this ? this : e : v()
                 }
                 ))
-                  , Xn = Y("moment().max is deprecated, use moment.min instead. http://momentjs.com/guides/#/warnings/min-max/", (function() {
+                  , Xn = Y("moment().max is deprecated, use moment.min instead. https://momentjs.com/guides/#/warnings/min-max/", (function() {
                     var e = Gn.apply(null, arguments);
                     return this.isValid() && e.isValid() ? e > this ? this : e : v()
                 }
@@ -24992,7 +24992,7 @@
                 function Ai(e, t) {
                     return function(n, i) {
                         var a;
-                        return null === i || isNaN(+i) || (S(t, "moment()." + t + "(period, number) is deprecated. Please use moment()." + t + "(number, period). See http://momentjs.com/guides/#/warnings/add-inverted-param/ for more info."),
+                        return null === i || isNaN(+i) || (S(t, "moment()." + t + "(period, number) is deprecated. Please use moment()." + t + "(number, period). See https://momentjs.com/guides/#/warnings/add-inverted-param/ for more info."),
                         a = n,
                         n = i,
                         i = a),
@@ -25760,8 +25760,8 @@
                 sr.dates = Y("dates accessor is deprecated. Use date instead.", Qa),
                 sr.months = Y("months accessor is deprecated. Use month instead", ut),
                 sr.years = Y("years accessor is deprecated. Use year instead", gt),
-                sr.zone = Y("moment().zone is deprecated, use moment().utcOffset instead. http://momentjs.com/guides/#/warnings/zone/", pi),
-                sr.isDSTShifted = Y("isDSTShifted is deprecated. See http://momentjs.com/guides/#/warnings/dst-shifted/ for more information", xi);
+                sr.zone = Y("moment().zone is deprecated, use moment().utcOffset instead. https://momentjs.com/guides/#/warnings/zone/", pi),
+                sr.isDSTShifted = Y("isDSTShifted is deprecated. See https://momentjs.com/guides/#/warnings/dst-shifted/ for more information", xi);
                 var hr = H.prototype;
                 function mr(e, t, n, i) {
                     var a = yn()
@@ -33823,7 +33823,7 @@
             minuteIncrement: 5,
             mode: "single",
             monthSelectorType: "dropdown",
-            nextArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
+            nextArrow: "<svg version='1.1' xmlns='https://www.w3.org/2000/svg' xmlns:xlink='https://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
             noCalendar: !1,
             now: new Date,
             onChange: [],
@@ -33841,7 +33841,7 @@
             plugins: [],
             position: "auto",
             positionElement: void 0,
-            prevArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
+            prevArrow: "<svg version='1.1' xmlns='https://www.w3.org/2000/svg' xmlns:xlink='https://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
             shorthandCurrentMonth: !1,
             showMonths: 1,
             static: !1,

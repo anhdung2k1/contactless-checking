@@ -22,7 +22,7 @@ updateStrategy:
 
 server:
   replicaCount: 1
-  externalIP: 192.168.49.2
+  externalIP: 192.168.122.70
   mysqlServer:
     name: mysql-server
     port: 3306
@@ -33,7 +33,7 @@ server:
   #serviceAccountName: ""
   authentication:
     name: authentication
-    port: "8080"
+    port: "8443"
     nodePort: "30800"
 
   faceModel:
@@ -43,9 +43,10 @@ server:
 
   faceClient:
     name: face-client
-    port: "80"
+    httpPort: "80"
     tlsPort: "443"
-    nodePort: "30080"
+    httpNodePort: "30080"
+    tlsNodePort: "30443"
 
 resources:
   initcontainer:
