@@ -5,13 +5,13 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: {{ .Values.storageClassName.mysql | quote }}
+  storageClassName: {{ .Values.storageClassName }}
   capacity:
-    storage: {{ .Values.storageCapacity.mysql | quote }}
+    storage: {{ .Values.storageCapacity.mysql }}
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /mnt/ck/data-mysql1
+    path: /mnt/ck/data-mysql
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -21,9 +21,9 @@ metadata:
     app: {{ template "ck-mysql.name" .}}
     tier: database
 spec:
-  storageClassName: {{ .Values.storageClassName.mysql | quote }}
+  storageClassName: {{ .Values.storageClassName }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: {{ .Values.storageRequest.mysql }}

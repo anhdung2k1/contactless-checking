@@ -379,7 +379,7 @@ Define resources
 {{- end -}}
 
 {{- define "ck-mysql.password" -}}
-{{- $pass := "root" | b64enc -}}
+{{- $pass := "checking" | b64enc -}}
 {{- if .Values.dbPass -}}
     {{- $pass := .Values.dbPass -}}
 {{- end -}}
@@ -390,12 +390,12 @@ Define resources
 Create secret for mysql
 */}}
 {{- define "ck-mysql.secrets" -}}
-{{- $password := (include "ck-mysql.password" .) }}
+{{- $password := (include "ck-mysql.password" .) -}}
 data:
   {{ template "ck-mysql.name" . }}-root-password: {{- print "root" | b64enc | indent 2 }}
   {{ template "ck-mysql.name" . }}-password: {{- $password | indent 2 }}
   {{- if not (eq ($password | b64dec) "root") }}
-    {{ template "ck-mysql.name" . }}-user: {{- $password | indent 2 }}
+  {{ template "ck-mysql.name" . }}-user: {{- $password | indent 2 }}
   {{- end }}
   {{ template "ck-mysql.name" . }}-host: {{- include "ck-mysql.name" . | b64enc | indent 2 }}
   {{ template "ck-mysql.name" . }}-dbName: {{- print "checking" | b64enc | indent 2 }}
