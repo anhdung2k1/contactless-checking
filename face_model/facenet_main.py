@@ -29,15 +29,15 @@ if not os.path.exists(save_path):
 
 # Configure logging
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 # File handler
 file_handler = logging.FileHandler(os.path.join(save_path, 'training.log'))
-file_handler.setLevel(logging.DEBUG)
+file_handler.setLevel(logging.INFO)
 
 # Console handler
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
+console_handler.setLevel(logging.INFO)
 
 # Formatter
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')

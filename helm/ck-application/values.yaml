@@ -112,17 +112,18 @@ seccompProfile:
 imageCredentials:
   pullPolicy: IfNotPresent
 
-storageClassName:
-  mysql: local-storage
+storageClassName: local-storage
 
 storageCapacity:
   mysql: 10Gi
-  faceModel: 5Gi
+
+storageRequest:
+  mysql: 5Gi
 
 dbPass: ""
 
 ingress:
-  enabled: true
+  enabled: false
 
 aws:
   key:

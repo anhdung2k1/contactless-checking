@@ -97,7 +97,7 @@ export AWS_DEFAULT_REGION=<your-AWS_DEFAULT_REGION> | <DEFAULT us-east-1>
 7. To install helm chart, must build-image-push image to registry before running helm. If could not retrieve the image to pull.
 ```bash
 $ make package-helm
-$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-3.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
+$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
 ```
 
 # Note that: 1.0.0-3 version the TLS was signed at 192.168.122.70 => Master Node IP in cluster. Please set this external IP use this IP to use TLS.

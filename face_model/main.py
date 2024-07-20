@@ -8,7 +8,7 @@ from s3_config.s3Config import S3Config
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 CORS(app)
@@ -16,14 +16,30 @@ CORS(app)
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
 build_dir = os.path.join(root_directory, '..', 'build')
+arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
 
+yolo_root_dir = os.path.join(build_dir, 'yolo_model')
 yolo_dir = "yolo_model/runs/detect/train/weights/best.pt"
 yolo_path = os.path.join(root_directory, '..', 'build', yolo_dir)
 
 s3Config = S3Config()
 
+if not os.path.exists(build_dir):
+    # Create build_dir if is not exist
+    logging.info(f"Create {build_dir}")
+    os.makedirs(build_dir)
+
+if not os.path.exists(yolo_root_dir):
+    logging.info(f"Create {yolo_root_dir} folder")
+    os.makedirs(yolo_root_dir)
+
 if not os.path.exists(yolo_path):
+    logging.info(f"Create {yolo_path} folder")
     s3Config.download_all_objects('yolo_model/', build_dir)
+    
+if not os.path.exists(arcface_dataset):
+    logging.info(f"{arcface_dataset} not found. Downloading from S3...")
+    s3Config.download_all_objects('arcface_train_dataset/', build_dir)
 
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)

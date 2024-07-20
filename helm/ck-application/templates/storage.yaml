@@ -5,9 +5,9 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: {{ .Values.storageClassName.mysql | quote }}
+  storageClassName: {{ .Values.storageClassName }}
   capacity:
-    storage: {{ .Values.storageCapacity.mysql | quote }}
+    storage: {{ .Values.storageCapacity.mysql }}
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -21,40 +21,9 @@ metadata:
     app: {{ template "ck-mysql.name" .}}
     tier: database
 spec:
-  storageClassName: {{ .Values.storageClassName.mysql | quote }}
+  storageClassName: {{ .Values.storageClassName }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: {{ template "ck-server.name" . }}-pv-volume-ck
-  labels:
-    type: local
-spec:
-  storageClassName: {{ .Values.storageClassName.mysql | quote }}
-  capacity:
-    storage: {{ .Values.storageCapacity.faceModel | quote }}
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /mnt/ck/data-model
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ template "ck-server.name" . }}-pv-claim
-  labels:
-    app: {{ template "ck-server.name" .}}
-    tier: database
-spec:
-  storageClassName: {{ .Values.storageClassName.mysql | quote }}
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 3Gi
-  
+      storage: {{ .Values.storageRequest.mysql }}
