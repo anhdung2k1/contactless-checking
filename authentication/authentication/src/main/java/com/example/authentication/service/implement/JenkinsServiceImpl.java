@@ -9,6 +9,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,12 @@ import java.util.Map;
 @Slf4j
 public class JenkinsServiceImpl implements JenkinsService {
 
+    @Value("${cloud.aws.credentials.access-key}")
+    private String accessKey;
+
+    @Value("${cloud.aws.credentials.secret-key}")
+    private String accessSecret;
+
     @Autowired
     private final RestTemplate restTemplate;
 
@@ -28,19 +35,28 @@ public class JenkinsServiceImpl implements JenkinsService {
         String jobName = (String) params.get("jobName");
         String userName = (String) params.get("userName");
         String apiToken = (String) params.get("apiToken");
-        String[] variableKeys = ((List<String>) params.get("variableKey")).toArray(new String[0]);
-        String[] variableValues = ((List<String>) params.get("variableValue")).toArray(new String[0]);
+        List<String> variableKeys = (List<String>) params.get("variableKey");
+        List<String> variableValues = (List<String>) params.get("variableValue");
+
+        // Add AWS credentials
+        variableKeys.add("AWS_ACCESS_KEY_ID");
+        variableValues.add(accessKey);
+        variableKeys.add("AWS_SECRET_ACCESS_KEY");
+        variableValues.add(accessSecret);
+
+        // Convert Lists to Arrays
+        String[] variableKeysArray = variableKeys.toArray(new String[0]);
+        String[] variableValuesArray = variableValues.toArray(new String[0]);
 
         // Construct the Jenkins URL
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(jenkinsUrl + "/job/" + jobName + "/buildWithParameters");
 
         // Add the variable parameters to the URL
-        for (int i = 0; i < variableKeys.length; i++) {
-            uriBuilder.queryParam(variableKeys[i], variableValues[i]);
+        for (int i = 0; i < variableKeysArray.length; i++) {
+            uriBuilder.queryParam(variableKeysArray[i], variableValuesArray[i]);
         }
 
         String uri = uriBuilder.toUriString();
-
         log.info("Constructed Jenkins URL: {}", uri);
 
         // Set the headers for the request
@@ -56,7 +72,7 @@ public class JenkinsServiceImpl implements JenkinsService {
             response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(headers), String.class);
             log.info("Received response from Jenkins with status code: {}", response.getStatusCode());
         } catch (Exception e) {
-            log.error("Error occurred while sending request to Jenkins: {}", e.getMessage());
+            log.error("Error occurred while sending request to Jenkins: {}", e.getMessage(), e);
         }
 
         // Log response body

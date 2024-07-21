@@ -9,6 +9,7 @@ root_directory = os.path.dirname(file_location)  # Get root dir
 build_dir = os.path.join(root_directory, '..', 'build')
 arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
 arcface_model = os.path.join(build_dir, '.insightface')
+arcface_dataset_test = os.path.join(build_dir, 'lfw_dataset', 'lfw')
 # Export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION in your env
 s3Config = S3Config()
 
@@ -30,17 +31,22 @@ def parse_arguments():
     parser.add_argument('--momentum', type=float, default=0.9, help='Momentum for training')
     parser.add_argument('--continue_training', action='store_true', help='Flag to continue training from an existing model')
     parser.add_argument('--is_upload', action='store_true', help='Flag to upload to S3 bucket')
+    parser.add_argument('--is_test', action='store_true', help='Flag to test the arcface model')
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_arguments()
     
-    if not os.path.exists(arcface_dataset):
-        print(f"{arcface_dataset} not found. Downloading from S3...")
-        s3Config.download_all_objects('arcface_train_dataset/', build_dir)
+    if not args.is_test:
+        if not os.path.exists(arcface_dataset):
+            print(f"{arcface_dataset} not found. Downloading from S3...")
+            s3Config.download_all_objects('arcface_train_dataset/', build_dir)
         
     # Initialize the classifier
-    classifier = ArcFaceClassifier(arcface_dataset)
+    if not args.is_test:
+        classifier = ArcFaceClassifier(arcface_dataset)
+    else:
+        classifier = ArcFaceClassifier(arcface_dataset_test)
     
     if args.mode == 'train':
         if classifier.model_exists() and args.continue_training:

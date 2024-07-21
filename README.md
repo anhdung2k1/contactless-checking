@@ -100,4 +100,5 @@ $ make package-helm
 $ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
 ```
 
-# Note that: 1.0.0-3 version the TLS was signed at 192.168.122.70 => Master Node IP in cluster. Please set this external IP use this IP to use TLS.
+### Note that: 1.0.0-3 version the TLS was signed at 192.168.122.70 => Master Node IP in cluster. Please set this external IP use this IP to use TLS.
+### 1.0.0-5: 192.168.49.2

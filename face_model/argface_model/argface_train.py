@@ -25,6 +25,13 @@ class ArcFaceTrainer:
         accuracy = correct / total
 
         return loss.item(), accuracy
+    
+    def get_predictions(self):
+        self.model.eval()
+        with torch.no_grad():
+            outputs = self.model(self.features)
+            _, predicted = torch.max(outputs, 1)
+        return predicted.cpu().numpy()
 
     def train(self, num_epochs=10):
         for epoch in range(num_epochs):

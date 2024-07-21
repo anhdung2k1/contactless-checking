@@ -16,7 +16,7 @@ pipeline {
 
     environment {
         REPO_DIR = "${env.WORKSPACE}/contactless-checking"
-        ARTIFACT_DIR = "artifacts/arcModel"
+        ARTIFACT_DIR = "${env.WORKSPACE}/artifacts/arcModel"
     }
 
     options {
@@ -27,21 +27,45 @@ pipeline {
         stage('Cleanup') {
             steps {
                 script {
-                    // Clean up the directory if it exists
-                    sh "rm -rf ${env.REPO_DIR}"
-                    // Clean up previous artifact
-                    sh "rm -rf ${env.ARTIFACT_DIR}"
+                    // Clean up the workspace
+                    sh "rm -rf ${REPO_DIR}"
+                    sh "rm -rf ${ARTIFACT_DIR}"
                 }
             }
         }
-        stage('Clone repo') {
+
+        stage('Clone the git source') {
             steps {
                 script {
                     // Clone the Git repository
-                    sh "git clone ${params.GIT_REPO} ${env.REPO_DIR}"
+                    sh "git clone ${params.GIT_REPO} ${REPO_DIR}"
                 }
             }
         }
+
+        stage('Training YOLOv8') {
+            steps {
+                script {
+                    sh """
+                        /bin/bash -c '
+                        pushd ${REPO_DIR}
+                        if [ ! -f vas.sh ]; then
+                            echo "vas.sh not found!"
+                            exit 1
+                        fi
+                        chmod +x vas.sh
+                        make init
+                        popd
+                        '
+                    """
+                    sh """
+                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} -e AWS_ACCESS_KEY_ID=${params.AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${params.AWS_SECRET_ACCESS_KEY} ${params.DOCKER_IMAGE} \
+                        ./vas.sh train_dataset
+                    """
+                }
+            }
+        }
+
         stage('Training ArcFace') {
             steps {
                 script {
@@ -54,6 +78,7 @@ pipeline {
                 }
             }
         }
+
         stage('Training FaceNet') {
             steps {
                 script {
@@ -64,14 +89,16 @@ pipeline {
                 }
             }
         }
+
         stage('Archive Artifacts') {
             steps {
                 script {
                     // Ensure the artifacts directory exists and copy artifacts there
-                    sh "mkdir -p ${env.ARTIFACT_DIR}"
-                    sh "cp -rf ${env.REPO_DIR}/build/.insightface/ ${env.ARTIFACT_DIR}"
-                    sh "cp -rf ${env.REPO_DIR}/build/face_net_train/ ${env.ARTIFACT_DIR}"
-                    archiveArtifacts artifacts: "${env.ARTIFACT_DIR}/**", allowEmptyArchive: true
+                    sh "mkdir -p ${ARTIFACT_DIR}"
+                    sh "cp -rf ${REPO_DIR}/build/.insightface/ ${ARTIFACT_DIR}"
+                    sh "cp -rf ${REPO_DIR}/build/face_net_train/ ${ARTIFACT_DIR}"
+                    sh "cp -rf ${REPO_DIR}/build/yolo_model/ ${ARTIFACT_DIR}"
+                    archiveArtifacts artifacts: "${ARTIFACT_DIR}/**", allowEmptyArchive: true
                 }
             }
         }

@@ -18,6 +18,10 @@ To run `argface_main.py` locally to run train model. Parse the AWS_ACCESS_KEY_ID
 ```bash
 docker run -it --rm -v $PWD:$PWD:rw -w $PWD -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY anhdung12399/testcon:1.1.0 python face_model/argface_main.py --mode train --num_epochs 10000 --learning_rate 0.001 --momentum 0.9 --continue_training --is_upload
 ```
+To test out the `argface_main.py` model with LFW dataset.
+```bash
+docker run -it --rm -v $PWD:$PWD:rw -w $PWD -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY anhdung12399/testcon:1.1.0 python face_model/argface_main.py --mode train --num_epochs 10000 --learning_rate 0.001 --momentum 0.9 --is_test
+```
 
 ### HOW TO USE MODEL TRAIN
 To continue training existing model

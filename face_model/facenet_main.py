@@ -6,8 +6,10 @@ from torchvision import transforms
 from facenet_pytorch import InceptionResnetV1
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, mean_absolute_error, mean_squared_error, r2_score
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
@@ -18,6 +20,7 @@ root_directory = os.path.dirname(file_location)
 # Set the build directory and Roboflow dataset path
 build_dir = os.path.join(root_directory, '..', 'build')
 data_path = os.path.join(build_dir, 'dataset')
+lfw_data_path = os.path.join(build_dir, 'lfw_dataset', 'lfw')
 
 # Directory to save plots and model
 save_path = os.path.join(build_dir, 'face_net_train')
@@ -49,8 +52,8 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
 class FaceNetModel:
-    def __init__(self, images_path='', batch_size=32, lr=0.01, num_epochs=20, device='cuda', save_path=None, model_file_path=None):
-        self.images_path = images_path
+    def __init__(self, images_paths=[], batch_size=32, lr=0.01, num_epochs=20, device='cuda', save_path=None, model_file_path=None):
+        self.images_paths = images_paths
         self.transform = transforms.Compose([
             transforms.Resize((160, 160)),  # Ensure size is 160x160 as expected by InceptionResnetV1
             transforms.ToTensor(),
@@ -79,20 +82,30 @@ class FaceNetModel:
 
     def load_images(self):
         image_paths = []
-        for image_name in os.listdir(self.images_path):
-            image_path = os.path.join(self.images_path, image_name)
-            if os.path.isfile(image_path):
-                image_paths.append(image_path)
-        logger.debug(f"Loaded {len(image_paths)} images from {self.images_path}")
-        return image_paths
+        labels = []
+        valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp')  # Add more extensions if needed
+        for path in self.images_paths:
+            for label_name in os.listdir(path):
+                label_path = os.path.join(path, label_name)
+                if os.path.isdir(label_path):
+                    for image_name in os.listdir(label_path):
+                        image_path = os.path.join(label_path, image_name)
+                        if os.path.isfile(image_path) and image_path.lower().endswith(valid_extensions):
+                            image_paths.append(image_path)
+                            labels.append(label_name)
+                        else:
+                            logger.warning(f"Skipped non-image file: {image_path}")
+        logger.debug(f"Loaded {len(image_paths)} images from {self.images_paths}")
+        return image_paths, labels
 
-    def split_dataset(self, image_paths, split_ratio=0.8):
-        random.shuffle(image_paths)
-        split_index = int(len(image_paths) * split_ratio)
-        train_paths = image_paths[:split_index]
-        val_paths = image_paths[split_index:]
+    def split_dataset(self, image_paths, labels, split_ratio=0.8):
+        combined = list(zip(image_paths, labels))
+        random.shuffle(combined)
+        split_index = int(len(combined) * split_ratio)
+        train_paths, train_labels = zip(*combined[:split_index])
+        val_paths, val_labels = zip(*combined[split_index:])
         logger.debug(f"Split dataset into {len(train_paths)} training images and {len(val_paths)} validation images")
-        return train_paths, val_paths
+        return list(train_paths), list(train_labels), list(val_paths), list(val_labels)
 
     def preprocess_image(self, image_path):
         if image_path in self.image_cache:
@@ -106,20 +119,22 @@ class FaceNetModel:
             logger.warning(f"Skipped non-image file: {image_path}")
             return None
 
-    def load_batch(self, batch_paths):
+    def load_batch(self, batch_paths, batch_labels):
         batch_images = []
-        batch_labels = []
+        batch_targets = []
+        label_map = {label: idx for idx, label in enumerate(set(batch_labels))}
+
         with ThreadPoolExecutor() as executor:
             results = list(executor.map(self.preprocess_image, batch_paths))
-        for result in results:
+        for result, label in zip(results, batch_labels):
             if result is not None:
                 batch_images.append(result)
-                batch_labels.append(0)  # Assuming single class. Adjust as needed.
-        return batch_images, batch_labels
+                batch_targets.append(label_map[label])  # Map label to numeric index
+        return batch_images, batch_targets
 
     def train(self):
-        image_paths = self.load_images()
-        train_image_paths, val_image_paths = self.split_dataset(image_paths)
+        image_paths, labels = self.load_images()
+        train_image_paths, train_labels, val_image_paths, val_labels = self.split_dataset(image_paths, labels)
 
         self.model.train()
         for epoch in range(self.num_epochs):
@@ -130,14 +145,16 @@ class FaceNetModel:
 
             for i in range(0, len(train_image_paths), self.batch_size):
                 batch_paths = train_image_paths[i:i + self.batch_size]
-                batch_images, batch_labels = self.load_batch(batch_paths)
+                batch_labels = train_labels[i:i + self.batch_size]
+                batch_images, batch_targets = self.load_batch(batch_paths, batch_labels)
 
                 if len(batch_images) == 0:
                     logger.debug(f"Skipping empty batch at index {i}")
                     continue
 
                 images = torch.stack(batch_images).to(self.device)
-                labels = torch.tensor(batch_labels).to(self.device)
+                # Convert batch_targets to tensor with torch.long type
+                labels = torch.tensor(batch_targets, dtype=torch.long).to(self.device)
 
                 self.optimizer.zero_grad()
 
@@ -168,14 +185,15 @@ class FaceNetModel:
             with torch.no_grad():
                 for i in range(0, len(val_image_paths), self.batch_size):
                     batch_paths = val_image_paths[i:i + self.batch_size]
-                    batch_images, batch_labels = self.load_batch(batch_paths)
+                    batch_labels = val_labels[i:i + self.batch_size]
+                    batch_images, batch_targets = self.load_batch(batch_paths, batch_labels)
 
                     if len(batch_images) == 0:
                         logger.debug(f"Skipping empty validation batch at index {i}")
                         continue
 
                     images = torch.stack(batch_images).to(self.device)
-                    labels = torch.tensor(batch_labels).to(self.device)
+                    labels = torch.tensor(batch_targets).to(self.device)
 
                     outputs = self.model(images)
                     loss = self.criterion(outputs, labels)
@@ -196,6 +214,7 @@ class FaceNetModel:
         logger.info("Training Finished")
         self.plot_metrics(self.save_path)
         self.save_model(self.save_path)
+        self.print_evaluation_metrics(val_all_labels, val_all_preds, self.save_path)
         # Ensure all log messages are flushed
         for handler in logger.handlers:
             handler.flush()
@@ -237,6 +256,45 @@ class FaceNetModel:
         self.model.to(self.device)
         logger.info(f"Model loaded from {model_file_path}")
 
+    def print_evaluation_metrics(self, true_labels, predicted_labels, save_path):
+        conf_matrix = confusion_matrix(true_labels, predicted_labels)
+        class_report = classification_report(true_labels, predicted_labels, output_dict=True)
+        acc_score = accuracy_score(true_labels, predicted_labels)
+        mae = mean_absolute_error(true_labels, predicted_labels)
+        mse = mean_squared_error(true_labels, predicted_labels)
+        r2 = r2_score(true_labels, predicted_labels)
+
+        logger.info(f"Confusion Matrix:\n{conf_matrix}")
+        logger.info(f"Classification Report:\n{classification_report(true_labels, predicted_labels)}")
+        logger.info(f"Accuracy Score: {acc_score:.4f}")
+        logger.info(f"Mean Absolute Error: {mae:.4f}")
+        logger.info(f"Mean Squared Error: {mse:.4f}")
+        logger.info(f"R2 Score: {r2:.4f}")
+
+        print(f"Confusion Matrix:\n{conf_matrix}")
+        print(f"Classification Report:\n{classification_report(true_labels, predicted_labels)}")
+        print(f"Accuracy Score: {acc_score:.4f}")
+        print(f"Mean Absolute Error: {mae:.4f}")
+        print(f"Mean Squared Error: {mse:.4f}")
+        print(f"R2 Score: {r2:.4f}")
+
+        # Save confusion matrix
+        plt.figure(figsize=(10, 7))
+        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
+        plt.title('Confusion Matrix')
+        plt.ylabel('Actual Label')
+        plt.xlabel('Predicted Label')
+        plt.savefig(os.path.join(save_path, 'confusion_matrix.png'))
+        logger.info(f'Confusion matrix saved to {os.path.join(save_path, "confusion_matrix.png")}')
+        
+        # Save classification report
+        report_df = pd.DataFrame(class_report).transpose()
+        plt.figure(figsize=(10, 7))
+        sns.heatmap(report_df, annot=True, fmt=".2f", cmap="Blues", cbar=False)
+        plt.title('Classification Report')
+        plt.savefig(os.path.join(save_path, 'classification_report.png'))
+        logger.info(f'Classification report saved to {os.path.join(save_path, "classification_report.png")}')
+
 def main():
     # Set fixed hyperparameters and paths
     batch_size = 32  # Updated batch size
@@ -249,7 +307,7 @@ def main():
         os.makedirs(save_path)
 
     # Initialize and train the FaceNet model
-    facenet_model = FaceNetModel(images_path=os.path.join(data_path, 'train', 'images'), 
+    facenet_model = FaceNetModel(images_paths=[os.path.join(data_path, 'train', 'images'), lfw_data_path], 
                                  batch_size=batch_size, lr=lr, num_epochs=num_epochs, 
                                  device=device, save_path=save_path, model_file_path=model_file_path)
     facenet_model.train()

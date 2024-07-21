@@ -7,6 +7,7 @@
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
+test -n "$LFW_DATASET_DIR" || export LFW_DATASET_DIR="$BUILD_DIR/lfw_dataset"
 test -n "$RELEASE" || export RELEASE=false
 test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
@@ -34,6 +35,7 @@ change_id=$(git show $git_commit | grep '^\ *Change-Id' | awk '{print $2}')
 release=$git_commit
 
 # Dataset for Face Detection
+LFW_DATASET="http://vis-www.cs.umass.edu/lfw/lfw.tgz"
 DATASET="https://universe.roboflow.com/ds/EdI7sE1lHX?key=zHmiijqhOV"
 MODEL_URL="https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip"
 
@@ -75,6 +77,14 @@ dir_est() {
         echo "$DATASET_DIR already exists. Skipping creation."
     fi
 
+    # Check and create LFW_DIR if it does not exist
+    if [ ! -d "$LFW_DATASET_DIR" ]; then
+        echo "Creating $LFW_DATASET_DIR..."
+        mkdir -p "$LFW_DATASET_DIR"
+    else
+        echo "$LFW_DATASET_DIR already exists. Skipping creation"
+    fi
+
     # Check and create MODEL_DIR if it does not exist
     if [ ! -d "$MODEL_DIR" ]; then
         echo "Creating $MODEL_DIR..."
@@ -100,6 +110,23 @@ get_train_dataset() {
         popd
     else
         echo "Dataset directory is not empty"
+    fi
+}
+
+# Get LFW Dataset for training ArcFace for testing, and training FaceNet
+get_lfw_dataset() {
+    if [[ -d "$LFW_DATASET_DIR" && -z $(ls -A $LFW_DATASET_DIR) ]]; then
+        echo "LFW Dataset zip fil"
+        curl -L $LFW_DATASET > "$LFW_DATASET_DIR/lfw.tgz"
+        # Push the current directory to stack
+        pushd .
+        cd $LFW_DATASET_DIR
+        # Untar the dataset and remove tar file
+        tar xvfz $LFW_DATASET_DIR/lfw.tgz && rm -rf $LFW_DATASET_DIR/lfw.tgz
+        # Go back to previous directory
+        popd
+    else 
+        echo "LFW Dataset directory is not empty"
     fi
 }
 

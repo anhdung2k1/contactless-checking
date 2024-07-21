@@ -3,6 +3,8 @@ import torch
 import matplotlib.pyplot as plt
 from PIL import Image
 from torchvision import transforms
+import seaborn as sns
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, mean_absolute_error, mean_squared_error, r2_score
 
 from .argface_extract_features import FeatureExtractor
 from .argface_model import ArcFaceModel
@@ -54,7 +56,7 @@ class ArcFaceClassifier:
 
     def train(self, num_epochs=100, lr=0.001, momentum=0.9):
         if self.features is None or self.labels is None:
-            raise ValueError("Features or labels are None. Ensure they are extracted correctly.")
+            raise ValueError("Features or labels is None. Ensure they are extracted correctly.")
         trainer = ArcFaceTrainer(self.model, self.features, self.labels, lr, momentum)
         
         for epoch in range(num_epochs):
@@ -64,6 +66,7 @@ class ArcFaceClassifier:
             print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
 
         torch.save(self.model.state_dict(), model_save_path)
+        self.print_evaluation_metrics(self.labels, trainer.get_predictions(), save_path=build_dir)
 
     def plot_training_metrics(self, save_path=None):
         epochs = range(1, len(self.training_losses) + 1)
@@ -103,7 +106,6 @@ class ArcFaceClassifier:
     def model_exists(self):
         return os.path.exists(model_save_path)
 
-
     def identify_person(self, image_file):
         if not os.path.exists(image_file):
             raise FileNotFoundError(f"Image file not found: {image_file}")
@@ -127,3 +129,34 @@ class ArcFaceClassifier:
         predicted = self.model.predict(embedding_tensor)
         person_name = self.label_map[predicted.item()]
         return person_name
+
+    def print_evaluation_metrics(self, true_labels, predicted_labels, save_path=None):
+        conf_matrix = confusion_matrix(true_labels, predicted_labels)
+        class_report = classification_report(true_labels, predicted_labels, output_dict=True)
+        acc_score = accuracy_score(true_labels, predicted_labels)
+        mae = mean_absolute_error(true_labels, predicted_labels)
+        mse = mean_squared_error(true_labels, predicted_labels)
+        r2 = r2_score(true_labels, predicted_labels)
+
+        print(f"Confusion Matrix:\n{conf_matrix}")
+        print(f"Classification Report:\n{classification_report(true_labels, predicted_labels)}")
+        print(f"Accuracy Score: {acc_score:.4f}")
+        print(f"Mean Absolute Error: {mae:.4f}")
+        print(f"Mean Squared Error: {mse:.4f}")
+        print(f"R2 Score: {r2:.4f}")
+
+        if save_path:
+            plt.figure(figsize=(10, 7))
+            sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
+            plt.title('Confusion Matrix')
+            plt.ylabel('Actual Label')
+            plt.xlabel('Predicted Label')
+            plt.savefig(os.path.join(save_path, 'confusion_matrix.png'))
+            print(f'Confusion matrix saved to {os.path.join(save_path, "confusion_matrix.png")}')
+
+            plt.figure(figsize=(10, 7))
+            plt.axis('off')
+            plt.table(cellText=[[k, v] for k, v in class_report.items()], colLabels=["Class", "Metrics"], cellLoc='center', loc='center')
+            plt.title('Classification Report')
+            plt.savefig(os.path.join(save_path, 'classification_report.png'))
+            print(f'Classification report saved to {os.path.join(save_path, "classification_report.png")}')

@@ -54,6 +54,9 @@ spec:
     - name: {{ template "ck-client.name" . }}-https
       protocol: TCP
       port: {{ .Values.server.faceClient.tlsPort }}
-      nodePort: {{ .Values.server.faceClient.tlsNodePort }} # Assign static NodePort
+      # nodePort: {{ .Values.server.faceClient.tlsNodePort }} # Assign static NodePort
       targetPort: tls-client-svc
-  type: NodePort
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  loadBalancerIP: {{ .Values.server.externalIP }}
