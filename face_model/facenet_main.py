@@ -297,7 +297,7 @@ class FaceNetModel:
 
 def main():
     # Set fixed hyperparameters and paths
-    batch_size = 32  # Updated batch size
+    batch_size = 8  # Updated batch size
     lr = 0.01
     num_epochs = 20
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
