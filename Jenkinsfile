@@ -12,6 +12,8 @@ pipeline {
         string(name: 'LEARNING_RATE', defaultValue: '0.001', description: 'Learning rate')
         string(name: 'MOMENTUM', defaultValue: '0.9', description: 'Momentum')
         booleanParam(name: 'CONTINUE_TRAINING', defaultValue: false, description: 'Continue training from last checkpoint')
+        booleanParam(name: 'IS_TEST', defaultValue: false, description: 'ArcFace Testing with LFW Dataset')
+        booleanParam(name: 'IS_UPLOAD', defaultValue: false, description: 'Upload ArcFace model to S3')
     }
 
     environment {
@@ -70,14 +72,17 @@ pipeline {
             steps {
                 script {
                     def continueTraining = params.CONTINUE_TRAINING ? '--continue_training' : ''
+                    def isTest = params.IS_TEST ? '--is_test' : ''
+                    def isUpload = params.IS_UPLOAD ? '--is_upload' : ''
                     sh """
                         docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} -e AWS_ACCESS_KEY_ID=${params.AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${params.AWS_SECRET_ACCESS_KEY} ${params.DOCKER_IMAGE} \
-                        python ${params.SCRIPT_PATH}/argface_main.py --mode ${params.MODE} --num_epochs ${params.NUM_EPOCHS} \
-                        --learning_rate ${params.LEARNING_RATE} --momentum ${params.MOMENTUM} ${continueTraining}
+                        python ${params.SCRIPT_PATH}/arcface_main.py --mode ${params.MODE} --num_epochs ${params.NUM_EPOCHS} \
+                        --learning_rate ${params.LEARNING_RATE} --momentum ${params.MOMENTUM} ${continueTraining} ${isTest} ${isUpload}
                     """
                 }
             }
         }
+        
 
         stage('Training FaceNet') {
             steps {

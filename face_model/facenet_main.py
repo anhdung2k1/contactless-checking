@@ -111,6 +111,7 @@ class FaceNetModel:
         if image_path in self.image_cache:
             return self.image_cache[image_path]
         try:
+            logger.info(f"Opening image: {image_path}")
             image = Image.open(image_path).convert("RGB")
             image = self.transform(image)
             self.image_cache[image_path] = image
@@ -130,9 +131,11 @@ class FaceNetModel:
             if result is not None:
                 batch_images.append(result)
                 batch_targets.append(label_map[label])  # Map label to numeric index
+        logger.info(f"Loaded batch of {len(batch_images)} images")
         return batch_images, batch_targets
 
     def train(self):
+        logger.info("Starting training process")
         image_paths, labels = self.load_images()
         train_image_paths, train_labels, val_image_paths, val_labels = self.split_dataset(image_paths, labels)
 
