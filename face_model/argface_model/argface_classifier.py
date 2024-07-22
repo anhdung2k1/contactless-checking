@@ -29,6 +29,7 @@ model_save_path = os.path.join(build_dir, '.insightface/arcface_model.pth')
 
 class ArcFaceClassifier:
     _model_loaded = False
+
     def __init__(self, data_path):
         self.data_path = data_path
         self.feature_extractor = FeatureExtractor(data_path)
@@ -58,8 +59,8 @@ class ArcFaceClassifier:
         self.feature_extractor.extract_features(self.model)
         self.features, self.labels = self.feature_extractor.get_features_and_labels()
 
-        logger.info(f'Extracted features: {self.features}')
-        logger.info(f'Extracted labels: {self.labels}')
+        logger.info(f'Extracted features: {self.features.shape}')
+        logger.info(f'Extracted labels: {self.labels.shape}')
         if self.features is None or self.labels is None:
             raise ValueError("Features or labels not extracted correctly.")
         if len(self.features) == 0 or len(self.labels) == 0:

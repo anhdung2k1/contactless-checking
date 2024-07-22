@@ -300,7 +300,7 @@ class FaceNetModel:
 
 def main():
     # Set fixed hyperparameters and paths
-    batch_size = 8  # Updated batch size
+    batch_size = 4  # Updated batch size
     lr = 0.01
     num_epochs = 20
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -310,7 +310,7 @@ def main():
         os.makedirs(save_path)
 
     # Initialize and train the FaceNet model
-    facenet_model = FaceNetModel(images_paths=[os.path.join(data_path, 'train', 'images'), lfw_data_path], 
+    facenet_model = FaceNetModel(images_paths=[lfw_data_path], 
                                  batch_size=batch_size, lr=lr, num_epochs=num_epochs, 
                                  device=device, save_path=save_path, model_file_path=model_file_path)
     facenet_model.train()
