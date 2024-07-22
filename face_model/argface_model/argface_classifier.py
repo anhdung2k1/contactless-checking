@@ -78,7 +78,7 @@ class ArcFaceClassifier:
             logger.info(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
 
         torch.save(self.model.state_dict(), model_save_path)
-        self.print_evaluation_metrics(self.labels, trainer.get_predictions(), save_path=build_dir)
+        self.print_evaluation_metrics(self.labels, trainer.get_predictions(), save_path=arcface_model_dir)
 
     def plot_training_metrics(self, save_path=None):
         epochs = range(1, len(self.training_losses) + 1)

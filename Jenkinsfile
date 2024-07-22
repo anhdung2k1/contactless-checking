@@ -3,18 +3,21 @@ pipeline {
 
     parameters {
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/anhdung2k1/contactless-checking.git', description: 'Git repository URL')
-        string(name: 'DOCKER_IMAGE', defaultValue: 'anhdung12399/testcon:1.0.0', description: 'Docker image to use')
-        string(name: 'SCRIPT_PATH', defaultValue: 'face_model', description: 'Path to the Python script')
+        string(name: 'DOCKER_IMAGE', defaultValue: 'anhdung12399/testcon:1.1.0', description: 'Docker image to use')
+        string(name: 'SCRIPT_PATH', defaultValue: 'face_model/argface_main.py', description: 'Path to the Python script')
         string(name: 'MODE', defaultValue: 'train', description: 'Mode to run the script in')
         string(name: 'NUM_EPOCHS', defaultValue: '10000', description: 'Number of epochs')
         string(name: 'LEARNING_RATE', defaultValue: '0.001', description: 'Learning rate')
         string(name: 'MOMENTUM', defaultValue: '0.9', description: 'Momentum')
-        booleanParam(name: 'CONTINUE_TRAINING', defaultValue: false, description: 'Continue training from last checkpoint')
+        booleanParam(name: 'CONTINUE_TRAINING', defaultValue: true, description: 'Continue training from last checkpoint')
+        booleanParam(name: 'IS_UPLOAD', defaultValue: true, description: 'Upload the model to S3 Bucket')
     }
 
     environment {
         REPO_DIR = "${env.WORKSPACE}/contactless-checking"
         ARTIFACT_DIR = "artifacts/arcModel"
+        AWS_ACCESS_KEY_ID = "${env.AWS_ACCESS_KEY_ID}"
+        AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ACCESS_KEY}"
     }
 
     options {
@@ -25,10 +28,22 @@ pipeline {
         stage('Cleanup') {
             steps {
                 script {
-                    // Clean up the directory if it exists
-                    sh "rm -rf ${env.REPO_DIR}"
-                    // Clean up previous artifact
-                    sh "rm -rf ${env.ARTIFACT_DIR}"
+                    // Check if the repository directory exists and remove it if it does
+                    sh '''#!/bin/bash
+                        if [ -d "${REPO_DIR}" ]; then
+                            sudo find ${REPO_DIR} -type d -exec chmod 777 {} \\;
+                            sudo find ${REPO_DIR} -type f -exec chmod 666 {} \\;
+                            sudo rm -rf ${REPO_DIR}
+                        fi
+                    '''
+                    // Check if the artifact directory exists and remove it if it does
+                    sh '''#!/bin/bash
+                        if [ -d "${ARTIFACT_DIR}" ]; then
+                            sudo find ${ARTIFACT_DIR} -type d -exec chmod 777 {} \\;
+                            sudo find ${ARTIFACT_DIR} -type f -exec chmod 666 {} \\;
+                            sudo rm -rf ${ARTIFACT_DIR}
+                        fi
+                    '''
                 }
             }
         }
@@ -40,24 +55,15 @@ pipeline {
                 }
             }
         }
-        stage('Training ArcFace') {
+        stage('Run Docker Command') {
             steps {
                 script {
                     def continueTraining = params.CONTINUE_TRAINING ? '--continue_training' : ''
+                    def isUpload = params.IS_UPLOAD ? '--is_upload' : ''
                     sh """
-                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} ${params.DOCKER_IMAGE} \
-                        python ${params.SCRIPT_PATH}/argface_main.py --mode ${params.MODE} --num_epochs ${params.NUM_EPOCHS} \
-                        --learning_rate ${params.LEARNING_RATE} --momentum ${params.MOMENTUM} ${continueTraining}
-                    """
-                }
-            }
-        }
-        stage('Training FaceNet') {
-            steps {
-                script {
-                    sh """
-                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} ${params.DOCKER_IMAGE} \
-                        python ${params.SCRIPT_PATH}/facenet_main.py
+                        docker run --rm -v ${env.REPO_DIR}:${env.REPO_DIR}:rw -w ${env.REPO_DIR} -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} ${params.DOCKER_IMAGE} \
+                        python ${params.SCRIPT_PATH} --mode ${params.MODE} --num_epochs ${params.NUM_EPOCHS} \
+                        --learning_rate ${params.LEARNING_RATE} --momentum ${params.MOMENTUM} ${continueTraining} ${isUpload}
                     """
                 }
             }
@@ -67,8 +73,7 @@ pipeline {
                 script {
                     // Ensure the artifacts directory exists and copy artifacts there
                     sh "mkdir -p ${env.ARTIFACT_DIR}"
-                    sh "cp -rf ${env.REPO_DIR}/build/.insightface/ ${env.ARTIFACT_DIR}"
-                    sh "cp -rf ${env.REPO_DIR}/build/face_net_train/ ${env.ARTIFACT_DIR}"
+                    sh "cp -r ${env.REPO_DIR}/build/.insightface/* ${env.ARTIFACT_DIR}"
                     archiveArtifacts artifacts: "${env.ARTIFACT_DIR}/**", allowEmptyArchive: true
                 }
             }

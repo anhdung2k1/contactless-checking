@@ -28,7 +28,7 @@ The repository using socket connection with Spring Boot web as main hosting APIs
 
 #### Development Environment
 
-The recommend standard development environment is Ubuntu 18.04 LTS or later
+The recommend standard development environment is Ubuntu 18.04 LTS or later. You must install Docker, K8s Cluster Resource or minikube, Helm. 
 
 #### How to use
 
@@ -49,7 +49,7 @@ The recommend standard development environment is Ubuntu 18.04 LTS or later
     sudo usermod -aG docker $USER
     ```
 
-2. Install kubectl and helm:
+2. Install kubectl and helm in `test/install_3pp.sh`:
     ```bash
     ./install_3pp.sh
     ```
@@ -96,9 +96,96 @@ export AWS_DEFAULT_REGION=<your-AWS_DEFAULT_REGION> | <DEFAULT us-east-1>
 
 7. To install helm chart, must build-image-push image to registry before running helm. If could not retrieve the image to pull.
 ```bash
+$ EXPORT RELEASE=true
+$ EXPORT NAME="-n zrdtuan-ns"
 $ make package-helm
-$ helm -n <ns> install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
+$ helm $NAME install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
 ```
 
-### Note that: 1.0.0-3 version the TLS was signed at 192.168.122.70 => Master Node IP in cluster. Please set this external IP use this IP to use TLS.
-### 1.0.0-5: 192.168.49.2
+For TLS, in this lab I config minikube as K8s resource in Ubuntu => Minikube IP is always `192.168.49.2`. To check the minikube IP.
+```bash
+$ minikube ip
+```
+8. After install helm chart, the container will pull from docker registry to initial the pod running in k8s. Check out the deploy is up and health state.
+```bash
+$ kubectl $NAME get all
+```
+
+```
+NAME                                                 READY   STATUS    RESTARTS   AGE
+pod/ck-application-authentication-6d76dd99b7-c4xkr   1/1     Running   0          14m
+pod/ck-application-client-56cd64698c-4phls           1/1     Running   0          14m
+pod/ck-application-mysql-0                           2/2     Running   0          14m
+pod/ck-application-server-84c4f67c6-ttn72            1/1     Running   0          14m
+
+NAME                                    TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)          AGE
+service/ck-application-authentication   NodePort       10.106.161.1     <none>         8443:30800/TCP   14m
+service/ck-application-client-http      NodePort       10.107.10.216    <none>         80:30080/TCP     14m
+service/ck-application-client-https     LoadBalancer   10.101.249.249   192.168.49.2   443/TCP          14m
+service/ck-application-mysql            ClusterIP      None             <none>         3306/TCP         14m
+service/ck-application-mysql-read       ClusterIP      10.107.116.88    <none>         3306/TCP         14m
+service/ck-application-server           NodePort       10.111.15.137    <none>         5000:30500/TCP   14m
+
+NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ck-application-authentication   1/1     1            1           14m
+deployment.apps/ck-application-client           1/1     1            1           14m
+deployment.apps/ck-application-server           1/1     1            1           14m
+
+NAME                                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/ck-application-authentication-6d76dd99b7   1         1         1       14m
+replicaset.apps/ck-application-client-56cd64698c           1         1         1       14m
+replicaset.apps/ck-application-server-84c4f67c6            1         1         1       14m
+
+NAME                                    READY   AGE
+statefulset.apps/ck-application-mysql   1/1     14m
+```
+
+The service data will be manage and stored inside Persistent Volume Claim (PVC), in case we need to reploy the service if crashed, all the data will be preserved, and automatically mounted into pod.
+
+9. Wait a bit untill all pods are running
+```bash
+NAME                                             READY   STATUS    RESTARTS   AGE
+ck-application-authentication-6d76dd99b7-c4xkr   1/1     Running   0          11s
+ck-application-client-56cd64698c-4phls           1/1     Running   0          11s
+ck-application-mysql-0                           2/2     Running   0          11s
+ck-application-server-84c4f67c6-ttn72            1/1     Running   0          11s
+```
+
+In the contactless checking system, two server are deploying alongwith one MySQL database for back up and one for primary database, and Web Client. To access into the web for user interface. We need to access into the service.
+
+10. Get the service.
+```bash
+$ kubectl $NAME get svc
+```
+This will show all the service to access. Select the Web Client service.
+```bash
+NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)          AGE
+ck-application-authentication   NodePort       10.106.161.1     <none>         8443:30800/TCP   2m49s
+ck-application-client-http      NodePort       10.107.10.216    <none>         80:30080/TCP     2m49s
+ck-application-client-https     LoadBalancer   10.101.249.249   192.168.49.2   443/TCP          2m49s
+ck-application-mysql            ClusterIP      None             <none>         3306/TCP         2m49s
+ck-application-mysql-read       ClusterIP      10.107.116.88    <none>         3306/TCP         2m49s
+ck-application-server           NodePort       10.111.15.137    <none>         5000:30500/TCP   2m49s
+```
+Access https://192.168.49.2 to navigate the Web Client. If access, it will navigate to login page. All the cluster using TLS certificates to authenticate all resources.
+![Login](screenshot/Login-page.png)
+
+Enter the Username/Password. By default the API Server created default Admin account. Use the credentials to login into pages.
+
+The Homepage will show all the analytics measures, records all the checkin time filtered by date.
+```bash
+credentials: Admin/Admin@123
+```
+![Homepage](screenshot/Home-page.png)
+
+First, need to create a sets of customers registered in the system. Capture all images, send back to backend which stored in both local and remote S3 bucket to prevent missing data if system got crashed.
+
+![Customerpage](screenshot/Customer-page.png)
+
+We can edit all information of customer, and make new image dataset for checking system which sent to train ArcFaceModel. To retrieve image data, we can upload images or capture the image from the camera gadget.
+
+![Customerpagecamera](screenshot/Customer-page-camera.png)
+![Customerpagecamera2](screenshot/Customer-page-camera-2.png)
+
+Those image collected will be train with Jenkins CI, enter the appropriate params and trigger to Jenkins pipeline in order to train model with datasets collected.
+
