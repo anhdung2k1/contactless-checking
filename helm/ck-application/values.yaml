@@ -22,7 +22,7 @@ updateStrategy:
 
 server:
   replicaCount: 1
-  externalIP: 192.168.49.2
+  externalIP: 127.0.0.1
   mysqlServer:
     name: mysql-server
     port: 3306

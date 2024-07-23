@@ -7,7 +7,6 @@ ENV HOST_IP=http://localhost:8080
 COPY --chmod=0755 --chown=0:0 ssl/ /usr/share/nginx/ssl/
 COPY --chmod=0755 --chown=0:0 face_client/* /usr/share/nginx/html
 COPY --chmod=0755 --chown=0:0 default.conf /etc/nginx/conf.d/
-COPY --chmod=0755 --chown=0:0 default2.conf /etc/nginx/conf.d/
 COPY --chmod=0755 --chown=0:0 entrypoint.sh /entrypoint.sh
 
 EXPOSE 80

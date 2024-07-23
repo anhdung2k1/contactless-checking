@@ -102,9 +102,9 @@ $ make package-helm
 $ helm $NAME install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
 ```
 
-For TLS, in this lab I config minikube as K8s resource in Ubuntu => Minikube IP is always `192.168.49.2`. To check the minikube IP.
+For TLS, in this lab I config K8s resource in Docker Desktop => Running on WSL. To check the kubernetes IP.
 ```bash
-$ minikube ip
+$ kubectl get nodes -o wide
 ```
 8. After install helm chart, the container will pull from docker registry to initial the pod running in k8s. Check out the deploy is up and health state.
 ```bash
@@ -121,7 +121,7 @@ pod/ck-application-server-84c4f67c6-ttn72            1/1     Running   0        
 NAME                                    TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)          AGE
 service/ck-application-authentication   NodePort       10.106.161.1     <none>         8443:30800/TCP   14m
 service/ck-application-client-http      NodePort       10.107.10.216    <none>         80:30080/TCP     14m
-service/ck-application-client-https     LoadBalancer   10.101.249.249   192.168.49.2   443/TCP          14m
+service/ck-application-client-https     LoadBalancer   10.101.249.249   127.0.0.1   443/TCP          14m
 service/ck-application-mysql            ClusterIP      None             <none>         3306/TCP         14m
 service/ck-application-mysql-read       ClusterIP      10.107.116.88    <none>         3306/TCP         14m
 service/ck-application-server           NodePort       10.111.15.137    <none>         5000:30500/TCP   14m
@@ -162,12 +162,12 @@ This will show all the service to access. Select the Web Client service.
 NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)          AGE
 ck-application-authentication   NodePort       10.106.161.1     <none>         8443:30800/TCP   2m49s
 ck-application-client-http      NodePort       10.107.10.216    <none>         80:30080/TCP     2m49s
-ck-application-client-https     LoadBalancer   10.101.249.249   192.168.49.2   443/TCP          2m49s
+ck-application-client-https     LoadBalancer   10.101.249.249   127.0.0.1   443/TCP          2m49s
 ck-application-mysql            ClusterIP      None             <none>         3306/TCP         2m49s
 ck-application-mysql-read       ClusterIP      10.107.116.88    <none>         3306/TCP         2m49s
 ck-application-server           NodePort       10.111.15.137    <none>         5000:30500/TCP   2m49s
 ```
-Access https://192.168.49.2 to navigate the Web Client. If access, it will navigate to login page. All the cluster using TLS certificates to authenticate all resources.
+Access https://127.0.0.1 or https://localhost to navigate the Web Client. If access, it will navigate to login page. All the cluster using TLS certificates to authenticate all resources.
 ![Login](screenshot/Login-page.png)
 
 Enter the Username/Password. By default the API Server created default Admin account. Use the credentials to login into pages.
@@ -189,3 +189,4 @@ We can edit all information of customer, and make new image dataset for checking
 
 Those image collected will be train with Jenkins CI, enter the appropriate params and trigger to Jenkins pipeline in order to train model with datasets collected.
 
+![Jenkin-web-page](screenshot/Jenkins-web-page.png)

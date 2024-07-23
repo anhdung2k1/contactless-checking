@@ -1,8 +1,8 @@
 {{- define "ck-client-containers" -}}
 {{- $top := index . 0 -}}
 {{- $externalIP := $top.Values.server.externalIP -}}
-{{- $modelURL := printf "https://%s:%s" $externalIP $top.Values.server.faceModel.nodePort -}}
-{{- $hostIP := printf "https://%s:%s" $externalIP $top.Values.server.authentication.nodePort -}}
+{{- $modelURL := printf "https://%s:%s" $externalIP $top.Values.server.faceModel.port -}}
+{{- $hostIP := printf "https://%s:%s" $externalIP $top.Values.server.authentication.port -}}
 - name: {{ $top.Values.server.faceClient.name }}
   image: {{ include "ck-application.imagePath" (merge (dict "imageName" "ck-face-client") $top) }}
   imagePullPolicy: {{ include "ck-application.imagePullPolicy" $top }}

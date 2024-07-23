@@ -10,8 +10,11 @@ spec:
       protocol: "TCP"
       port: {{ .Values.server.authentication.port }}
       targetPort: https-auth-svc
-      nodePort: {{ .Values.server.authentication.nodePort }} # Assign static NodePort
-  type: NodePort
+      # nodePort: {{ .Values.server.authentication.nodePort }} # Assign static NodePort
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  loadBalancerIP: {{ .Values.server.externalIP }}
 ---
 apiVersion: v1
 kind: Service
@@ -24,9 +27,12 @@ spec:
     - name: {{ template "ck-server.name" . }}-http
       protocol: TCP
       port: {{ .Values.server.faceModel.port }}
-      nodePort: {{ .Values.server.faceModel.nodePort }} # Assign static NodePort
+      # nodePort: {{ .Values.server.faceModel.nodePort }} # Assign static NodePort
       targetPort: http-server-svc
-  type: NodePort
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  loadBalancerIP: {{ .Values.server.externalIP }}
 ---
 apiVersion: v1
 kind: Service
@@ -39,9 +45,12 @@ spec:
     - name: {{ template "ck-client.name" . }}-http
       protocol: TCP
       port: {{ .Values.server.faceClient.httpPort }}
-      nodePort: {{ .Values.server.faceClient.httpNodePort }} # Assign static NodePort
+      # nodePort: {{ .Values.server.faceClient.httpNodePort }} # Assign static NodePort
       targetPort: http-client-svc
-  type: NodePort
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  loadBalancerIP: {{ .Values.server.externalIP }}
 ---
 apiVersion: v1
 kind: Service

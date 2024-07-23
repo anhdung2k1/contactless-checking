@@ -5,7 +5,6 @@ import torch
 from torchvision import transforms
 from facenet_pytorch import InceptionResnetV1
 import logging
-from concurrent.futures import ThreadPoolExecutor
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ class FeatureExtractor:
         self.data_path = data_path
         self.resnet = InceptionResnetV1(pretrained='vggface2').eval()
         self.transform = transforms.Compose([
-            transforms.Resize((160, 160)),
+            transforms.Resize((112, 112)),
             transforms.ToTensor(),
             transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
         ])
@@ -39,47 +38,39 @@ class FeatureExtractor:
             logger.error("Error extracting labels: %s", e)
             raise
 
-    def load_and_transform_image(self, image_path):
-        try:
-            image = Image.open(image_path).convert("RGB")
-            image = self.transform(image).unsqueeze(0)
-            return image
-        except Exception as e:
-            logger.warning(f"Failed to open and transform image {image_path}: {e}")
-            return None
-
     def extract_features(self, model):
         if not self.label_map:
             logger.error("Label map is empty. Please call extract_labels() first.")
             raise ValueError("Label map is empty. Please call extract_labels() first.")
         
-        tasks = []
-        max_workers = min(os.cpu_count() // 2, 4)  # Limit the number of workers
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            for label, person in enumerate(os.listdir(self.data_path)):
-                person_path = os.path.join(self.data_path, person)
-                if not os.path.isdir(person_path):
-                    logger.warning(f"Skipping {person_path} as it is not a directory")
+        for label, person in enumerate(os.listdir(self.data_path)):
+            person_path = os.path.join(self.data_path, person)
+            if not os.path.isdir(person_path):
+                logger.warning(f"Skipping {person_path} as it is not a directory")
+                continue
+            for image_name in os.listdir(person_path):
+                image_path = os.path.join(person_path, image_name)
+                if not image_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                    logger.warning(f"Skipping {image_path} as it is not an image file")
                     continue
-                for image_name in os.listdir(person_path):
-                    image_path = os.path.join(person_path, image_name)
-                    if not image_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
-                        logger.warning(f"Skipping {image_path} as it is not an image file")
-                        continue
-                    logger.info(f"Scheduling image for processing: {image_path}")
-                    tasks.append(executor.submit(self.load_and_transform_image, image_path))
-        
-        for task in tasks:
-            image = task.result()
-            if image is not None:
+                logger.info(f"Opening image: {image_path}")
+                try:
+                    image = Image.open(image_path).convert("RGB")
+                except Exception as e:
+                    logger.warning(f"Failed to open image {image_path}: {e}")
+                    continue
+                
+                image = self.transform(image).unsqueeze(0)
                 try:
                     with torch.no_grad():
                         embedding = model.get_embedding(image)
-                    self.features.append(embedding.squeeze().numpy())
-                    self.labels.append(label)
-                    logger.debug(f"Extracted features for image")
                 except Exception as e:
-                    logger.warning(f"Failed to get embedding for image: {e}")
+                    logger.warning(f"Failed to get embedding for {image_path}: {e}")
+                    continue
+                
+                self.features.append(embedding.squeeze().numpy())
+                self.labels.append(label)
+                logger.debug(f"Extracted features for {image_path}")
         
         self.features = np.array(self.features)
         self.labels = np.array(self.labels)
