@@ -143,6 +143,10 @@ const updateCustomer = async (formData) => {
     }
 };
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const addCustomerImage = async (customerID, base64Image) => {
     try {
         const formData = { photoUrl: base64Image };
@@ -164,6 +168,8 @@ const addCustomerImage = async (customerID, base64Image) => {
         if (dataBool) {
             alert("Add customer image successfully");
         }
+
+        await delay(2000); // 2s delay for stable
     } catch (error) {
         console.error('Update Customer Image failed:', error);
         alert('Add Customer Image Failed: ' + error.message);

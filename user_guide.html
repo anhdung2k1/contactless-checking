@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="contactless-checking">Contactless Checking</h1>
+<p><img src="https://img.shields.io/badge/java-#ED8B00.svg?style=for-the-badge&amp;logo=java&amp;logoColor=white" alt="Java">
+<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&amp;logo=python&amp;logoColor=white" alt="Python">
+<img src="https://img.shields.io/badge/Apache Maven-C71A36?style=for-the-badge&amp;logo=Apache Maven&amp;logoColor=white" alt="Apache Maven">
+<img src="https://img.shields.io/badge/apache tomcat-#F8DC75.svg?style=for-the-badge&amp;logo=apache-tomcat&amp;logoColor=black" alt="Apache Tomcat">
+<img src="https://img.shields.io/badge/Spring_Boot-F2F4F9?style=for-the-badge&amp;logo=spring-boot" alt="Spring Boot">
+<img src="https://img.shields.io/badge/MySQL-blue?style=for-the-badge&amp;logo=MYSQL&amp;logoColor=white" alt="MySQL">
+<img src="https://img.shields.io/badge/JWT-green?style=for-the-badge&amp;logo=spring-boot&amp;logoColor=white" alt="JWT"></p>
+<p>Contacless checking repository works as client-server connection within microservices running on Kubernetes environment. This repository based on the YOLO-v8, FaceNet, ArcFace serves as checking the people registered and recognize by the system.</p>
+<hr>
+<p>The repository using socket connection with Spring Boot web as main hosting APIs to ensure the security connection in each API request. The MYSQL database serves as a relational-database to perform query and storage datasets.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#contactless-checking">Contactless Checking</a>
+<ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#developers-guide">Developer's Guide</a>
+<ul>
+<li><a href="#getting-started">Getting Started</a>
+<ul>
+<li><a href="#development-environment">Development Environment</a></li>
+<li><a href="#how-to-use">How to use</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="developers-guide">Developer's Guide</h2>
+<h3 id="getting-started">Getting Started</h3>
+<h4 id="development-environment">Development Environment</h4>
+<p>The recommend standard development environment is Ubuntu 18.04 LTS or later. You must install Docker, K8s Cluster Resource or minikube, Helm.</p>
+<h4 id="how-to-use">How to use</h4>
+<ol>
+<li>
+<p>Install docker: <a href="https://docs.docker.com/engine/install/ubuntu/">docker installation</a></p>
+<pre class="hljs"><code><div>sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+<span class="hljs-comment"># Add the repository to Apt sources:</span>
+<span class="hljs-built_in">echo</span> \
+<span class="hljs-string">"deb [arch=<span class="hljs-variable">$(dpkg --print-architecture)</span> signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+<span class="hljs-variable">$(. /etc/os-release &amp;&amp; echo "$VERSION_CODENAME")</span> stable"</span> | \
+sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo groupadd docker
+sudo usermod -aG docker <span class="hljs-variable">$USER</span>
+newgrp docker
+</div></code></pre>
+</li>
+<li>
+<p>Install kubectl and helm in <code>test/install_3pp.sh</code>:</p>
+<pre class="hljs"><code><div>./install_3pp.sh
+</div></code></pre>
+<p>This will automatic install kubectl and helm mount it to /usr/bin/local and make it global use.</p>
+</li>
+<li>
+<p>Install make</p>
+<pre class="hljs"><code><div>sudo apt install make
+</div></code></pre>
+</li>
+<li>
+<p>Building steps are done via make, the builders:</p>
+<ul>
+<li>If you don't want to clean the build artifacts, run the following command</li>
+</ul>
+<pre class="hljs"><code><div>make build image push
+</div></code></pre>
+<ul>
+<li>If you wan't to clean the build and re-run all the building steps</li>
+</ul>
+<pre class="hljs"><code><div>make clean init train build image push
+</div></code></pre>
+<p>The training process will take default hyper-parameters used for YOLOv8, more information, please check: <a href="https://github.com/ultralytics/ultralytics">YOLOv8 ultralystics</a>. The hyperparameters can be found in <code>vas.sh</code>. <br/></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Hyper parameters</span>
+<span class="hljs-built_in">test</span> -n <span class="hljs-string">"<span class="hljs-variable">$TASK_TYPE</span>"</span> || <span class="hljs-built_in">export</span> TASK_TYPE=detect <span class="hljs-comment">#DEFAULT task=detect is one of [detect, segment, classify]</span>
+<span class="hljs-built_in">test</span> -n <span class="hljs-string">"<span class="hljs-variable">$MODE_TYPE</span>"</span> || <span class="hljs-built_in">export</span> MODE_TYPE=train <span class="hljs-comment">#DEFAULT mode=train is one of [train, val, predict, export, track]</span>
+<span class="hljs-built_in">test</span> -n <span class="hljs-string">"<span class="hljs-variable">$EPOCHS</span>"</span> || <span class="hljs-built_in">export</span> EPOCHS=50 <span class="hljs-comment">#DEFAULT EPOCHS=50</span>
+<span class="hljs-built_in">test</span> -n <span class="hljs-string">"<span class="hljs-variable">$DEFAULT_MODEL</span>"</span> || <span class="hljs-built_in">export</span> DEFAULT_MODEL=<span class="hljs-string">"yolov8n.pt"</span> <span class="hljs-comment">#DEFAULT we get the pretrained model for training process</span>
+<span class="hljs-built_in">test</span> -n <span class="hljs-string">"<span class="hljs-variable">$IMAGE_SIZE</span>"</span> || <span class="hljs-built_in">export</span> IMAGE_SIZE=640
+</div></code></pre>
+</li>
+<li>
+<p>Using <code>testcon</code> image which integrate the environment for run requirement <code>face_model</code>. Check at <code>test/testcon</code>. In case you don't want to rebuild all necessary library with pip which takes a lot of efforts and time.</p>
+</li>
+</ol>
+<p>In order to using your docker registry. Update <code>DOCKER_REGISTRY</code> in ./vas.sh. Or simply export DOCKER_REGISTRY in your enviroment.</p>
+<pre class="hljs"><code><div>$ <span class="hljs-built_in">export</span> DOCKER_REGISTRY=&lt;your docker-registry&gt;
+</div></code></pre>
+<ol start="6">
+<li>Config AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your env to retrieve all dataset in S3 bucket. Found in IAM roles in AWS.</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-built_in">export</span> AWS_ACCESS_KEY_ID=&lt;your-AWS_ACCESS_KEY_ID&gt;
+<span class="hljs-built_in">export</span> AWS_SECRET_ACCESS_KEY=&lt;your-AWS_SECRET_ACCESS_KEY&gt;
+<span class="hljs-built_in">export</span> AWS_DEFAULT_REGION=&lt;your-AWS_DEFAULT_REGION&gt; | &lt;DEFAULT us-east-1&gt;
+</div></code></pre>
+<ol start="7">
+<li>To install helm chart, must build-image-push image to registry before running helm. If could not retrieve the image to pull.</li>
+</ol>
+<pre class="hljs"><code><div>$ EXPORT RELEASE=<span class="hljs-literal">true</span>
+$ EXPORT NAME=<span class="hljs-string">"-n zrdtuan-ns"</span>
+$ make package-helm
+$ helm <span class="hljs-variable">$NAME</span> install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --<span class="hljs-built_in">set</span> aws.key=<span class="hljs-variable">$AWS_ACCESS_KEY_ID</span> --<span class="hljs-built_in">set</span> aws.secret=<span class="hljs-variable">$AWS_SECRET_ACCESS_KEY</span>
+</div></code></pre>
+<p>For TLS, in this lab I config K8s resource in Docker Desktop =&gt; Running on WSL. To check the kubernetes IP.</p>
+<pre class="hljs"><code><div>$ kubectl get nodes -o wide
+</div></code></pre>
+<ol start="8">
+<li>After install helm chart, the container will pull from docker registry to initial the pod running in k8s. Check out the deploy is up and health state.</li>
+</ol>
+<pre class="hljs"><code><div>$ kubectl <span class="hljs-variable">$NAME</span> get all
+</div></code></pre>
+<pre class="hljs"><code><div>NAME                                                 READY   STATUS    RESTARTS   AGE
+pod/ck-application-authentication-6d76dd99b7-c4xkr   1/1     Running   0          14m
+pod/ck-application-client-56cd64698c-4phls           1/1     Running   0          14m
+pod/ck-application-mysql-0                           2/2     Running   0          14m
+pod/ck-application-server-84c4f67c6-ttn72            1/1     Running   0          14m
+
+NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
+ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
+ck-application-mysql            ClusterIP      None             &lt;none&gt;        3306/TCP   5s
+ck-application-mysql-read       ClusterIP      10.110.144.98    &lt;none&gt;        3306/TCP   5s
+ck-application-server           LoadBalancer   10.111.255.161   localhost     5000/TCP   5s
+
+NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ck-application-authentication   1/1     1            1           14m
+deployment.apps/ck-application-client           1/1     1            1           14m
+deployment.apps/ck-application-server           1/1     1            1           14m
+
+NAME                                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/ck-application-authentication-6d76dd99b7   1         1         1       14m
+replicaset.apps/ck-application-client-56cd64698c           1         1         1       14m
+replicaset.apps/ck-application-server-84c4f67c6            1         1         1       14m
+
+NAME                                    READY   AGE
+statefulset.apps/ck-application-mysql   1/1     14m
+</div></code></pre>
+<p>The service data will be manage and stored inside Persistent Volume Claim (PVC), in case we need to reploy the service if crashed, all the data will be preserved, and automatically mounted into pod.</p>
+<ol start="9">
+<li>Wait a bit untill all pods are running</li>
+</ol>
+<pre class="hljs"><code><div>NAME                                             READY   STATUS    RESTARTS   AGE
+ck-application-authentication-6d76dd99b7-c4xkr   1/1     Running   0          11s
+ck-application-client-56cd64698c-4phls           1/1     Running   0          11s
+ck-application-mysql-0                           2/2     Running   0          11s
+ck-application-server-84c4f67c6-ttn72            1/1     Running   0          11s
+</div></code></pre>
+<p>In the contactless checking system, two server are deploying alongwith one MySQL database for back up and one for primary database, and Web Client. To access into the web for user interface. We need to access into the service.</p>
+<ol start="10">
+<li>Get the service.</li>
+</ol>
+<pre class="hljs"><code><div>$ kubectl <span class="hljs-variable">$NAME</span> get svc
+</div></code></pre>
+<p>This will show all the service to access. Select the Web Client service.</p>
+<pre class="hljs"><code><div>NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
+ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
+ck-application-mysql            ClusterIP      None             &lt;none&gt;        3306/TCP   5s
+ck-application-mysql-read       ClusterIP      10.110.144.98    &lt;none&gt;        3306/TCP   5s
+ck-application-server           LoadBalancer   10.111.255.161   localhost     5000/TCP   5s
+</div></code></pre>
+<p>Access https://127.0.0.1 or https://localhost to navigate the Web Client. If access, it will navigate to login page. All the cluster using TLS certificates to authenticate all resources.
+<img src="screenshot/Login-page.png" alt="Login"></p>
+<p>Enter the Username/Password. By default the API Server created default Admin account. Use the credentials to login into pages.</p>
+<p>The homepage will display all analytics metrics and record all check-in times, with the ability to filter by date.</p>
+<pre class="hljs"><code><div>credentials: Admin/Admin@123
+</div></code></pre>
+<p><img src="screenshot/Home-page.png" alt="Homepage"></p>
+<p>First, create a set of registered customers in the system. Capture all images and send them to the backend, where they will be stored in both a local and a remote S3 bucket to prevent data loss in case of a system crash.</p>
+<p><img src="screenshot/Customer-page.png" alt="Customerpage"></p>
+<p>We can edit all customer information and create a new image dataset for the check-in system, which will be sent to train the ArcFaceModel. To obtain image data, we can either upload images or capture them using a camera device.</p>
+<p><img src="screenshot/Customer-page-camera.png" alt="Customerpagecamera">
+<img src="screenshot/Customer-page-camera-2.png" alt="Customerpagecamera2"></p>
+<p>The collected images will be trained using Jenkins CI. Enter the appropriate parameters and trigger the Jenkins pipeline to train the model with the collected datasets.</p>
+<p><img src="screenshot/Jenkins-web-page.png" alt="Jenkin-web-page">
+<img src="screenshot/Jenkins-jobs.png" alt="Jenkins-jobs"></p>
+<p>The trained model will be used to detect customer images. On the detection page, a snapshot of the customer's image will be sent to the model server for analysis, and the results will be returned to the client.</p>
+<p><img src="screenshot/detection-page.png" alt="Detection-page"></p>
+
+</body>
+</html>

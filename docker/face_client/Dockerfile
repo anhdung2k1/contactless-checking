@@ -1,8 +1,8 @@
 FROM nginx:latest
 
 # Set environment variables
-ENV MODEL_URL=http://localhost:5000
-ENV HOST_IP=http://localhost:8080
+ENV MODEL_URL=https://localhost:5000
+ENV HOST_IP=https://localhost:8443
 
 COPY --chmod=0755 --chown=0:0 ssl/ /usr/share/nginx/ssl/
 COPY --chmod=0755 --chown=0:0 face_client/* /usr/share/nginx/html

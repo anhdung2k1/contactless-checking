@@ -59,7 +59,7 @@
                                     <form id="jenkinsForm">
                                         <div class="form-row align-items-center mb-2">
                                             <label for="jenkinsUrl" class="col-2 col-form-label">Jenkins URL</label>
-                                            <input type="text" id="jenkinsUrl" class="form-control col-8 mr-2" name="jenkinsUrl" placeholder="https://172.19.94.18:9090" value="https://172.19.94.18:9090" required>
+                                            <input type="text" id="jenkinsUrl" class="form-control col-8 mr-2" name="jenkinsUrl" placeholder="http://172.20.90.52:8080" value="http://172.20.90.52:8080" required>
                                         </div>
                                         <div class="form-row align-items-center mb-2">
                                             <label for="jobName" class="col-2 col-form-label">Job Name</label>
@@ -87,7 +87,7 @@
                                                     <option>Variable</option>
                                                 </select>
                                                 <input type="text" class="form-control col-4 mr-2" name="variableKey[]" placeholder="Key" value="NUM_EPOCHS">
-                                                <input type="text" class="form-control col-4 mr-2" name="variableValue[]" placeholder="Value" value="10000">
+                                                <input type="text" class="form-control col-4 mr-2" name="variableValue[]" placeholder="Value" value="100">
                                                 <span class="remove-btn col-1" onclick="removeFormGroup(this)">×</span>
                                             </div>
                                             <div class="form-row align-items-center mb-2">
@@ -158,6 +158,7 @@
 	<script src="js/actions/navUser.js"></script>
 	<script src="js/actions/notifications.js"></script>
     <script>
+        const MODEL_URL = window.config.MODEL_URL;
         function addFormGroup() {
             const container = document.getElementById('formGroupsContainer');
             const newGroup = document.createElement('div');
@@ -214,6 +215,21 @@
                 }
             });
             console.log('Pipeline data:', JSON.stringify(data));
+
+            fetch(`${MODEL_URL}/train`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .catch(error => console.error('Error:', error));
             
             fetch(`${HOST_IP}/api/jenkins/buildWithParameters`, {
                 method: 'POST',
@@ -230,8 +246,9 @@
                 return response.json();
             })
             .then(data => {
-                console.log('Success:', data)
-                alert('Success to create pipeline')
+                console.log('Status: ', data.status)
+                console.log('Message: ', data.message)
+                alert(`${data.status}`)
             })
             .catch(error => console.error('Error:', error));
         }

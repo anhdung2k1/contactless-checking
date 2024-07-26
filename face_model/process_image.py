@@ -91,7 +91,7 @@ class ImageProcessor:
             distance = np.linalg.norm(embedding1 - embedding2).item()
             logging.info(f"Distance between embeddings: {distance}")
 
-            threshold = 1.0
+            threshold = 1.5
 
             is_same_person = distance < threshold
             logging.info("Images are of the same person" if is_same_person else "Images are of different persons")

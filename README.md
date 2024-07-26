@@ -35,18 +35,23 @@ The recommend standard development environment is Ubuntu 18.04 LTS or later. You
 1. Install docker: [docker installation](https://docs.docker.com/engine/install/ubuntu/)
 
     ```bash
-    sudo apt-get -y update
-    sudo apt-get -y upgrade
-    sudo apt-get install apt-transport-https ca-certificates curl \
-        gnupg-agent software-properties-common
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    sudo add-apt-repository \
-        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) \
-        stable"
-    sudo apt-get -y update
-    sudo apt-get install docker-ce docker-ce-cli containerd.io
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # Add the repository to Apt sources:
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo groupadd docker
     sudo usermod -aG docker $USER
+    newgrp docker
     ```
 
 2. Install kubectl and helm in `test/install_3pp.sh`:
@@ -118,13 +123,13 @@ pod/ck-application-client-56cd64698c-4phls           1/1     Running   0        
 pod/ck-application-mysql-0                           2/2     Running   0          14m
 pod/ck-application-server-84c4f67c6-ttn72            1/1     Running   0          14m
 
-NAME                                    TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)          AGE
-service/ck-application-authentication   NodePort       10.106.161.1     <none>         8443:30800/TCP   14m
-service/ck-application-client-http      NodePort       10.107.10.216    <none>         80:30080/TCP     14m
-service/ck-application-client-https     LoadBalancer   10.101.249.249   127.0.0.1   443/TCP          14m
-service/ck-application-mysql            ClusterIP      None             <none>         3306/TCP         14m
-service/ck-application-mysql-read       ClusterIP      10.107.116.88    <none>         3306/TCP         14m
-service/ck-application-server           NodePort       10.111.15.137    <none>         5000:30500/TCP   14m
+NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
+ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
+ck-application-mysql            ClusterIP      None             <none>        3306/TCP   5s
+ck-application-mysql-read       ClusterIP      10.110.144.98    <none>        3306/TCP   5s
+ck-application-server           LoadBalancer   10.111.255.161   localhost     5000/TCP   5s
 
 NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/ck-application-authentication   1/1     1            1           14m
@@ -159,34 +164,39 @@ $ kubectl $NAME get svc
 ```
 This will show all the service to access. Select the Web Client service.
 ```bash
-NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)          AGE
-ck-application-authentication   NodePort       10.106.161.1     <none>         8443:30800/TCP   2m49s
-ck-application-client-http      NodePort       10.107.10.216    <none>         80:30080/TCP     2m49s
-ck-application-client-https     LoadBalancer   10.101.249.249   127.0.0.1   443/TCP          2m49s
-ck-application-mysql            ClusterIP      None             <none>         3306/TCP         2m49s
-ck-application-mysql-read       ClusterIP      10.107.116.88    <none>         3306/TCP         2m49s
-ck-application-server           NodePort       10.111.15.137    <none>         5000:30500/TCP   2m49s
+NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
+ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
+ck-application-mysql            ClusterIP      None             <none>        3306/TCP   5s
+ck-application-mysql-read       ClusterIP      10.110.144.98    <none>        3306/TCP   5s
+ck-application-server           LoadBalancer   10.111.255.161   localhost     5000/TCP   5s
 ```
 Access https://127.0.0.1 or https://localhost to navigate the Web Client. If access, it will navigate to login page. All the cluster using TLS certificates to authenticate all resources.
 ![Login](screenshot/Login-page.png)
 
 Enter the Username/Password. By default the API Server created default Admin account. Use the credentials to login into pages.
 
-The Homepage will show all the analytics measures, records all the checkin time filtered by date.
+The homepage will display all analytics metrics and record all check-in times, with the ability to filter by date.
 ```bash
 credentials: Admin/Admin@123
 ```
 ![Homepage](screenshot/Home-page.png)
 
-First, need to create a sets of customers registered in the system. Capture all images, send back to backend which stored in both local and remote S3 bucket to prevent missing data if system got crashed.
+First, create a set of registered customers in the system. Capture all images and send them to the backend, where they will be stored in both a local and a remote S3 bucket to prevent data loss in case of a system crash.
 
 ![Customerpage](screenshot/Customer-page.png)
 
-We can edit all information of customer, and make new image dataset for checking system which sent to train ArcFaceModel. To retrieve image data, we can upload images or capture the image from the camera gadget.
+We can edit all customer information and create a new image dataset for the check-in system, which will be sent to train the ArcFaceModel. To obtain image data, we can either upload images or capture them using a camera device.
 
 ![Customerpagecamera](screenshot/Customer-page-camera.png)
 ![Customerpagecamera2](screenshot/Customer-page-camera-2.png)
 
-Those image collected will be train with Jenkins CI, enter the appropriate params and trigger to Jenkins pipeline in order to train model with datasets collected.
+The collected images will be trained using Jenkins CI. Enter the appropriate parameters and trigger the Jenkins pipeline to train the model with the collected datasets.
 
 ![Jenkin-web-page](screenshot/Jenkins-web-page.png)
+![Jenkins-jobs](screenshot/Jenkins-jobs.png)
+
+The trained model will be used to detect customer images. On the detection page, a snapshot of the customer's image will be sent to the model server for analysis, and the results will be returned to the client.
+
+![Detection-page](screenshot/detection-page.png)

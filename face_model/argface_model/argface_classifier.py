@@ -28,9 +28,8 @@ arcface_model_dir = os.path.join(build_dir, '.insightface')
 model_save_path = os.path.join(build_dir, '.insightface/arcface_model.pth')
 
 class ArcFaceClassifier:
-    _model_loaded = False
-
     def __init__(self, data_path):
+        self.model_loaded = False
         self.data_path = data_path
         self.feature_extractor = FeatureExtractor(data_path)
         self.features, self.labels, self.label_map = None, None, None
@@ -107,10 +106,10 @@ class ArcFaceClassifier:
             plt.show()
     
     def load_model(self):
-        if not ArcFaceClassifier._model_loaded:
+        if not self.model_loaded:
             self.initialize_model()
             self.model.load_state_dict(torch.load(model_save_path))
-            ArcFaceClassifier._model_loaded = True
+            self.model_loaded = True
             logger.info(f"Model loaded: {model_save_path}")
         else:
             logger.info("Model already loaded, skipping reload.")
