@@ -181,22 +181,22 @@ The homepage will display all analytics metrics and record all check-in times, w
 ```bash
 credentials: Admin/Admin@123
 ```
-![Homepage](screenshot/Home-page.png)
+![Home-page](https://github.com/user-attachments/assets/0deed286-6628-466a-a623-5577ceba7340)
 
 First, create a set of registered customers in the system. Capture all images and send them to the backend, where they will be stored in both a local and a remote S3 bucket to prevent data loss in case of a system crash.
 
-![Customerpage](screenshot/Customer-page.png)
+![Customer-page](https://github.com/user-attachments/assets/5cb48d2d-2c5a-4826-8a80-d54da67d013c)
 
 We can edit all customer information and create a new image dataset for the check-in system, which will be sent to train the ArcFaceModel. To obtain image data, we can either upload images or capture them using a camera device.
 
-![Customerpagecamera](screenshot/Customer-page-camera.png)
-![Customerpagecamera2](screenshot/Customer-page-camera-2.png)
+![Customer-page-camera](https://github.com/user-attachments/assets/4cf7462c-f87d-40aa-a749-b025409ddaca)
+![Customer-page-camera-2](https://github.com/user-attachments/assets/e9d9be0b-d63c-49d0-9b69-e9a906014966)
 
 The collected images will be trained using Jenkins CI. Enter the appropriate parameters and trigger the Jenkins pipeline to train the model with the collected datasets.
 
-![Jenkin-web-page](screenshot/Jenkins-web-page.png)
-![Jenkins-jobs](screenshot/Jenkins-jobs.png)
+![Jenkins-web-page](https://github.com/user-attachments/assets/dc88da78-3112-45ff-8732-164bc86c9033)
+![Jenkins-jobs](https://github.com/user-attachments/assets/afa145f6-4daa-4f1d-9fdf-0bf3490f4b58)
 
 The trained model will be used to detect customer images. On the detection page, a snapshot of the customer's image will be sent to the model server for analysis, and the results will be returned to the client.
 
-![Detection-page](screenshot/detection-page.png)
+![Detection-page](https://github.com/user-attachments/assets/6b3d5317-d745-4ce8-bfca-8accdc5597c8)
