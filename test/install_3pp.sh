@@ -9,11 +9,12 @@ echo "Install Helm package"
 curl -fsSL -o get_helm.sh $HELM_URL
 chmod 700 get_helm.sh
 ./get_helm.sh
-rm -rf get_helm.sh
+rm -f get_helm.sh
 echo "Done"
 echo "Install Kubectl package"
 #Download kubectl binary
 curl -LO $KUBECTL_URL
 chmod +x kubectl
 sudo install -o root -g root -m 0755 kubectl /usr/bin/kubectl
+rm -f kubectl
 echo "Done"
