@@ -56,9 +56,15 @@ The recommend standard development environment is Ubuntu 18.04 LTS or later. You
 
 2. Install kubectl and helm in `test/install_3pp.sh`:
     ```bash
-    ./install_3pp.sh
+    test/install_3pp.sh
     ```
     This will automatic install kubectl and helm mount it to /usr/bin/local and make it global use.
+
+    In case you want to renew certificates, check out `test/generate_certificates.sh`
+    ```bash
+    test/generate_certificates.sh <your_ip>
+    ```
+    This will create `ssl` repo and create all certificates with IP you entered to authorize
 
 3. Install make
     ```bash
