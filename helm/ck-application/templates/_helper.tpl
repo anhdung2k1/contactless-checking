@@ -400,3 +400,21 @@ data:
   {{ template "ck-mysql.name" . }}-host: {{- include "ck-mysql.name" . | b64enc | indent 2 }}
   {{ template "ck-mysql.name" . }}-dbName: {{- print "checking" | b64enc | indent 2 }}
 {{- end -}}
+
+{{/*
+Create auth service communication between pod
+*/}}
+{{- define "ck-application.authCommunication" -}}
+{{- $authServiceName := (include "ck-authentication.name" . ) -}}
+{{- $authServicePort := .Values.server.authentication.port -}}
+{{- printf "https://%s:%s" $authServiceName $authServicePort -}}
+{{- end -}}
+
+{{/*
+Create auth service communication between pod
+*/}}
+{{- define "ck-application.modelCommunication" -}}
+{{- $modelServiceName := (include "ck-server.name" . ) -}}
+{{- $modelServicePort := .Values.server.faceModel.port -}}
+{{- printf "https://%s:%s" $modelServiceName $modelServicePort -}}
+{{- end -}}

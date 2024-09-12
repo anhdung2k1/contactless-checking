@@ -34,12 +34,10 @@ server:
   authentication:
     name: authentication
     port: "8443"
-    nodePort: "30800"
 
   faceModel:
     name: face-model
     port: "5000"
-    nodePort: "30500"
 
   faceClient:
     name: face-client

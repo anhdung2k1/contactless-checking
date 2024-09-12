@@ -4,7 +4,7 @@
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-face-model") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   ports:
-    - name: http-server-svc
+    - name: https-server-svc
       containerPort: {{ $top.Values.server.faceModel.port }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-model") | indent 2 }}

@@ -5,6 +5,7 @@
 
 # Directory
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
+test -n "$TEST_DIR" || export TEST_DIR="$VAS_GIT/test"
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
 test -n "$LFW_DATASET_DIR" || export LFW_DATASET_DIR="$BUILD_DIR/lfw_dataset"
@@ -185,6 +186,9 @@ build_repo() {
 
     case $__name in
     "authentication")
+        ## Generate authentication certificates
+        $vas generate_certificates --name=$__name
+
         pushd .
         cd $API_DIR
         echo "Start to build Spring boot compile"
@@ -220,15 +224,64 @@ build_repo() {
     ;;
     *)
         if [ $__name == "face_model" ]; then
+            ## Generate Face Model Certificates
+            $vas generate_certificates --name=$__name
+
             echo "Copy requirements.txt to $__name"
             cp -f $VAS_GIT/requirements.txt $DOCKER_DIR/$__name \
             || die "Unable to copy the requirements.txt"
+        fi
+
+        if [ $__name == "face_client" ]; then
+            ## Generate Face Client Certificates
+            $vas generate_certificates --name=$__name --ip="192.168.49.2"
         fi
 
         echo "Copy folder $__name to docker"
         cp -rf $VAS_GIT/$__name/ $DOCKER_DIR/$__name \
             || die "Source directory does not exists $VAS_GIT/$__name"
     ;;
+    esac
+}
+
+generate_certificates() {
+    test -n "$TEST_DIR" || die "Not set [TEST_DIR]"
+    test -n "$__name" || die "Module name required"
+    SSL_TEST_DIR="$TEST_DIR/ssl"
+    gen_certs_path="$TEST_DIR/generate_certificates.sh"
+    key_file="tls.key"
+    cert_file="tls.crt"
+    keystore_file="keystore.p12"
+
+    echo "############### Generating Certificates ############"
+    case $__name in
+    "authentication")
+        echo "############### Authentication Certificates ############"
+        $gen_certs_path --dns ck-application-authentication
+        echo "Copy keystore file from $SSL_TEST_DIR/$keystore_file to $API_DIR/src/main/resources/$keystore_file"
+        cp -f "$SSL_TEST_DIR/$keystore_file" "$API_DIR/src/main/resources/$keystore_file" \
+            || die "Failed to copy $SSL_TEST_DIR/$keystore_file to $API_DIR/src/main/resources/$keystore_file"
+    ;;
+    "face_model")
+        echo "############### Face Model Certificates ############"
+        $gen_certs_path --dns ck-application-server
+        echo "Copy $key_file file from $SSL_TEST_DIR/$key_file to $VAS_GIT/$__name/ssl/$key_file"
+        cp -f "$SSL_TEST_DIR/$key_file" "$VAS_GIT/$__name/ssl/$key_file" \
+            || die "Failed to copy $SSL_TEST_DIR/$key_file to $VAS_GIT/$__name/ssl/$key_file"
+        echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $VAS_GIT/$__name/ssl/$cert_file"
+        cp -f "$SSL_TEST_DIR/$cert_file" "$VAS_GIT/$__name/ssl/$cert_file" \
+            || die "Failed to copy $SSL_TEST_DIR/$cert_file to $VAS_GIT/$__name/ssl/$cert_file"
+    ;;
+    "face_client")
+        echo "############### Face Client Certificates ############"
+        test -n "$__ip" || die "Module ip required"
+        $gen_certs_path --ip $__ip
+        echo "Copy $key_file file from $SSL_TEST_DIR/$key_file to $DOCKER_DIR/$__name/$key_file"
+        cp -f "$SSL_TEST_DIR/$key_file" "$DOCKER_DIR/$__name/$key_file" \
+            || die "Failed to copy $SSL_TEST_DIR/$key_file to $DOCKER_DIR/$__name/$key_file"
+        echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $DOCKER_DIR/$__name/$cert_file"
+        cp -f "$SSL_TEST_DIR/$cert_file" "$DOCKER_DIR/$__name/$cert_file" \
+            || die "Failed to copy $SSL_TEST_DIR/$cert_file to $DOCKER_DIR/$__name/$cert_file"
     esac
 }
 

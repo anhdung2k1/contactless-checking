@@ -1,13 +1,6 @@
 #!/bin/bash
 
-# Check if IP address is provided
-if [ -z "$1" ]; then
-  echo "Usage: $0 <IP_ADDRESS>"
-  exit 1
-fi
-
 # Variables
-IP_ADDRESS=$1
 OUTPUT_DIR="ssl"
 CA_KEY="${OUTPUT_DIR}/ca.key"
 CA_CERT="${OUTPUT_DIR}/ca.crt"
@@ -19,6 +12,39 @@ EXT_FILE="${OUTPUT_DIR}/v3.ext"
 KEYSTORE="${OUTPUT_DIR}/keystore.p12"
 DAYS_VALID=365
 KEYSTORE_PASSWORD=""
+
+DNS_NAMES=()
+IP_ADDRESSES=()
+
+# Parse command-line arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --dns)
+            shift
+            while [[ "$1" != "" && "$1" != "--ip" ]]; do
+                DNS_NAMES+=("$1")
+                shift
+            done
+            ;;
+        --ip)
+            shift
+            while [[ "$1" != "" && "$1" != "--dns" ]]; do
+                IP_ADDRESSES+=("$1")
+                shift
+            done
+            ;;
+        *)
+            echo "Unknown parameter passed: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# Check if either DNS or IP is provided
+if [ ${#DNS_NAMES[@]} -eq 0 ] && [ ${#IP_ADDRESSES[@]} -eq 0 ]; then
+    echo "Usage: $0 --dns <DNS_NAMES>... --ip <IP_ADDRESSES>..."
+    exit 1
+fi
 
 # Create the output directory if it doesn't exist
 mkdir -p $OUTPUT_DIR
@@ -43,14 +69,27 @@ C  = US
 ST = California
 L  = San Francisco
 O  = MyCompany
-CN = $IP_ADDRESS
+CN = ${DNS_NAMES[0]:-${IP_ADDRESSES[0]}}
 
 [ req_ext ]
 subjectAltName = @alt_names
 
 [ alt_names ]
-IP.1 = $IP_ADDRESS
 EOT
+
+# Add IP addresses to the configuration file
+if [ ${#IP_ADDRESSES[@]} -gt 0 ]; then
+    for i in "${!IP_ADDRESSES[@]}"; do
+        echo "IP.$((i+1)) = ${IP_ADDRESSES[$i]}" >> $CONFIG_FILE
+    done
+fi
+
+# Add DNS names to the configuration file
+if [ ${#DNS_NAMES[@]} -gt 0 ]; then
+    for i in "${!DNS_NAMES[@]}"; do
+        echo "DNS.$((i+1)) = ${DNS_NAMES[$i]}" >> $CONFIG_FILE
+    done
+fi
 
 # Step 3: Generate the Server Key and CSR
 echo "Generating server key and CSR..."
@@ -66,9 +105,22 @@ keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
 extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
-[alt_names]
-IP.1 = $IP_ADDRESS
+[ alt_names ]
 EOT
+
+# Add IP addresses to the extensions file
+if [ ${#IP_ADDRESSES[@]} -gt 0 ]; then
+    for i in "${!IP_ADDRESSES[@]}"; do
+        echo "IP.$((i+1)) = ${IP_ADDRESSES[$i]}" >> $EXT_FILE
+    done
+fi
+
+# Add DNS names to the extensions file
+if [ ${#DNS_NAMES[@]} -gt 0 ]; then
+    for i in "${!DNS_NAMES[@]}"; do
+        echo "DNS.$((i+1)) = ${DNS_NAMES[$i]}" >> $EXT_FILE
+    done
+fi
 
 # Step 5: Sign the Server Certificate with the CA
 echo "Signing the server certificate with the CA..."

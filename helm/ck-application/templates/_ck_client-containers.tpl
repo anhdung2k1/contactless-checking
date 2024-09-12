@@ -1,16 +1,13 @@
 {{- define "ck-client-containers" -}}
 {{- $top := index . 0 -}}
-{{- $externalIP := $top.Values.server.externalIP -}}
-{{- $modelURL := printf "https://%s:%s" $externalIP $top.Values.server.faceModel.port -}}
-{{- $hostIP := printf "https://%s:%s" $externalIP $top.Values.server.authentication.port -}}
 - name: {{ $top.Values.server.faceClient.name }}
   image: {{ include "ck-application.imagePath" (merge (dict "imageName" "ck-face-client") $top) }}
   imagePullPolicy: {{ include "ck-application.imagePullPolicy" $top }}
   env:
     - name: MODEL_URL
-      value: {{ $modelURL }}
+      value: {{ include "ck-application.authCommunication" $top }}
     - name: HOST_IP
-      value: {{ $hostIP }}
+      value: {{ include "ck-application.modelCommunication" $top }}
   ports:
     - name: http-client-svc
       containerPort: {{ $top.Values.server.faceClient.httpPort }}

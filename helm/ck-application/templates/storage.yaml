@@ -5,7 +5,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: {{ .Values.storageClassName }}
+  storageClassName: {{ .Release.Namespace }}-{{ .Values.storageClassName }}
   capacity:
     storage: {{ .Values.storageCapacity.mysql }}
   accessModes:
@@ -21,7 +21,7 @@ metadata:
     app: {{ template "ck-mysql.name" .}}
     tier: database
 spec:
-  storageClassName: {{ .Values.storageClassName }}
+  storageClassName: {{ .Release.Namespace }}-{{ .Values.storageClassName }}
   accessModes:
     - ReadWriteOnce
   resources:
