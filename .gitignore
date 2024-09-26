@@ -7,13 +7,16 @@
 *.o
 *.obj
 /docker/face_client/face_client/
-/docker/face_model/face_mode/
+/docker/face_model/face_model/
 /docker/face_model/requirements.txt
 /docker/authentication/*.jar
 /face_model/__pycache__/
 /face_model/argface_model/__pycache__/
 /face_model/s3_config/__pycache__/
 /client-server/__pycache__/
+/build/
+/helm/ck-application/files/*.crt
+/helm/ck-application/files/*.key
 
 /venv/
 /authentication/authentication/target/

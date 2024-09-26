@@ -1,3 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "ck-authentication.name" . }}-hooks
+spec:
+  template:
+    spec:
+      containers:
+        - name: keystore-convert
+          image: alpine:3.13
+          command: ["/bin/sh", "-c"]
+          args:
+          - |
+            apk add --no-cache openssl;
+            openssl pkcs12 -export \
+              -in {{ .Values.server.secretsPath.certPath }}/tls.crt \
+              -inkey {{ .Values.server.secretsPath.certPath }}/tls.key \
+              -out {{ .Values.server.secretsPath.keyStorePath }}/keystore.p12 \
+              -CAfile {{ .Values.server.secretsPath.certPath }}/ca.crt \
+              -name ssl-cert \
+              -passout pass:$KEYSTORE_PASSWORD
+          env:
+          - name: KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "ck-authentication.name" . }}-secret
+                key: {{ template "ck-authentication.name" . }}-keystore-password
+          volumeMounts:
+          - name: tls-auth-secret
+            mountPath: {{ .Values.server.secretsPath.certPath }}
+          - name: keystore-cert
+            mountPath: {{ .Values.server.secretsPath.keyStorePath }}
+            subPath: keystore.p12
+      volumes:
+      - name: tls-auth-secret
+        secret:
+          secretName: tls-cert
+      - name: keystore-cert
+        persistentVolumeClaim:
+          claimName: {{ template "ck-authentication.name" . }}-pv-claim
+      restartPolicy: OnFailure
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

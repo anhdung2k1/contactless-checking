@@ -4,15 +4,38 @@
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-face-model") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   ports:
-    - name: https-server-svc
+    - name: tls-sv-svc
       containerPort: {{ $top.Values.server.faceModel.port }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-model") | indent 2 }}
   env:
   - name: AWS_ACCESS_KEY_ID
-    value: {{ $top.Values.aws.key }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-key
   - name: AWS_SECRET_ACCESS_KEY
-    value: {{ $top.Values.aws.secret }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-secret
   - name: AWS_DEFAULT_REGION
-    value: {{ $top.Values.aws.region }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-region
+  - name: CERT_PATH
+    value: {{ $top.Values.server.secretsPath.certPath }}/tls.crt
+  - name: KEY_PATH
+    value: {{ $top.Values.server.secretsPath.certPath }}/tls.key
+  - name: CA_PATH
+    value: {{ $top.Values.server.secretsPath.certPath }}/ca.crt 
+  volumeMounts:
+  - name: tls-server-cert
+    mountPath: {{ $top.Values.server.secretsPath.certPath }}
+    readOnly: true
+volumes:
+- name: tls-server-cert
+  secret:
+    secretName: tls-cert
 {{- end -}}

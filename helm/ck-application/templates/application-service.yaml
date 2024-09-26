@@ -23,7 +23,7 @@ spec:
     - name: {{ template "ck-server.name" . }}
       protocol: TCP
       port: {{ .Values.server.faceModel.port }}
-      targetPort: https-server-svc
+      targetPort: tls-sv-svc
   type: ClusterIP
 ---
 apiVersion: v1

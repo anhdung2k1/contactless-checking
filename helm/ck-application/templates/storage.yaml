@@ -27,3 +27,32 @@ spec:
   resources:
     requests:
       storage: {{ .Values.storageRequest.mysql }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ template "ck-authentication.name" . }}-pv-volume-ck
+  labels:
+    type: local
+spec:
+  storageClassName: {{ .Release.Namespace }}-{{ .Values.storageClassName }}
+  capacity:
+    storage: {{ .Values.storageCapacity.authentication }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/ck/data-authentication
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "ck-authentication.name" . }}-pv-claim
+  labels:
+    app: {{ template "ck-authentication.name" . }}
+spec:
+  storageClassName: {{ .Release.Namespace }}-{{ .Values.storageClassName }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storageRequest.authentication }}

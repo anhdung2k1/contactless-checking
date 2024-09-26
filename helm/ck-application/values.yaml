@@ -22,7 +22,9 @@ updateStrategy:
 
 server:
   replicaCount: 1
-  externalIP: 127.0.0.1
+  secretsPath:
+    certPath: /run/secrets/tls
+    keyStorePath: /run/secrets/keystore
   mysqlServer:
     name: mysql-server
     port: 3306
@@ -114,9 +116,11 @@ storageClassName: local-storage
 
 storageCapacity:
   mysql: 10Gi
+  authentication: 2Gi
 
 storageRequest:
   mysql: 5Gi
+  authentication: 1Gi
 
 dbPass: ""
 
@@ -127,3 +131,9 @@ aws:
   key:
   secret:
   region: us-east-1
+
+issuer:
+  ipAddress:
+  - 192.168.122.70
+  - 192.168.122.65
+  - 192.168.122.64

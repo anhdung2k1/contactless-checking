@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ck-authentication.name" . }}-configmap
+  labels: 
+    {{- include "ck-authentication.labels" . | nindent 4 }}
+  annotations: 
+    {{- include "ck-application.annotations" . | nindent 4 }}
+data:
+  application.yaml: |
+    #Get the ENV from k8s, docker env
+    spring:
+      datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://${DB_HOST}/${DB_NAME}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+      jpa:
+        database-platform: org.hibernate.dialect.MySQLDialect
+        generate-ddl: true
+        show-sql: true
+        hibernate:
+          ddl-auto: update
+
+    # AWS Cloud Configuration
+    cloud:
+      aws:
+        credentials:
+          access-key: ${AWS_ACCESS_KEY_ID}
+          secret-key: ${AWS_SECRET_ACCESS_KEY}
+        region:
+          static: ${AWS_DEFAULT_REGION}
+        stack:
+          auto: false
+
+    server:
+      port: 8443
+      ssl:
+        enabled: true
+        key-store: file:${KEY_STORE_PATH}
+        key-store-password: ${KEYSTORE_PASSWORD}
+        key-store-type: PKCS12
+        key-alias: ssl-cert
+
+    bucket:
+      name: contactless-checking
+
+    jwt:
+      signerKey: ${JWT_KEY}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+data:
+  primary.cnf: |
+    [mysqld]
+    log-bin
+  replica.cnf: |
+    [mysqld]
+    super-read-only
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ck-client.name" . }}-configmap
+  labels: 
+    {{- include "ck-client.labels" . | nindent 4 }}
+  annotations: 
+    {{- include "ck-application.annotations" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name localhost;
+
+      location / {
+          root /usr/share/nginx/html;
+          index index.html index.htm;
+          try_files $uri $uri/ =404;
+      }
+    }
+
+    server {
+        listen 443 ssl;
+        server_name localhost;
+
+        ssl_certificate {{ .Values.server.secretsPath.certPath }}/tls.crt;
+        ssl_certificate_key {{ .Values.server.secretsPath.certPath }}/tls.key;
+        ssl_client_certificate {{ .Values.server.secretsPath.certPath }}/ca.crt;
+
+        ssl_verify_client off;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+            try_files $uri $uri/ =404;
+        }
+
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /usr/share/nginx/html;
+        }
+    }

@@ -36,4 +36,49 @@
       secretKeyRef:
         name: {{ template "ck-mysql.name" $top }}-secret
         key: {{ template "ck-mysql.name" $top }}-password
+  - name: KEYSTORE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-keystore-password
+  - name: JWT_KEY
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-jwt-key
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-key
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-secret
+  - name: AWS_DEFAULT_REGION
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-region
+  - name: KEYSTORE_PATH
+    value: {{ $top.Values.server.secretsPath.keyStorePath }}/keystore.p12
+  - name: CONFIG_PATH
+    value: /etc/config/application.yaml
+  volumeMounts:
+  - name: config-properties
+    mountPath: /etc/config
+  - name: keystore-cert
+    mountPath: {{ $top.Values.server.secretsPath.keyStorePath }}
+    subPath: keystore.p12
+volumes:
+- name: config-properties
+  configMap:
+    name: {{ template "ck-authentication.name" $top }}-configmap
+    items:
+      - key: application.yaml
+        path: application.yaml
+- name: keystore-cert
+  persistentVolumeClaim:
+    claimName: {{ template "ck-authentication.name" $top }}-pv-claim
 {{- end -}}

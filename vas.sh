@@ -14,6 +14,7 @@ test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
+test -n "$HELM_DIR" || export HELM_DIR="$VAS_GIT/helm/ck-application"
 test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
@@ -184,11 +185,9 @@ build_repo() {
 
     COMMON_DB="checking"
 
+    $vas generate_certificates --name=$__name
     case $__name in
     "authentication")
-        ## Generate authentication certificates
-        $vas generate_certificates --name=$__name
-
         pushd .
         cd $API_DIR
         echo "Start to build Spring boot compile"
@@ -224,17 +223,9 @@ build_repo() {
     ;;
     *)
         if [ $__name == "face_model" ]; then
-            ## Generate Face Model Certificates
-            $vas generate_certificates --name=$__name
-
             echo "Copy requirements.txt to $__name"
             cp -f $VAS_GIT/requirements.txt $DOCKER_DIR/$__name \
             || die "Unable to copy the requirements.txt"
-        fi
-
-        if [ $__name == "face_client" ]; then
-            ## Generate Face Client Certificates
-            $vas generate_certificates --name=$__name --ip="192.168.49.2"
         fi
 
         echo "Copy folder $__name to docker"
@@ -248,41 +239,35 @@ generate_certificates() {
     test -n "$TEST_DIR" || die "Not set [TEST_DIR]"
     test -n "$__name" || die "Module name required"
     SSL_TEST_DIR="$TEST_DIR/ssl"
+    HELM_TEMPLATE_FILE_DIR="$HELM_DIR/files"
     gen_certs_path="$TEST_DIR/generate_certificates.sh"
-    key_file="tls.key"
-    cert_file="tls.crt"
+    key_file="ca.key"
+    cert_file="ca.crt"
     keystore_file="keystore.p12"
 
     echo "############### Generating Certificates ############"
+    echo "Go to $TEST_DIR"
+    pushd .
+    cd $TEST_DIR
+    $gen_certs_path --ip "192.168.122.70" "192.168.122.65" "192.168.122.64" "127.0.0.1" \
+                --dns "ck-application-authentication" "ck-application-server"
     case $__name in
     "authentication")
         echo "############### Authentication Certificates ############"
-        $gen_certs_path --dns ck-application-authentication
-        echo "Copy keystore file from $SSL_TEST_DIR/$keystore_file to $API_DIR/src/main/resources/$keystore_file"
         cp -f "$SSL_TEST_DIR/$keystore_file" "$API_DIR/src/main/resources/$keystore_file" \
             || die "Failed to copy $SSL_TEST_DIR/$keystore_file to $API_DIR/src/main/resources/$keystore_file"
     ;;
-    "face_model")
-        echo "############### Face Model Certificates ############"
-        $gen_certs_path --dns ck-application-server
-        echo "Copy $key_file file from $SSL_TEST_DIR/$key_file to $VAS_GIT/$__name/ssl/$key_file"
-        cp -f "$SSL_TEST_DIR/$key_file" "$VAS_GIT/$__name/ssl/$key_file" \
-            || die "Failed to copy $SSL_TEST_DIR/$key_file to $VAS_GIT/$__name/ssl/$key_file"
-        echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $VAS_GIT/$__name/ssl/$cert_file"
-        cp -f "$SSL_TEST_DIR/$cert_file" "$VAS_GIT/$__name/ssl/$cert_file" \
-            || die "Failed to copy $SSL_TEST_DIR/$cert_file to $VAS_GIT/$__name/ssl/$cert_file"
-    ;;
-    "face_client")
-        echo "############### Face Client Certificates ############"
-        test -n "$__ip" || die "Module ip required"
-        $gen_certs_path --ip $__ip
-        echo "Copy $key_file file from $SSL_TEST_DIR/$key_file to $DOCKER_DIR/$__name/$key_file"
-        cp -f "$SSL_TEST_DIR/$key_file" "$DOCKER_DIR/$__name/$key_file" \
-            || die "Failed to copy $SSL_TEST_DIR/$key_file to $DOCKER_DIR/$__name/$key_file"
-        echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $DOCKER_DIR/$__name/$cert_file"
-        cp -f "$SSL_TEST_DIR/$cert_file" "$DOCKER_DIR/$__name/$cert_file" \
-            || die "Failed to copy $SSL_TEST_DIR/$cert_file to $DOCKER_DIR/$__name/$cert_file"
+    *)
+        echo "############### Certificates ############"
+        # Copy ca key file
+        cp -f "$SSL_TEST_DIR/$key_file" "$HELM_TEMPLATE_FILE_DIR/$key_file" \
+            || die "Failed to copy $SSL_TEST_DIR/$key_file to $HELM_TEMPLATE_FILE_DIR/$key_file"
+        echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"
+        # Copy ca cert file
+        cp -f "$SSL_TEST_DIR/$cert_file" "$HELM_TEMPLATE_FILE_DIR/$cert_file" \
+            || die "Failed to copy $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"s
     esac
+    popd
 }
 
 ## build_image

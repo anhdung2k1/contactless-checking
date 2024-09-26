@@ -402,6 +402,19 @@ data:
 {{- end -}}
 
 {{/*
+Create secret for authentication
+*/}}
+{{- define "ck-authentication.secrets" -}}
+{{- $password := (include "ck-mysql.password" .) -}}
+data:
+  {{ template "ck-authentication.name" . }}-keystore-password: {{- $password | indent 2 }}
+  {{ template "ck-authentication.name" . }}-jwt-key: NjU1MzY4NTY2RDU5NzEzMzc0MzY3NzM5N0EyNDQzMjY0NTI5NDg0MDRENjM1MTY2NTQ2QTU3NkU1QTcyMzQ3NQ==
+  {{ template "ck-authentication.name" . }}-aws-key: {{- .Values.aws.key | b64enc | indent 2 }}
+  {{ template "ck-authentication.name" . }}-aws-secret: {{- .Values.aws.secret | b64enc | indent 2 }}
+  {{ template "ck-authentication.name" . }}-aws-region: {{- Values.aws.region | b64enc | indent 2 -}}
+{{- end -}}
+
+{{/*
 Create auth service communication between pod
 */}}
 {{- define "ck-application.authCommunication" -}}
@@ -417,4 +430,14 @@ Create auth service communication between pod
 {{- $modelServiceName := (include "ck-server.name" . ) -}}
 {{- $modelServicePort := .Values.server.faceModel.port -}}
 {{- printf "https://%s:%s" $modelServiceName $modelServicePort -}}
+{{- end -}}
+
+{{- define "ck-application.ipAddress" -}}
+{{- if kindIs "string" .Values.issuer.ipAddress }}
+    {{- printf "- %s" .Values.issuer.ipAddress | nindent 4 }}
+{{- else if kindIs "slice" .Values.issuer.ipAddress }}
+    {{- range .Values.issuer.ipAddress -}}
+    {{- printf "- %s" . | nindent 4 }}
+    {{- end }}
+{{- end -}}
 {{- end -}}

@@ -3,6 +3,7 @@ from flask_cors import CORS
 from PIL import Image
 import io
 import os
+import ssl
 from process_image import ImageProcessor
 from s3_config.s3Config import S3Config
 import logging
@@ -129,6 +130,12 @@ def train_images():
     return jsonify({'status': 'success', 'message': 'Model trained success'}), 200
 
 if __name__ == '__main__':
-    cert_path = os.path.join(root_directory, 'ssl', 'tls.crt')
-    key_path = os.path.join(root_directory, 'ssl', 'tls.key')
-    app.run(host='0.0.0.0', port=5000, ssl_context=(cert_path, key_path))
+    cert_path = os.getenv("CERT_PATH")
+    key_path = os.getenv("KEY_PATH")
+    ca_path = os.getenv("CA_PATH")
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.verify_mode = ssl.CERT_OPTIONAL
+    context.load_cert_chain(certfile=cert_path, keyfile=key_path)
+    context.load_verify_locations(cafile=ca_path)
+    
+    app.run(host='0.0.0.0', port=5000, ssl_context=context)

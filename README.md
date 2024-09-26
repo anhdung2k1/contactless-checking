@@ -98,19 +98,12 @@ In order to using your docker registry. Update `DOCKER_REGISTRY` in ./vas.sh. Or
 $ export DOCKER_REGISTRY=<your docker-registry>
 ```
 
-6. Config AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your env to retrieve all dataset in S3 bucket. Found in IAM roles in AWS.
-```bash
-export AWS_ACCESS_KEY_ID=<your-AWS_ACCESS_KEY_ID>
-export AWS_SECRET_ACCESS_KEY=<your-AWS_SECRET_ACCESS_KEY>
-export AWS_DEFAULT_REGION=<your-AWS_DEFAULT_REGION> | <DEFAULT us-east-1>
-```
-
-7. To install helm chart, must build-image-push image to registry before running helm. If could not retrieve the image to pull.
+6. To install helm chart, must build-image-push image to registry before running helm. If could not retrieve the image to pull.
 ```bash
 $ EXPORT RELEASE=true
 $ EXPORT NAME="-n zrdtuan-ns"
 $ make package-helm
-$ helm $NAME install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
+$ helm $NAME install ck-app build/helm-build/ck-application/ck-application-1.0.0-7.tgz
 ```
 
 For TLS, in this lab I config K8s resource in Docker Desktop => Running on WSL. To check the kubernetes IP.
