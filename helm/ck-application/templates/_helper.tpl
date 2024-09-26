@@ -409,9 +409,9 @@ Create secret for authentication
 data:
   {{ template "ck-authentication.name" . }}-keystore-password: {{- $password | indent 2 }}
   {{ template "ck-authentication.name" . }}-jwt-key: NjU1MzY4NTY2RDU5NzEzMzc0MzY3NzM5N0EyNDQzMjY0NTI5NDg0MDRENjM1MTY2NTQ2QTU3NkU1QTcyMzQ3NQ==
-  {{ template "ck-authentication.name" . }}-aws-key: {{- .Values.aws.key | b64enc | indent 2 }}
-  {{ template "ck-authentication.name" . }}-aws-secret: {{- .Values.aws.secret | b64enc | indent 2 }}
-  {{ template "ck-authentication.name" . }}-aws-region: {{- Values.aws.region | b64enc | indent 2 -}}
+  {{ template "ck-authentication.name" . }}-aws-key: {{- print .Values.aws.key | b64enc | indent 2 }}
+  {{ template "ck-authentication.name" . }}-aws-secret: {{- print .Values.aws.secret | b64enc | indent 2 }}
+  {{ template "ck-authentication.name" . }}-aws-region: {{- print .Values.aws.region | b64enc | indent 2 -}}
 {{- end -}}
 
 {{/*
@@ -420,7 +420,8 @@ Create auth service communication between pod
 {{- define "ck-application.authCommunication" -}}
 {{- $authServiceName := (include "ck-authentication.name" . ) -}}
 {{- $authServicePort := .Values.server.authentication.port -}}
-{{- printf "https://%s:%s" $authServiceName $authServicePort -}}
+{{- $namespace := (include "ck-application.namespace" . ) -}}
+{{- printf "https://%s.%s.svc.cluster.local:%s" $authServiceName $namespace $authServicePort -}}
 {{- end -}}
 
 {{/*
@@ -429,7 +430,8 @@ Create auth service communication between pod
 {{- define "ck-application.modelCommunication" -}}
 {{- $modelServiceName := (include "ck-server.name" . ) -}}
 {{- $modelServicePort := .Values.server.faceModel.port -}}
-{{- printf "https://%s:%s" $modelServiceName $modelServicePort -}}
+{{- $namespace := (include "ck-application.namespace" . ) -}}
+{{- printf "https://%s.%s.svc.cluster.local:%s" $modelServiceName $namespace $modelServicePort -}}
 {{- end -}}
 
 {{- define "ck-application.ipAddress" -}}

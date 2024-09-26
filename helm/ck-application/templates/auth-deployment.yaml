@@ -30,7 +30,6 @@ spec:
             mountPath: {{ .Values.server.secretsPath.certPath }}
           - name: keystore-cert
             mountPath: {{ .Values.server.secretsPath.keyStorePath }}
-            subPath: keystore.p12
       volumes:
       - name: tls-auth-secret
         secret:

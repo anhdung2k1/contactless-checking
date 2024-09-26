@@ -70,7 +70,6 @@
     mountPath: /etc/config
   - name: keystore-cert
     mountPath: {{ $top.Values.server.secretsPath.keyStorePath }}
-    subPath: keystore.p12
 volumes:
 - name: config-properties
   configMap:
