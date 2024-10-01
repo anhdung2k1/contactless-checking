@@ -1,0 +1,9 @@
+dependencies:
+- name: cert-manager
+  repository: https://charts.jetstack.io
+  version: v1.15.3
+- name: ck-application
+  repository: oci://registry-1.docker.io/anhdung12399
+  version: 1.0.0-7
+digest: sha256:fc048dcb5c008878c9dadbc89d2a43e24eb1309077160538fd23ce769cd4b322
+generated: "2024-09-28T00:36:55.892849435+07:00"

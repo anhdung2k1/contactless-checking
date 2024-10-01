@@ -77,6 +77,9 @@ volumes:
     items:
       - key: application.yaml
         path: application.yaml
+- name: tls-auth-secret
+  secret:
+    secretName: tls-cert
 - name: keystore-cert
   persistentVolumeClaim:
     claimName: {{ template "ck-authentication.name" $top }}-pv-claim

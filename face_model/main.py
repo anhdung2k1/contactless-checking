@@ -52,7 +52,7 @@ if not os.path.exists(arcface_model_dir):
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
 
-@app.route('/upload', methods=['POST'])
+@app.route('/model/upload', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
@@ -66,7 +66,7 @@ def upload_image():
         logging.error(f"Error in /process: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to process image: {str(e)}'}), 500
 
-@app.route('/retrieve', methods=['POST'])
+@app.route('/model/retrieve', methods=['POST'])
 def retrieve_image():
     if 'image' not in request.files or 'customerName' not in request.form:
         return jsonify({'error': 'No image or customerName provided'}), 400
@@ -84,7 +84,7 @@ def retrieve_image():
         logging.error(f"Error in /retrieve: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to retrieve image: {str(e)}'}), 500
     
-@app.route('/verify', methods=['POST'])
+@app.route('/model/verify', methods=['POST'])
 def verify_images():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
@@ -100,7 +100,7 @@ def verify_images():
         logging.error(f"Error in /verify: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to verify images: {str(e)}'}), 500
 
-@app.route('/train', methods=['POST'])
+@app.route('/model/train', methods=['POST'])
 def train_images():
     data = request.get_json()
     variable_key = data.get('variableKey')

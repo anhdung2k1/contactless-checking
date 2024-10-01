@@ -72,18 +72,34 @@ data:
   default.conf: |
     server {
       listen 80;
-      server_name localhost;
+      server_name {{ .Values.issuer.ipAddress | join " " }};
 
       location / {
           root /usr/share/nginx/html;
           index index.html index.htm;
           try_files $uri $uri/ =404;
       }
+
+      location /model {
+          proxy_pass http://{{ template "ck-server.name" . }}.{{ include "ck-application.namespace" . }}.svc.cluster.local:{{ .Values.server.faceModel.port }};
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+      }
+
+      location /api {
+          proxy_pass http://{{ template "ck-authentication.name" . }}.{{ include "ck-application.namespace" . }}.svc.cluster.local:{{ .Values.server.authentication.port }};
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+      }
     }
 
     server {
         listen 443 ssl;
-        server_name localhost;
+        server_name {{ .Values.issuer.ipAddress | join " " }};
 
         ssl_certificate {{ .Values.server.secretsPath.certPath }}/tls.crt;
         ssl_certificate_key {{ .Values.server.secretsPath.certPath }}/tls.key;
@@ -98,6 +114,22 @@ data:
             root /usr/share/nginx/html;
             index index.html index.htm;
             try_files $uri $uri/ =404;
+        }
+
+        location /model {
+          proxy_pass https://{{ template "ck-server.name" . }}.{{ include "ck-application.namespace" . }}.svc.cluster.local:{{ .Values.server.faceModel.port }};
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /api {
+          proxy_pass https://{{ template "ck-authentication.name" . }}.{{ include "ck-application.namespace" . }}.svc.cluster.local:{{ .Values.server.authentication.port }};
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         error_page 500 502 503 504 /50x.html;

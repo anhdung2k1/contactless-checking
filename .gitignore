@@ -17,6 +17,7 @@
 /build/
 /helm/ck-application/files/*.crt
 /helm/ck-application/files/*.key
+/test/ssl/
 
 /venv/
 /authentication/authentication/target/

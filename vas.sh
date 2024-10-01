@@ -14,7 +14,7 @@ test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
-test -n "$HELM_DIR" || export HELM_DIR="$VAS_GIT/helm/ck-application"
+test -n "$INT_HELM_DIR" || export INT_HELM_DIR="$VAS_GIT/helm/ck-app-integration-chart"
 test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
@@ -239,7 +239,7 @@ generate_certificates() {
     test -n "$TEST_DIR" || die "Not set [TEST_DIR]"
     test -n "$__name" || die "Module name required"
     SSL_TEST_DIR="$TEST_DIR/ssl"
-    HELM_TEMPLATE_FILE_DIR="$HELM_DIR/files"
+    HELM_TEMPLATE_FILE_DIR="$INT_HELM_DIR/files"
     gen_certs_path="$TEST_DIR/generate_certificates.sh"
     key_file="ca.key"
     cert_file="ca.crt"
@@ -251,22 +251,14 @@ generate_certificates() {
     cd $TEST_DIR
     $gen_certs_path --ip "192.168.122.70" "192.168.122.65" "192.168.122.64" "127.0.0.1" \
                 --dns "ck-application-authentication" "ck-application-server"
-    case $__name in
-    "authentication")
-        echo "############### Authentication Certificates ############"
-        cp -f "$SSL_TEST_DIR/$keystore_file" "$API_DIR/src/main/resources/$keystore_file" \
-            || die "Failed to copy $SSL_TEST_DIR/$keystore_file to $API_DIR/src/main/resources/$keystore_file"
-    ;;
-    *)
-        echo "############### Certificates ############"
-        # Copy ca key file
-        cp -f "$SSL_TEST_DIR/$key_file" "$HELM_TEMPLATE_FILE_DIR/$key_file" \
-            || die "Failed to copy $SSL_TEST_DIR/$key_file to $HELM_TEMPLATE_FILE_DIR/$key_file"
-        echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"
-        # Copy ca cert file
-        cp -f "$SSL_TEST_DIR/$cert_file" "$HELM_TEMPLATE_FILE_DIR/$cert_file" \
-            || die "Failed to copy $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"s
-    esac
+    echo "############### Certificates ############"
+    # Copy ca key file
+    cp -f "$SSL_TEST_DIR/$key_file" "$HELM_TEMPLATE_FILE_DIR/$key_file" \
+        || die "Failed to copy $SSL_TEST_DIR/$key_file to $HELM_TEMPLATE_FILE_DIR/$key_file"
+    echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"
+    # Copy ca cert file
+    cp -f "$SSL_TEST_DIR/$cert_file" "$HELM_TEMPLATE_FILE_DIR/$cert_file" \
+        || die "Failed to copy $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"s
     popd
 }
 

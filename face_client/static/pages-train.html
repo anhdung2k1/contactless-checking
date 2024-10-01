@@ -216,7 +216,7 @@
             });
             console.log('Pipeline data:', JSON.stringify(data));
 
-            fetch(`${MODEL_URL}/train`, {
+            fetch(`${MODEL_URL}/model/train`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

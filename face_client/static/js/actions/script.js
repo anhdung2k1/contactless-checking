@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function sendImage(formData, imageSource) {
         try {
-            const response = await fetch(`${MODEL_URL}/upload`, {  // Use the base URL
+            const response = await fetch(`${MODEL_URL}/model/upload`, {  // Use the base URL
                 method: 'POST',
                 body: formData,
             });
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function verifyPerson(formData) {
         try {
-            const response = await fetch(`${MODEL_URL}/verify`, {  // Use the base URL
+            const response = await fetch(`${MODEL_URL}/model/verify`, {  // Use the base URL
                 method: 'POST',
                 body: formData,
             });

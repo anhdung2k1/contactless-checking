@@ -433,13 +433,3 @@ Create auth service communication between pod
 {{- $namespace := (include "ck-application.namespace" . ) -}}
 {{- printf "https://%s.%s.svc.cluster.local:%s" $modelServiceName $namespace $modelServicePort -}}
 {{- end -}}
-
-{{- define "ck-application.ipAddress" -}}
-{{- if kindIs "string" .Values.issuer.ipAddress }}
-    {{- printf "- %s" .Values.issuer.ipAddress | nindent 4 }}
-{{- else if kindIs "slice" .Values.issuer.ipAddress }}
-    {{- range .Values.issuer.ipAddress -}}
-    {{- printf "- %s" . | nindent 4 }}
-    {{- end }}
-{{- end -}}
-{{- end -}}
