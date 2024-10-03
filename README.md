@@ -110,7 +110,7 @@ export AWS_DEFAULT_REGION=<your-AWS_DEFAULT_REGION> | <DEFAULT us-east-1>
 $ EXPORT RELEASE=true
 $ EXPORT NAME="-n zrdtuan-ns"
 $ make package-helm
-$ helm $NAME install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
+$ helm $NAME install ck-app build/helm-build/ck-application/ck-application-1.0.0-7.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
 ```
 
 For TLS, in this lab I config K8s resource in Docker Desktop => Running on WSL. To check the kubernetes IP.

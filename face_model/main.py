@@ -3,6 +3,7 @@ from flask_cors import CORS
 from PIL import Image
 import io
 import os
+import ssl
 from process_image import ImageProcessor
 from s3_config.s3Config import S3Config
 import logging
@@ -51,7 +52,7 @@ if not os.path.exists(arcface_model_dir):
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
 
-@app.route('/upload', methods=['POST'])
+@app.route('/model/upload', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
@@ -65,7 +66,7 @@ def upload_image():
         logging.error(f"Error in /process: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to process image: {str(e)}'}), 500
 
-@app.route('/retrieve', methods=['POST'])
+@app.route('/model/retrieve', methods=['POST'])
 def retrieve_image():
     if 'image' not in request.files or 'customerName' not in request.form:
         return jsonify({'error': 'No image or customerName provided'}), 400
@@ -83,7 +84,7 @@ def retrieve_image():
         logging.error(f"Error in /retrieve: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to retrieve image: {str(e)}'}), 500
     
-@app.route('/verify', methods=['POST'])
+@app.route('/model/verify', methods=['POST'])
 def verify_images():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
@@ -99,7 +100,7 @@ def verify_images():
         logging.error(f"Error in /verify: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to verify images: {str(e)}'}), 500
 
-@app.route('/train', methods=['POST'])
+@app.route('/model/train', methods=['POST'])
 def train_images():
     data = request.get_json()
     variable_key = data.get('variableKey')
@@ -129,6 +130,12 @@ def train_images():
     return jsonify({'status': 'success', 'message': 'Model trained success'}), 200
 
 if __name__ == '__main__':
-    cert_path = os.path.join(root_directory, 'ssl', 'tls.crt')
-    key_path = os.path.join(root_directory, 'ssl', 'tls.key')
-    app.run(host='0.0.0.0', port=5000, ssl_context=(cert_path, key_path))
+    cert_path = os.getenv("CERT_PATH")
+    key_path = os.getenv("KEY_PATH")
+    ca_path = os.getenv("CA_PATH")
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.verify_mode = ssl.CERT_OPTIONAL
+    context.load_cert_chain(certfile=cert_path, keyfile=key_path)
+    context.load_verify_locations(cafile=ca_path)
+    
+    app.run(host='0.0.0.0', port=5000, ssl_context=context)

@@ -1,10 +1,9 @@
-#Get the ENV from k8s, docker env
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://${DB_HOST:localhost}/${DB_NAME:testdb} # Dummy values
+    username: ${DB_USERNAME:testuser} # Dummy username
+    password: ${DB_PASSWORD:testpassword} # Dummy password
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     generate-ddl: true
@@ -16,10 +15,10 @@ spring:
 cloud:
   aws:
     credentials:
-      access-key: 
-      secret-key: 
+      access-key: ${AWS_ACCESS_KEY_ID:dummy-access-key} # Dummy AWS access key
+      secret-key: ${AWS_SECRET_ACCESS_KEY:dummy-secret-key} # Dummy AWS secret key
     region:
-      static: us-east-1
+      static: ${AWS_DEFAULT_REGION:us-east-1} # Dummy AWS region
     stack:
       auto: false
 
@@ -27,13 +26,13 @@ server:
   port: 8443
   ssl:
     enabled: true
-    key-store: classpath:keystore.p12
-    key-store-password: ""
+    key-store: file:${KEY_STORE_PATH:/dummy/keystore.p12} # Dummy key store path
+    key-store-password: ${KEYSTORE_PASSWORD:dummy-keystore-password} # Dummy key store password
     key-store-type: PKCS12
     key-alias: ssl-cert
 
 bucket:
-  name: contactless-checking
+  name: contactless-checking # Dummy bucket name
 
 jwt:
-  signerKey: "655368566D597133743677397A244326452948404D635166546A576E5A723475"
+  signerKey: ${JWT_KEY:dummy-jwt-key} # Dummy JWT signer key

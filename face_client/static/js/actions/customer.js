@@ -259,7 +259,7 @@ document.getElementById('downloadButton').addEventListener('click', async () => 
 async function sendImageDataToModelHost(formData) {
     try {
         // This send to face_model host MODEL_URL to save in localhost for generating data for training
-        const response = await fetch(`${MODEL_URL}/retrieve`, {
+        const response = await fetch(`${MODEL_URL}/model/retrieve`, {
             method: 'POST',
             body: formData
         });

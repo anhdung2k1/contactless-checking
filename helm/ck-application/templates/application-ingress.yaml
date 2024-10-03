@@ -2,20 +2,39 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ template "ck-client.name" . }}-ingress
+  name: {{ template "ck-application.prefix" . }}-ingress
   namespace: {{ .Release.Namespace }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  tls:
+  - hosts:
+    - {{ .Values.ingress.host.name }}
+    secretName: tls-cert
+  ingressClassName: nginx
   rules:
-  - host: {{ template "ck-client.name" . }}.hahn104.rnd.gic.ericsson.se
+  - host: {{ .Values.ingress.host.name }}
     http:
       paths:
-      - path: /
+      - path: {{ .Values.ingress.host.subPath.faceClient }}
         pathType: Prefix
         backend:
           service:
-            name: {{ template "ck-client.name" . }}
+            name: {{ template "ck-client.name" . }}-https
+            port:
+              number: 80
+      - path: {{ .Values.ingress.host.subPath.faceModel }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ template "ck-server.name" . }}
+            port:
+              number: 80
+      - path: {{ .Values.ingress.host.subPath.authentication }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ template "ck-authentication.name" . }}
             port:
               number: 80
 {{- end }}

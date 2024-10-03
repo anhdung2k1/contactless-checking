@@ -1,0 +1,12 @@
+nameOverride: ""
+
+cert-manager:
+  enabled: true
+  crds:
+    enabled: true
+ck-application:
+  issuer:
+    ipAddress:
+    - 192.168.122.70
+    - 192.168.122.65
+    - 192.168.122.64

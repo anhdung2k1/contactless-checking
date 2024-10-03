@@ -5,6 +5,7 @@
 
 # Directory
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
+test -n "$TEST_DIR" || export TEST_DIR="$VAS_GIT/test"
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
 test -n "$LFW_DATASET_DIR" || export LFW_DATASET_DIR="$BUILD_DIR/lfw_dataset"
@@ -13,6 +14,7 @@ test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
+test -n "$INT_HELM_DIR" || export INT_HELM_DIR="$VAS_GIT/helm/ck-application-integration-chart"
 test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
@@ -183,6 +185,7 @@ build_repo() {
 
     COMMON_DB="checking"
 
+    $vas generate_certificates --name=$__name
     case $__name in
     "authentication")
         pushd .
@@ -208,7 +211,7 @@ build_repo() {
                     -e DB_USERNAME=$COMMON_DB \
                     -e DB_NAME=$COMMON_DB \
                     -e DB_PASSWORD=$COMMON_DB \
-                    $MAVEN_IMAGE mvn clean install -Dskiptest \
+                    $MAVEN_IMAGE mvn clean install -DskipTests -Dmaven.test.skip=true \
 		            || die "[ERROR]: Failed to compile"
         echo "Copy target file to docker dir"
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
@@ -230,6 +233,33 @@ build_repo() {
             || die "Source directory does not exists $VAS_GIT/$__name"
     ;;
     esac
+}
+
+generate_certificates() {
+    test -n "$TEST_DIR" || die "Not set [TEST_DIR]"
+    test -n "$__name" || die "Module name required"
+    SSL_TEST_DIR="$TEST_DIR/ssl"
+    HELM_TEMPLATE_FILE_DIR="$INT_HELM_DIR/files"
+    gen_certs_path="$TEST_DIR/generate_certificates.sh"
+    key_file="ca.key"
+    cert_file="ca.crt"
+    keystore_file="keystore.p12"
+
+    echo "############### Generating Certificates ############"
+    echo "Go to $TEST_DIR"
+    pushd .
+    cd $TEST_DIR
+    $gen_certs_path --ip "192.168.122.70" "192.168.122.65" "192.168.122.64" "127.0.0.1" \
+                --dns "ck-application-authentication" "ck-application-server"
+    echo "############### Certificates ############"
+    # Copy ca key file
+    cp -f "$SSL_TEST_DIR/$key_file" "$HELM_TEMPLATE_FILE_DIR/$key_file" \
+        || die "Failed to copy $SSL_TEST_DIR/$key_file to $HELM_TEMPLATE_FILE_DIR/$key_file"
+    echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"
+    # Copy ca cert file
+    cp -f "$SSL_TEST_DIR/$cert_file" "$HELM_TEMPLATE_FILE_DIR/$cert_file" \
+        || die "Failed to copy $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"s
+    popd
 }
 
 ## build_image
