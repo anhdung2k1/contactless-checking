@@ -14,7 +14,7 @@ test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
-test -n "$INT_HELM_DIR" || export INT_HELM_DIR="$VAS_GIT/helm/ck-app-integration-chart"
+test -n "$INT_HELM_DIR" || export INT_HELM_DIR="$VAS_GIT/helm/ck-application-integration-chart"
 test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
@@ -211,7 +211,7 @@ build_repo() {
                     -e DB_USERNAME=$COMMON_DB \
                     -e DB_NAME=$COMMON_DB \
                     -e DB_PASSWORD=$COMMON_DB \
-                    $MAVEN_IMAGE mvn clean install -Dskiptest \
+                    $MAVEN_IMAGE mvn clean install -DskipTests -Dmaven.test.skip=true \
 		            || die "[ERROR]: Failed to compile"
         echo "Copy target file to docker dir"
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \

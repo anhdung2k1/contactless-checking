@@ -126,6 +126,12 @@ dbPass: ""
 
 ingress:
   enabled: false
+  host:
+    name: cluster-intern.site
+    subPath:
+      authentication: /authentication
+      faceModel: /server
+      faceClient: /client
 
 aws:
   key:

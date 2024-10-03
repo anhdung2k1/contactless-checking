@@ -15,6 +15,14 @@ Create a map from ".Values.global" with defaults if missing in values file.
 {{ end }}
 
 {{/*
+Get prefix
+*/}}
+{{- define "ck-application.prefix" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s" $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Get current Namespace
 */}}
 {{- define "ck-application.namespace" -}}
@@ -26,7 +34,7 @@ Get current Namespace
 Expand the name of the mysql chart
 */}}
 {{- define "ck-mysql.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.prefix" . ) -}}
 {{- printf "%s-mysql" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -34,7 +42,7 @@ Expand the name of the mysql chart
 Expand the name of the authentication chart
 */}}
 {{- define "ck-authentication.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.prefix" . ) -}}
 {{- printf "%s-authentication" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -42,7 +50,7 @@ Expand the name of the authentication chart
 Expand the name of the server chart
 */}}
 {{- define "ck-server.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.prefix" . ) -}}
 {{- printf "%s-server" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -50,7 +58,7 @@ Expand the name of the server chart
 Expand the name of the server chart
 */}}
 {{- define "ck-client.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.prefix" . ) -}}
 {{- printf "%s-client" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -412,24 +420,4 @@ data:
   {{ template "ck-authentication.name" . }}-aws-key: {{- print .Values.aws.key | b64enc | indent 2 }}
   {{ template "ck-authentication.name" . }}-aws-secret: {{- print .Values.aws.secret | b64enc | indent 2 }}
   {{ template "ck-authentication.name" . }}-aws-region: {{- print .Values.aws.region | b64enc | indent 2 -}}
-{{- end -}}
-
-{{/*
-Create auth service communication between pod
-*/}}
-{{- define "ck-application.authCommunication" -}}
-{{- $authServiceName := (include "ck-authentication.name" . ) -}}
-{{- $authServicePort := .Values.server.authentication.port -}}
-{{- $namespace := (include "ck-application.namespace" . ) -}}
-{{- printf "https://%s.%s.svc.cluster.local:%s" $authServiceName $namespace $authServicePort -}}
-{{- end -}}
-
-{{/*
-Create auth service communication between pod
-*/}}
-{{- define "ck-application.modelCommunication" -}}
-{{- $modelServiceName := (include "ck-server.name" . ) -}}
-{{- $modelServicePort := .Values.server.faceModel.port -}}
-{{- $namespace := (include "ck-application.namespace" . ) -}}
-{{- printf "https://%s.%s.svc.cluster.local:%s" $modelServiceName $namespace $modelServicePort -}}
 {{- end -}}
