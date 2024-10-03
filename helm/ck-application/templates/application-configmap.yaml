@@ -38,9 +38,6 @@ data:
 
     bucket:
       name: contactless-checking
-
-    jwt:
-      signerKey: ${JWT_KEY}
 ---
 apiVersion: v1
 kind: ConfigMap

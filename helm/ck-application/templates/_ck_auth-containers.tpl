@@ -36,16 +36,6 @@
       secretKeyRef:
         name: {{ template "ck-mysql.name" $top }}-secret
         key: {{ template "ck-mysql.name" $top }}-password
-  - name: KEYSTORE_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: {{ template "ck-authentication.name" $top }}-secret
-        key: {{ template "ck-authentication.name" $top }}-keystore-password
-  - name: JWT_KEY
-    valueFrom:
-      secretKeyRef:
-        name: {{ template "ck-authentication.name" $top }}-secret
-        key: {{ template "ck-authentication.name" $top }}-jwt-key
   - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:

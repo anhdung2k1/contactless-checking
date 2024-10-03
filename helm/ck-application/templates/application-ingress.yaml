@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: {{ template "ck-client.name" . }}.hahn104.rnd.gic.ericsson.se
+  - host: {{ template "ck-client.name" . }}.cluster-intern.site
     http:
       paths:
       - path: /

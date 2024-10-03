@@ -18,10 +18,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    //Validate JWT
-    // SET a Secret key
-    @Value("$jwt.signerKey")
-    private String SECRET_KEY;
+    private String SECRET_KEY = "655368566D597133743677397A244326452948404D635166546A576E5A723475";
     //Split token from request client
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);

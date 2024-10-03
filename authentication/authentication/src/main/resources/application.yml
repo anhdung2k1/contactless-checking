@@ -28,6 +28,3 @@ server:
 
 bucket:
   name: contactless-checking
-
-jwt:
-  signerKey: "655368566D597133743677397A244326452948404D635166546A576E5A723475"

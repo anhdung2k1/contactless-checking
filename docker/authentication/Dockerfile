@@ -17,8 +17,6 @@ LABEL \
 COPY --chmod=0755 --chown=0:0  *.jar app.jar
 
 EXPOSE 8443
-VOLUME [ "/api-server" ]
-
 # Ensure application.yaml can be provided via a ConfigMap
 ENV CONFIG_PATH="/etc/config/application.yaml"
 

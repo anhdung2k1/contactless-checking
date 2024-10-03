@@ -407,7 +407,6 @@ Create secret for authentication
 {{- define "ck-authentication.secrets" -}}
 {{- $password := (include "ck-mysql.password" .) -}}
 data:
-  {{ template "ck-authentication.name" . }}-jwt-key: NjU1MzY4NTY2RDU5NzEzMzc0MzY3NzM5N0EyNDQzMjY0NTI5NDg0MDRENjM1MTY2NTQ2QTU3NkU1QTcyMzQ3NQ==
   {{ template "ck-authentication.name" . }}-aws-key: {{- print .Values.aws.key | b64enc | indent 2 }}
   {{ template "ck-authentication.name" . }}-aws-secret: {{- print .Values.aws.secret | b64enc | indent 2 }}
   {{ template "ck-authentication.name" . }}-aws-region: {{- print .Values.aws.region | b64enc | indent 2 -}}

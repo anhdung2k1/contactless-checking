@@ -22,7 +22,6 @@ updateStrategy:
 
 server:
   replicaCount: 1
-  externalIP: 127.0.0.1
   mysqlServer:
     name: mysql-server
     port: 3306
@@ -114,9 +113,11 @@ storageClassName: local-storage
 
 storageCapacity:
   mysql: 10Gi
+  server: 10Gi
 
 storageRequest:
   mysql: 5Gi
+  server: 5Gi
 
 dbPass: ""
 

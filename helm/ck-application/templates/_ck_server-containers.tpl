@@ -24,4 +24,11 @@
       secretKeyRef:
         name: {{ template "ck-authentication.name" $top }}-secret
         key: {{ template "ck-authentication.name" $top }}-aws-region
+  volumeMounts:
+  - name: {{ template "ck-server.name" $top }}-persistent-storage
+    mountPath: /app/build
+volumes:
+- name: {{ template "ck-server.name" $top }}-persistent-storage
+  persistentVolumeClaim:
+    claimName: {{ template "ck-server.name" $top }}-pv-claim
 {{- end -}}
