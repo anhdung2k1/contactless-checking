@@ -19,5 +19,29 @@ spec:
         fsGroup: {{ template "ck-application.fsGroup.coordinated" . }}
         {{- include "ck-application.podSeccompProfile" . | indent 8 }}
         {{- include "ck-application.supplementalGroups" . }}
+      serviceAccountName: {{ .Values.server.faceClient.serviceAccountName }}
+      initContainers:
+      - name: init-config
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -x
+          # Get both service names and create configmap
+          AUTH_SVC_IP=$(kubectl get svc {{ template "ck-authentication.name" . }} -n {{ include "ck-application.namespace" . }} -o=jsonpath='{.spec.clusterIP}')
+          AUTH_SVC_PORT={{ .Values.server.authentication.port }}
+          AUTH_URL="http://${AUTH_SVC_IP}:${AUTH_SVC_PORT}"
+          SERVER_SVC_IP=$(kubectl get svc {{ template "ck-server.name" . }} -n {{ include "ck-application.namespace" . }} -o=jsonpath='{.spec.clusterIP}')
+          SERVER_SVC_PORT={{ .Values.server.faceModel.port }}
+          SERVER_URL="http://${SERVER_SVC_IP}:${SERVER_SVC_PORT}"
+
+          # Remove configmap before applied
+          kubectl -n {{ include "ck-application.namespace" . }} delete configmap service-ip-config
+          # Apply new configmap
+          kubectl -n {{ include "ck-application.namespace" . }} create configmap service-ip-config \
+              --from-literal=auth-service-url=$AUTH_URL \
+              --from-literal=server-service-url=$SERVER_URL \
+              --dry-run=client -o yaml | kubectl apply -f -
       containers:
       {{- include "ck-client-containers" (list .) | nindent 6 }}

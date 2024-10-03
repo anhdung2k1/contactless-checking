@@ -411,23 +411,3 @@ data:
   {{ template "ck-authentication.name" . }}-aws-secret: {{- print .Values.aws.secret | b64enc | indent 2 }}
   {{ template "ck-authentication.name" . }}-aws-region: {{- print .Values.aws.region | b64enc | indent 2 -}}
 {{- end -}}
-
-{{/*
-Create auth service communication between pod
-*/}}
-{{- define "ck-application.authCommunication" -}}
-{{- $authServiceName := (include "ck-authentication.name" . ) -}}
-{{- $authServicePort := .Values.server.authentication.port -}}
-{{- $namespace := (include "ck-application.namespace" . ) -}}
-{{- printf "https://%s.%s.svc.cluster.local:%s" $authServiceName $namespace $authServicePort -}}
-{{- end -}}
-
-{{/*
-Create auth service communication between pod
-*/}}
-{{- define "ck-application.modelCommunication" -}}
-{{- $modelServiceName := (include "ck-server.name" . ) -}}
-{{- $modelServicePort := .Values.server.faceModel.port -}}
-{{- $namespace := (include "ck-application.namespace" . ) -}}
-{{- printf "https://%s.%s.svc.cluster.local:%s" $modelServiceName $namespace $modelServicePort -}}
-{{- end -}}

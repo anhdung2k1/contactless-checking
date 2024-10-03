@@ -4,15 +4,20 @@
   image: {{ include "ck-application.imagePath" (merge (dict "imageName" "ck-face-client") $top) }}
   imagePullPolicy: {{ include "ck-application.imagePullPolicy" $top }}
   env:
-    - name: MODEL_URL
-      value: {{ include "ck-application.modelCommunication" $top }}
-    - name: HOST_IP
-      value: {{ include "ck-application.authCommunication" $top }}
+  # Refer to client initContainer
+  - name: MODEL_URL
+    valueFrom:
+      configMapKeyRef:
+        name: service-ip-config
+        key: server-service-url
+  - name: HOST_IP
+    valueFrom:
+      configMapKeyRef:
+        name: service-ip-config
+        key: auth-service-url
   ports:
     - name: http-client-svc
       containerPort: {{ $top.Values.server.faceClient.httpPort }}
-    - name: tls-client-svc
-      containerPort: {{ $top.Values.server.faceClient.tlsPort }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-client") | indent 2 }}
   volumeMounts:

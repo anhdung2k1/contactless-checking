@@ -42,4 +42,3 @@ spec:
   type: LoadBalancer
   allocateLoadBalancerNodePorts: false
   externalTrafficPolicy: Cluster
-  loadBalancerIP: {{ .Values.server.externalIP }}

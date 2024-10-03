@@ -1,0 +1,32 @@
+# Define a ServiceAccount to be used instead of the default ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: custom-service-account
+  namespace: {{ include "ck-application.namespace" . }}
+---
+# Define a Role to grant access to services and configmaps
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ include "ck-application.namespace" . }}
+  name: service-config-access
+rules:
+- apiGroups: [""]  # "" refers to the core API group
+  resources: ["services", "configmaps"]  # Access to services and configmaps
+  verbs: ["get", "create", "update", "delete", "patch"]  # Permissions granted
+---
+# Define a RoleBinding to bind the Role to the ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: service-config-binding
+  namespace: {{ include "ck-application.namespace" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.server.faceClient.serviceAccountName }}
+  namespace: {{ include "ck-application.namespace" . }}
+roleRef:
+  kind: Role
+  name: service-config-access  # Refer to the Role defined above
+  apiGroup: rbac.authorization.k8s.io  # RBAC API group

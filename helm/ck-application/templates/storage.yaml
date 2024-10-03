@@ -5,7 +5,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: {{ .Values.storageClassName }}
+  storageClassName: {{ include "ck-application.namespace" . }}-{{ .Values.storageClassName }}
   capacity:
     storage: {{ .Values.storageCapacity.mysql }}
   accessModes:
@@ -35,7 +35,7 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: {{ .Values.storageClassName }}
+  storageClassName: {{ include "ck-application.namespace" . }}-{{ .Values.storageClassName }}
   capacity:
     storage: {{ .Values.storageCapacity.server }}
   accessModes:
@@ -54,5 +54,5 @@ spec:
   accessModes:
     - ReadWriteOnce
   resources:
-    request:
+    requests:
       storage: {{ .Values.storageRequest.server }}

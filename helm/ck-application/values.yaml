@@ -41,6 +41,7 @@ server:
     nodePort: "30500"
 
   faceClient:
+    serviceAccountName: client-sa
     name: face-client
     httpPort: "80"
     httpNodePort: "30080"
@@ -79,8 +80,8 @@ resources:
       cpu: "4"
       memory: "4048Mi"
     requests:
-      cpu: "1"
-      memory: "1024Mi"
+      cpu: "2"
+      memory: "2024Mi"
   face-client:
     limits:
       cpu: "1"
