@@ -4,7 +4,7 @@
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-authentication") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   ports:
-    - name: https-auth-svc
+    - name: http-auth-svc
       containerPort: {{ $top.Values.server.authentication.port }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "authentication") | indent 2 }}
@@ -36,4 +36,41 @@
       secretKeyRef:
         name: {{ template "ck-mysql.name" $top }}-secret
         key: {{ template "ck-mysql.name" $top }}-password
+  - name: KEYSTORE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-keystore-password
+  - name: JWT_KEY
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-jwt-key
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-key
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-secret
+  - name: AWS_DEFAULT_REGION
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-region
+  - name: CONFIG_PATH
+    value: /etc/config/application.yaml
+  volumeMounts:
+  - name: config-properties
+    mountPath: /etc/config
+volumes:
+- name: config-properties
+  configMap:
+    name: {{ template "ck-authentication.name" $top }}-configmap
+    items:
+      - key: application.yaml
+        path: application.yaml
 {{- end -}}

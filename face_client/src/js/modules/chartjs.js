@@ -1,4 +1,4 @@
-// Usage: https://www.chartjs.org/
+// Usage: http://www.chartjs.org/
 import Chart from "chart.js";
 
 Chart.defaults.global.defaultFontColor = window.theme["gray-600"];

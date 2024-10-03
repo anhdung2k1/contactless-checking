@@ -154,8 +154,8 @@ build_all() {
 get_version() {
     test -n "$BUILD/var" || mkdir $BUILD/var
     if [[ "$RELEASE" = true ]]; then
-        if [[ -s $BUILD_DIR/var/.released-version ]]; then
-            cat $BUILD_DIR/var/.released-version
+        if [[ -s $BUILD_DIR/var/.release_version ]]; then
+            cat $BUILD_DIR/var/.release_version
             exit 0
         fi
         release_version=$(git tag | sort -V | tail -1)
@@ -208,7 +208,7 @@ build_repo() {
                     -e DB_USERNAME=$COMMON_DB \
                     -e DB_NAME=$COMMON_DB \
                     -e DB_PASSWORD=$COMMON_DB \
-                    $MAVEN_IMAGE mvn clean install -Dskiptest \
+                    $MAVEN_IMAGE mvn clean install -DskipTests \
 		            || die "[ERROR]: Failed to compile"
         echo "Copy target file to docker dir"
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \

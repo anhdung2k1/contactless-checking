@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ck-authentication.name" . }}-configmap
+  labels: 
+    {{- include "ck-authentication.labels" . | nindent 4 }}
+  annotations: 
+    {{- include "ck-application.annotations" . | nindent 4 }}
+data:
+  application.yaml: |
+    #Get the ENV from k8s, docker env
+    spring:
+      datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://${DB_HOST}/${DB_NAME}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+      jpa:
+        database-platform: org.hibernate.dialect.MySQLDialect
+        generate-ddl: true
+        show-sql: true
+        hibernate:
+          ddl-auto: update
+
+    # AWS Cloud Configuration
+    cloud:
+      aws:
+        credentials:
+          access-key: ${AWS_ACCESS_KEY_ID}
+          secret-key: ${AWS_SECRET_ACCESS_KEY}
+        region:
+          static: ${AWS_DEFAULT_REGION}
+        stack:
+          auto: false
+
+    server:
+      port: 8443
+
+    bucket:
+      name: contactless-checking
+
+    jwt:
+      signerKey: ${JWT_KEY}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+data:
+  primary.cnf: |
+    [mysqld]
+    log-bin
+  replica.cnf: |
+    [mysqld]
+    super-read-only
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ck-client.name" . }}-configmap
+  labels: 
+    {{- include "ck-client.labels" . | nindent 4 }}
+  annotations: 
+    {{- include "ck-application.annotations" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name {{ .Values.issuer.ipAddress | join " " }};
+
+      location / {
+          root /usr/share/nginx/html;
+          index index.html index.htm;
+          try_files $uri $uri/ =404;
+      }
+    }

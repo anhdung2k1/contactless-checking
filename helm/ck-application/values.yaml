@@ -44,9 +44,7 @@ server:
   faceClient:
     name: face-client
     httpPort: "80"
-    tlsPort: "443"
     httpNodePort: "30080"
-    tlsNodePort: "30443"
 
 resources:
   initcontainer:
@@ -129,3 +127,9 @@ aws:
   key:
   secret:
   region: us-east-1
+
+issuer:
+  ipAddress:
+  - 192.168.122.70
+  - 192.168.122.65
+  - 192.168.122.64

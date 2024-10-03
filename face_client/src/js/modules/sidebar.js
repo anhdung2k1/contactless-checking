@@ -1,4 +1,4 @@
-// Usage: https://github.com/Grsmto/simplebar
+// Usage: http://github.com/Grsmto/simplebar
 import SimpleBar from "simplebar";
 
 const initialize = () => {

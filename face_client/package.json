@@ -19,13 +19,13 @@
     "ui kit",
     "web"
   ],
-  "homepage": "https://github.com/anhdung2k1/contactless-checking",
+  "homepage": "http://github.com/anhdung2k1/contactless-checking",
   "bugs": {
-    "url": "https://github.com/adminkit/adminkit/issues"
+    "url": "http://github.com/adminkit/adminkit/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adminkit/adminkit.git"
+    "url": "git+http://github.com/adminkit/adminkit.git"
   },
   "license": "MIT",
   "author": "Paul Laros <support@adminkit.io>",

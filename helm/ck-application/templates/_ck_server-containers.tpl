@@ -10,9 +10,18 @@
 {{- include "ck-application.resources" (index $top.Values "resources" "face-model") | indent 2 }}
   env:
   - name: AWS_ACCESS_KEY_ID
-    value: {{ $top.Values.aws.key }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-key
   - name: AWS_SECRET_ACCESS_KEY
-    value: {{ $top.Values.aws.secret }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-secret
   - name: AWS_DEFAULT_REGION
-    value: {{ $top.Values.aws.region }}
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-aws-region
 {{- end -}}

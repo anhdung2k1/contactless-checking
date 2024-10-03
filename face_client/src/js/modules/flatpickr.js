@@ -1,4 +1,4 @@
-// Usage: https://flatpickr.js.org/
+// Usage: http://flatpickr.js.org/
 import flatpickr from "flatpickr";
 
 window.flatpickr = flatpickr;
