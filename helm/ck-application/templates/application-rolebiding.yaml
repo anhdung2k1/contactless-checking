@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: custom-service-account
+  name: {{ .Values.server.faceClient.serviceAccountName }}
   namespace: {{ include "ck-application.namespace" . }}
 ---
 # Define a Role to grant access to services and configmaps
