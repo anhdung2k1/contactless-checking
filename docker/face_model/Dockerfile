@@ -35,8 +35,8 @@ RUN python3 -m venv venv && \
 # Production stage
 FROM base
 
+VOLUME [ "/app" ]
 WORKDIR /app
-
 # Copy virtual environment from builder stage
 COPY --from=builder /app/venv /app/venv
 COPY --chmod=0755 --chown=0:0 face_model/ /app/face_model

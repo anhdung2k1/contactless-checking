@@ -26,14 +26,41 @@ spec:
         {{- include "ck-application.supplementalGroups" . }}
       initContainers:
         - name: wait-for-mysql
-          image: busybox:1.36.1
+          image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") .) }}
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "ck-mysql.name" . }}-secret
+                  key: {{ template "ck-mysql.name" . }}-host
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "ck-mysql.name" . }}-secret
+                  key: {{ template "ck-mysql.name" . }}-dbName
+            - name: DB_USERNAME
+              {{- if not (eq ((include "ck-mysql.password" .) | b64dec) "root") }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "ck-mysql.name" . }}-secret
+                  key: {{ template "ck-mysql.name" . }}-user
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "ck-mysql.name" . }}-secret
+                  key: {{ template "ck-mysql.name" . }}-root-password
+              {{- end }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "ck-mysql.name" . }}-secret
+                  key: {{ template "ck-mysql.name" . }}-password
           command:
             - sh
             - -c
             - |
               echo "Starting initContainer to wait for MySQL";
-              while ! nc -z -v -w30 {{ template "ck-mysql.name" . }} {{ .Values.server.mysqlServer.port }};
-              do
+              until mysql -h $DB_HOST -u $DB_USERNAME -p$DB_PASSWORD -e "SELECT 1"; do
                 echo "Waiting for MySQL to be ready...";
                 sleep 5;
               done;

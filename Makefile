@@ -16,8 +16,6 @@ init:
 	mkdir -p build/var
 	@echo "Create training dataset"
 	./vas.sh get_train_dataset
-	@echo "Create LFW Dataset"
-	./vas.sh get_lfw_dataset
 	@if [ "$(RELEASE)" = "true" ]; then \
 		echo "Generate release version"; \
 		./vas.sh get_version > build/var/.release_version; \
@@ -85,3 +83,6 @@ push-face-model:
 	@echo "push image-face-model"
 	./vas.sh push_image --name=face_model
 
+test:
+	@echo "Create LFW Dataset"
+	./vas.sh get_lfw_dataset

@@ -129,6 +129,4 @@ def train_images():
     return jsonify({'status': 'success', 'message': 'Model trained success'}), 200
 
 if __name__ == '__main__':
-    cert_path = os.path.join(root_directory, 'ssl', 'tls.crt')
-    key_path = os.path.join(root_directory, 'ssl', 'tls.key')
-    app.run(host='0.0.0.0', port=5000, ssl_context=(cert_path, key_path))
+    app.run(host='0.0.0.0', port=5000)

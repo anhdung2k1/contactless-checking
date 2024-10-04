@@ -17,5 +17,10 @@ LABEL \
 COPY --chmod=0755 --chown=0:0  *.jar app.jar
 
 EXPOSE 8443
-VOLUME [ "/api-server" ]
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar"]
+# Ensure application.yaml can be provided via a ConfigMap
+ENV CONFIG_PATH="/etc/config/application.yaml"
+
+# Entry point for the Spring Boot application, includes dynamic loading of the keystore and config
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom \
+  -Dspring.config.location=$CONFIG_PATH \
+  -jar /app.jar"]

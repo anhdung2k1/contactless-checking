@@ -22,7 +22,6 @@ updateStrategy:
 
 server:
   replicaCount: 1
-  externalIP: 127.0.0.1
   mysqlServer:
     name: mysql-server
     port: 3306
@@ -42,11 +41,10 @@ server:
     nodePort: "30500"
 
   faceClient:
+    serviceAccountName: client-sa
     name: face-client
     httpPort: "80"
-    tlsPort: "443"
     httpNodePort: "30080"
-    tlsNodePort: "30443"
 
 resources:
   initcontainer:
@@ -82,8 +80,8 @@ resources:
       cpu: "4"
       memory: "4048Mi"
     requests:
-      cpu: "1"
-      memory: "1024Mi"
+      cpu: "2"
+      memory: "2024Mi"
   face-client:
     limits:
       cpu: "1"
@@ -116,16 +114,25 @@ storageClassName: local-storage
 
 storageCapacity:
   mysql: 10Gi
+  server: 10Gi
 
 storageRequest:
   mysql: 5Gi
+  server: 5Gi
 
 dbPass: ""
 
 ingress:
-  enabled: false
+  enabled: true
+  hostName: cluster-intern.site
 
 aws:
   key:
   secret:
   region: us-east-1
+
+issuer:
+  ipAddress:
+  - 192.168.122.70
+  - 192.168.122.65
+  - 192.168.122.64

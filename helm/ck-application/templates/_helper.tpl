@@ -400,3 +400,24 @@ data:
   {{ template "ck-mysql.name" . }}-host: {{- include "ck-mysql.name" . | b64enc | indent 2 }}
   {{ template "ck-mysql.name" . }}-dbName: {{- print "checking" | b64enc | indent 2 }}
 {{- end -}}
+
+{{/*
+Create secret for authentication
+*/}}
+{{- define "ck-authentication.secrets" -}}
+{{- $password := (include "ck-mysql.password" .) -}}
+data:
+  {{ template "ck-authentication.name" . }}-aws-key: {{- print .Values.aws.key | b64enc | indent 2 }}
+  {{ template "ck-authentication.name" . }}-aws-secret: {{- print .Values.aws.secret | b64enc | indent 2 }}
+  {{ template "ck-authentication.name" . }}-aws-region: {{- print .Values.aws.region | b64enc | indent 2 -}}
+{{- end -}}
+
+{{/*
+Ingress Auth Connection
+*/}}
+{{- define "ck-application.ingressPath" -}}
+{{- $top := index . 0 }}
+{{- $name := index . 1 }}
+{{- $ingressHost := $top.Values.ingress.hostName -}}
+{{- printf "%s.%s" $name $ingressHost -}}
+{{- end -}}
