@@ -6,15 +6,23 @@
   env:
   # Refer to client initContainer
   - name: MODEL_URL
+    {{- if $top.Values.ingress.enabled }}
+    value: http://{{ include "ck-application.ingressPath" (list $top (include "ck-server.name" $top )) }}:{{ $top.Values.server.faceModel.port }}
+    {{- else }}
     valueFrom:
       configMapKeyRef:
         name: service-ip-config
         key: server-service-url
+    {{- end }}
   - name: HOST_IP
+    {{- if $top.Values.ingress.enabled }}
+    value: http://{{ include "ck-application.ingressPath" (list $top (include "ck-authentication.name" $top )) }}:{{ $top.Values.server.authentication.port }}
+    {{- else }}
     valueFrom:
       configMapKeyRef:
         name: service-ip-config
         key: auth-service-url
+    {{- end }}
   ports:
     - name: http-client-svc
       containerPort: {{ $top.Values.server.faceClient.httpPort }}

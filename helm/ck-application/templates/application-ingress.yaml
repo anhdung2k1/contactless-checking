@@ -3,19 +3,53 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ template "ck-client.name" . }}-ingress
-  namespace: {{ .Release.Namespace }}
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: "nginx"
   rules:
-  - host: {{ template "ck-client.name" . }}.cluster-intern.site
+  - host: {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }}
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: {{ template "ck-client.name" . }}
+            name: {{ template "ck-client.name" . }}-http
             port:
-              number: 80
+              number: {{ .Values.server.faceClient.httpPort }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ template "ck-authentication.name" . }}-ingress
+spec:
+  ingressClassName: "nginx"
+  rules:
+  - host: {{ include "ck-application.ingressPath" (list . (include "ck-authentication.name" . )) }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ template "ck-authentication.name" . }}
+            port:
+              number: {{ .Values.server.authentication.port }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ template "ck-server.name" . }}-ingress
+spec:
+  ingressClassName: "nginx"
+  rules:
+  - host: {{ include "ck-application.ingressPath" (list . (include "ck-server.name" . )) }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ template "ck-server.name" . }}
+            port:
+              number: {{ .Values.server.faceModel.port }}              
 {{- end }}
