@@ -32,8 +32,21 @@ server:
   #serviceAccountName: ""
   authentication:
     name: authentication
-    port: "8443"
+    port: "8080"
     nodePort: "30800"
+    probes:
+      readiness:
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        timeoutSeconds: 3
+        successThreshold: 1
+        failureThreshold: 3
+      liveness:
+        initialDelaySeconds: 15
+        periodSeconds: 20
+        timeoutSeconds: 3
+        successThreshold: 1
+        failureThreshold: 5
 
   faceModel:
     name: face-model
@@ -78,10 +91,10 @@ resources:
   face-model:
     limits:
       cpu: "4"
-      memory: "4048Mi"
+      memory: "4096Mi"
     requests:
       cpu: "2"
-      memory: "2024Mi"
+      memory: "2048Mi"
   face-client:
     limits:
       cpu: "1"

@@ -56,6 +56,8 @@
   volumeMounts:
   - name: config-properties
     mountPath: /etc/config
+{{ include "ck-authentication.readinessProbe" $top | indent 2 }}
+{{ include "ck-authentication.livenessProbe" $top | indent 2 }}
 volumes:
 - name: config-properties
   configMap:

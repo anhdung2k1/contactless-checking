@@ -490,7 +490,7 @@ pod/ck-application-mysql-0                           2/2     Running   0        
 pod/ck-application-server-84c4f67c6-ttn72            1/1     Running   0          14m
 
 NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8080/TCP   5s
 ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
 ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
 ck-application-mysql            ClusterIP      None             &lt;none&gt;        3306/TCP   5s
@@ -528,7 +528,7 @@ ck-application-server-84c4f67c6-ttn72            1/1     Running   0          11
 </div></code></pre>
 <p>This will show all the service to access. Select the Web Client service.</p>
 <pre class="hljs"><code><div>NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8080/TCP   5s
 ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
 ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
 ck-application-mysql            ClusterIP      None             &lt;none&gt;        3306/TCP   5s

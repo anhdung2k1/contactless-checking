@@ -8,6 +8,12 @@ metadata:
     {{- include "ck-application.annotations" . | nindent 4 }}
 data:
   application.yaml: |
+    {{- $global := . }} 
+    logging:
+      level:
+        org:
+          springframework:
+            web: debug
     #Get the ENV from k8s, docker env
     spring:
       datasource:
@@ -21,6 +27,17 @@ data:
         show-sql: true
         hibernate:
           ddl-auto: update
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: "health"
+        endpoint:
+          health:
+            show-details: "always"
+        health:
+          db:
+            enabled: true
 
     # AWS Cloud Configuration
     cloud:
@@ -34,10 +51,20 @@ data:
           auto: false
 
     server:
-      port: 8443
+      port: 8080
 
     bucket:
       name: contactless-checking
+    
+    cors:
+      allowed-origins:
+      {{- range $ip := $global.Values.issuer.ipAddress }}
+      {{- printf " http://%s" $ip -}}
+      {{- printf " http://%s:%s" $ip $global.Values.server.faceClient.httpNodePort -}}
+      {{- end }}
+      {{- if $global.Values.ingress.enabled }}
+      {{- printf " http://%s" (include "ck-application.ingressPath" (list $global (include "ck-client.name" $global ))) -}}
+      {{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -63,7 +90,11 @@ data:
   default.conf: |
     server {
       listen 80;
+      {{- if .Values.ingress.enabled }}
+      server_name {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }};
+      {{- else }}
       server_name {{ .Values.issuer.ipAddress | join " " }};
+      {{- end }}
 
       location / {
           root /usr/share/nginx/html;
