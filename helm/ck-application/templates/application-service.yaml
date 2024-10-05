@@ -9,8 +9,11 @@ spec:
     - name: {{ template "ck-authentication.name" . }}-http
       protocol: "TCP"
       port: {{ .Values.server.authentication.port }}
+      {{- if not (eq .Values.server.authentication.serviceType "ClusterIP" ) }}
+      nodePort: {{ .Values.server.authentication.nodePort }}
+      {{- end }}
       targetPort: http-auth-svc
-  type: ClusterIP
+  type: {{ .Values.server.authentication.serviceType }}
 ---
 apiVersion: v1
 kind: Service
@@ -23,8 +26,11 @@ spec:
     - name: {{ template "ck-server.name" . }}-http
       protocol: TCP
       port: {{ .Values.server.faceModel.port }}
+      {{- if not (eq .Values.server.faceModel.serviceType "ClusterIP" ) }}
+      nodePort: {{ .Values.server.faceModel.nodePort }}
+      {{- end }}
       targetPort: http-server-svc
-  type: ClusterIP
+  type: {{ .Values.server.faceModel.serviceType }}
 ---
 apiVersion: v1
 kind: Service
@@ -37,5 +43,8 @@ spec:
     - name: {{ template "ck-client.name" . }}-http
       protocol: TCP
       port: {{ .Values.server.faceClient.httpPort }}
+      {{- if not (eq .Values.server.faceClient.serviceType "ClusterIP" ) }}
+      nodePort: {{ .Values.server.faceClient.httpNodePort }}
+      {{- end }}
       targetPort: http-client-svc
-  type: ClusterIP
+  type: {{ .Values.server.faceClient.serviceType }}
