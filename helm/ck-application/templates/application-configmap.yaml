@@ -8,7 +8,6 @@ metadata:
     {{- include "ck-application.annotations" . | nindent 4 }}
 data:
   application.yaml: |
-    {{- $global := . }} 
     logging:
       level:
         org:
@@ -57,14 +56,14 @@ data:
       name: contactless-checking
     
     cors:
-      allowed-origins:
-      {{- range $ip := $global.Values.issuer.ipAddress }}
-      {{- printf " http://%s" $ip -}}
-      {{- printf " http://%s:%s" $ip $global.Values.server.faceClient.httpNodePort -}}
-      {{- end }}
-      {{- if $global.Values.ingress.enabled }}
-      {{- printf " http://%s" (include "ck-application.ingressPath" (list $global (include "ck-client.name" $global ))) -}}
-      {{- end }}
+      allowed-origins: "{{- $allowedOrigins := .Values.issuer.ipAddress | join ", http://" -}}
+      http://{{ $allowedOrigins }}
+      {{- range $ip := .Values.issuer.ipAddress -}}
+      , http://{{ $ip }}:{{ $.Values.server.faceClient.httpNodePort }}
+      {{- end -}}
+      {{- if .Values.ingress.enabled -}}
+      , http://{{ include "ck-application.ingressPath" (list . (include "ck-client.name" .)) }}
+      {{- end }}"
 ---
 apiVersion: v1
 kind: ConfigMap

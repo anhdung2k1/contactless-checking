@@ -32,6 +32,7 @@ server:
   #serviceAccountName: ""
   authentication:
     name: authentication
+    serviceType: ClusterIP
     port: "8080"
     nodePort: "30800"
     probes:
@@ -50,12 +51,14 @@ server:
 
   faceModel:
     name: face-model
+    serviceType: ClusterIP
     port: "5000"
     nodePort: "30500"
 
   faceClient:
     serviceAccountName: client-sa
     name: face-client
+    serviceType: ClusterIP
     httpPort: "80"
     httpNodePort: "30080"
 
