@@ -38,6 +38,17 @@ data:
 
     bucket:
       name: contactless-checking
+    
+    cors:
+      allowed-origins:
+      {{- $global := . }} 
+      {{- range $ip := $global.Values.issuer.ipAddress }}
+      - http://{{ $ip }}:{{ $global.Values.server.faceClient.httpNodePort }}
+      - http://{{ $ip }}:{{ $global.Values.server.faceClient.httpPort }}
+      {{- end }}
+      {{- if .Values.ingress.enabled }}
+      - http://{{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -63,7 +74,11 @@ data:
   default.conf: |
     server {
       listen 80;
+      {{- if .Values.ingress.enabled }}
+      server_name {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }};
+      {{- else }}
       server_name {{ .Values.issuer.ipAddress | join " " }};
+      {{- end }}
 
       location / {
           root /usr/share/nginx/html;

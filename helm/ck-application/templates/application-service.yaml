@@ -37,8 +37,5 @@ spec:
     - name: {{ template "ck-client.name" . }}-http
       protocol: TCP
       port: {{ .Values.server.faceClient.httpPort }}
-      nodePort: {{ .Values.server.faceClient.httpNodePort }} # Assign static NodePort
       targetPort: http-client-svc
-  type: LoadBalancer
-  allocateLoadBalancerNodePorts: false
-  externalTrafficPolicy: Cluster
+  type: ClusterIP

@@ -15,6 +15,7 @@ LABEL \
 
 #Mount jar target file  
 COPY --chmod=0755 --chown=0:0  *.jar app.jar
+COPY --chmod=0755 --chown=0:0 application.yaml /etc/config/application.yaml
 
 EXPOSE 8443
 # Ensure application.yaml can be provided via a ConfigMap

@@ -28,3 +28,7 @@ server:
 
 bucket:
   name: contactless-checking
+
+cors:
+  allowed-origins: 
+    - "http://localhost:80"

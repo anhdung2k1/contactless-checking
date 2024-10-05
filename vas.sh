@@ -213,6 +213,8 @@ build_repo() {
         echo "Copy target file to docker dir"
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
             || die "Target file does not exists in $API_DIR/target/"
+        cp -f $API_DIR/src/main/resources/application.yaml $DOCKER_DIR/$__name/ \
+            || die "application.yaml file does not exists in $API_DIR/src/main/resources/"
         # Remove the mysql container
         docker rm -f mysql_container \
             || die "Could not remove mysql container"
@@ -253,14 +255,6 @@ build_image() {
             --build-arg APP_VERSION=$version \
             --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
         || die "Failed to build docker images: $__name"
-    
-    ## Clean target file if exists
-    if [[ $__name == "authentication" ]]; then
-        rm -rf $DOCKER_DIR/$__name/*.jar
-    else
-        rm -rf $DOCKER_DIR/$__name/$__name
-        rm -f $DOCKER_DIR/$__name/requirements.txt
-    fi
 }
 
 ## save_image

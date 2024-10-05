@@ -10,11 +10,13 @@
 /docker/face_model/face_model/
 /docker/face_model/requirements.txt
 /docker/authentication/*.jar
+/docker/authentication/application.yaml
 /face_model/__pycache__/
 /face_model/argface_model/__pycache__/
 /face_model/s3_config/__pycache__/
 /client-server/__pycache__/
 /build/
+/test/ssl/
 
 /venv/
 /authentication/authentication/target/
