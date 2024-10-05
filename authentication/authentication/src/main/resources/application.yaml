@@ -1,4 +1,9 @@
-#Get the ENV from k8s, docker env
+# Get the ENV from k8s, docker env
+logging:
+  level:
+    org:
+      springframework:
+        web: debug
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -12,6 +17,19 @@ spring:
     hibernate:
       ddl-auto: update
 
+  # Actuator configuration
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "health"
+    endpoint:
+      health:
+        show-details: "always"
+    health:
+      db:
+        enabled: true
+
 # AWS Cloud Configuration
 cloud:
   aws:
@@ -24,11 +42,10 @@ cloud:
       auto: false
 
 server:
-  port: 8443
+  port: 8080
 
 bucket:
   name: contactless-checking
 
 cors:
-  allowed-origins: 
-    - "http://localhost:80"
+  allowed-origins: http://localhost, http://127.0.0.1

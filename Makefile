@@ -83,6 +83,19 @@ push-face-model:
 	@echo "push image-face-model"
 	./vas.sh push_image --name=face_model
 
-test:
+test: 	test-authentication \
+		test-face-client \
+		test-face-model
+
+test-authentication:
+	@echo "test-authentication"
+	./vas.sh test_repo --name=authentication
+test-face-model:
+	@echo "test-face-model"
+	./vas.sh test_repo --name=face_model
+test-face-client:
+	@echo "test-face-client"
+	./vas.sh test_repo --name=face_client
+get_lfw_dataset:
 	@echo "Create LFW Dataset"
 	./vas.sh get_lfw_dataset

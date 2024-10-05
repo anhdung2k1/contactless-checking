@@ -99,6 +99,7 @@ $ export DOCKER_REGISTRY=<your docker-registry>
 ```
 
 6. Config AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your env to retrieve all dataset in S3 bucket. Found in IAM roles in AWS.
+    Need to create IAM role with S3 Bucket Permission in AWS S3. Create bucket in AWS S3 and name it `contactless-checking`
 ```bash
 export AWS_ACCESS_KEY_ID=<your-AWS_ACCESS_KEY_ID>
 export AWS_SECRET_ACCESS_KEY=<your-AWS_SECRET_ACCESS_KEY>
@@ -110,7 +111,7 @@ export AWS_DEFAULT_REGION=<your-AWS_DEFAULT_REGION> | <DEFAULT us-east-1>
 $ EXPORT RELEASE=true
 $ EXPORT NAME="-n zrdtuan-ns"
 $ make package-helm
-$ helm $NAME install ck-app build/helm-build/ck-application/ck-application-1.0.0-5.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
+$ helm $NAME install ck-app build/helm-build/ck-application/ck-application-<version>.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
 ```
 
 For TLS, in this lab I config K8s resource in Docker Desktop => Running on WSL. To check the kubernetes IP.
@@ -130,7 +131,7 @@ pod/ck-application-mysql-0                           2/2     Running   0        
 pod/ck-application-server-84c4f67c6-ttn72            1/1     Running   0          14m
 
 NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8080/TCP   5s
 ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
 ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
 ck-application-mysql            ClusterIP      None             <none>        3306/TCP   5s
@@ -171,7 +172,7 @@ $ kubectl $NAME get svc
 This will show all the service to access. Select the Web Client service.
 ```bash
 NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8443/TCP   5s
+ck-application-authentication   LoadBalancer   10.106.76.107    localhost     8080/TCP   5s
 ck-application-client-http      LoadBalancer   10.97.223.70     localhost     80/TCP     5s
 ck-application-client-https     LoadBalancer   10.108.149.254   localhost     443/TCP    5s
 ck-application-mysql            ClusterIP      None             <none>        3306/TCP   5s

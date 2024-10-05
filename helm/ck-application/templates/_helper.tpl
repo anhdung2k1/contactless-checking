@@ -421,3 +421,35 @@ Ingress Auth Connection
 {{- $ingressHost := $top.Values.ingress.hostName -}}
 {{- printf "%s.%s" $name $ingressHost -}}
 {{- end -}}
+
+{{- define "ck-authentication.readinessProbe" -}}
+{{- $global := . -}}
+{{- with $global.Values.server.authentication.probes.readiness }}
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: {{ $global.Values.server.authentication.port }}
+    scheme: HTTP
+  initialDelaySeconds: {{ .initialDelaySeconds }}
+  periodSeconds: {{ .periodSeconds }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  successThreshold: {{ .successThreshold }}
+  failureThreshold: {{ .failureThreshold }}
+{{- end }}
+{{- end -}}
+
+{{- define "ck-authentication.livenessProbe" -}}
+{{- $global := . -}}
+{{- with $global.Values.server.authentication.probes.liveness }}
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: {{ $global.Values.server.authentication.port }}
+    scheme: HTTP
+  initialDelaySeconds: {{ .initialDelaySeconds }}
+  periodSeconds: {{ .periodSeconds }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  successThreshold: {{ .successThreshold }}
+  failureThreshold: {{ .failureThreshold }}
+{{- end }}
+{{- end -}}

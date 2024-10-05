@@ -13,15 +13,17 @@ LABEL \
     ck.image.title="CK API Server" \
     ck.image.created="$BUILD_TIME"
 
-#Mount jar target file  
-COPY --chmod=0755 --chown=0:0  *.jar app.jar
-COPY --chmod=0755 --chown=0:0 application.yaml /etc/config/application.yaml
+VOLUME [ "/api-server" ]
 
-EXPOSE 8443
+#Mount jar target file  
+COPY --chmod=0755 --chown=0:0  *.jar /api-server/app.jar
+COPY --chmod=0755 --chown=0:0 application.yaml /api-server/application.yaml
+
+EXPOSE 8080
 # Ensure application.yaml can be provided via a ConfigMap
-ENV CONFIG_PATH="/etc/config/application.yaml"
+ENV CONFIG_PATH="/api-server/application.yaml"
 
 # Entry point for the Spring Boot application, includes dynamic loading of the keystore and config
 ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom \
   -Dspring.config.location=$CONFIG_PATH \
-  -jar /app.jar"]
+  -jar /api-server/app.jar"]

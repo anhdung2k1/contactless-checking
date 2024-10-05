@@ -1,8 +1,9 @@
 package com.example.authentication.config;
 
 import java.util.Arrays;
-import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,38 +24,54 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    @Value("${cors.allowed-origins}")
-    private List<String> allowedOrigins;
+    @Value("${cors.allowed-origins:http://localhost}")
+    private String[] allowedOrigins;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+        logger.info("Setting up security filter chain...");
+        
+        SecurityFilterChain filterChain = http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Apply CORS configuration
                 .csrf(csrf -> csrf.disable())  // Disable CSRF for stateless authentication
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/accounts/signin", "/api/accounts/signup").permitAll()  // Public routes
+                        .requestMatchers("/api/accounts/signin", "/api/accounts/signup", "/actuator/**").permitAll()  // Public routes
                         .anyRequest().authenticated())  // Protect other routes
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless session management
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // Add JWT filter
                 .build();
+        
+        logger.info("Security filter chain configured successfully.");
+        
+        return filterChain;
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(allowedOrigins);  // Allow the specific origins
-        configuration.setAllowedMethods(Arrays.asList("*"));  // Allow necessary methods
-        configuration.setAllowedHeaders(Arrays.asList("*"));  // Allow specific headers
-        configuration.setExposedHeaders(Arrays.asList("*"));  // Expose Authorization in the response headers
-        configuration.setAllowCredentials(true);  // Allow credentials (cookies, Authorization headers)
+        logger.info("Setting up CORS configuration...");
 
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));  // Allow the specific origins
+        logger.info("Allowed Origins: {}", Arrays.toString(allowedOrigins));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // Allow necessary methods
+        logger.info("Allowed Methods: {}", configuration.getAllowedMethods());
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));  // Allow specific headers
+        logger.info("Allowed Headers: {}", configuration.getAllowedHeaders());
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));  // Expose Authorization in the response headers
+        logger.info("Exposed Headers: {}", configuration.getExposedHeaders());
+        configuration.setAllowCredentials(true);  // Allow credentials (cookies, Authorization headers)
+        logger.info("Allow Credentials: {}", configuration.getAllowCredentials());
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);  // Apply CORS configuration to all paths
+        logger.info("CORS configuration source setup successfully.");
+
         return source;
     }
 }
