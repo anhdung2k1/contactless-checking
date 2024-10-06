@@ -428,7 +428,7 @@ Ingress Auth Connection
 readinessProbe:
   httpGet:
     path: /actuator/health
-    port: {{ $global.Values.server.authentication.port }}
+    port: {{ $global.Values.server.authentication.httpPort }}
     scheme: HTTP
   initialDelaySeconds: {{ .initialDelaySeconds }}
   periodSeconds: {{ .periodSeconds }}
@@ -444,7 +444,7 @@ readinessProbe:
 livenessProbe:
   httpGet:
     path: /actuator/health
-    port: {{ $global.Values.server.authentication.port }}
+    port: {{ $global.Values.server.authentication.httpPort }}
     scheme: HTTP
   initialDelaySeconds: {{ .initialDelaySeconds }}
   periodSeconds: {{ .periodSeconds }}

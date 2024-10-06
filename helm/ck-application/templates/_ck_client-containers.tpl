@@ -4,24 +4,18 @@
   image: {{ include "ck-application.imagePath" (merge (dict "imageName" "ck-face-client") $top) }}
   imagePullPolicy: {{ include "ck-application.imagePullPolicy" $top }}
   env:
-  # Refer to client initContainer
+  # The fetch client used external IP from LoadBalancer/NodePort or Ingress. Not working with ClusterIP
   - name: MODEL_URL
     {{- if $top.Values.ingress.enabled }}
     value: http://{{ include "ck-application.ingressPath" (list $top (include "ck-server.name" $top )) }}
     {{- else }}
-    valueFrom:
-      configMapKeyRef:
-        name: service-ip-config
-        key: server-service-url
+    value: http://{{ $top.Values.server.nodeIP }}:{{ $top.Values.server.faceModel.httpNodePort }}
     {{- end }}
   - name: HOST_IP
     {{- if $top.Values.ingress.enabled }}
     value: http://{{ include "ck-application.ingressPath" (list $top (include "ck-authentication.name" $top )) }}
     {{- else }}
-    valueFrom:
-      configMapKeyRef:
-        name: service-ip-config
-        key: auth-service-url
+    value: http://{{ $top.Values.server.nodeIP }}:{{ $top.Values.server.authentication.httpNodePort }}
     {{- end }}
   ports:
     - name: http-client-svc
