@@ -22,6 +22,7 @@ updateStrategy:
 
 server:
   replicaCount: 1
+  nodeIP: 192.168.122.65
   mysqlServer:
     name: mysql-server
     port: 3306
@@ -32,9 +33,9 @@ server:
   #serviceAccountName: ""
   authentication:
     name: authentication
-    serviceType: ClusterIP
-    port: "8080"
-    nodePort: "30800"
+    serviceType: LoadBalancer
+    httpPort: "8080"
+    httpNodePort: "30800"
     probes:
       readiness:
         initialDelaySeconds: 5
@@ -51,14 +52,13 @@ server:
 
   faceModel:
     name: face-model
-    serviceType: ClusterIP
-    port: "5000"
-    nodePort: "30500"
+    serviceType: LoadBalancer
+    httpPort: "5000"
+    httpNodePort: "30500"
 
   faceClient:
-    serviceAccountName: client-sa
     name: face-client
-    serviceType: ClusterIP
+    serviceType: LoadBalancer
     httpPort: "80"
     httpNodePort: "30080"
 

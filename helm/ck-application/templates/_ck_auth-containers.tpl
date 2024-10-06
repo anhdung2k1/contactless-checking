@@ -5,7 +5,7 @@
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   ports:
     - name: http-auth-svc
-      containerPort: {{ $top.Values.server.authentication.port }}
+      containerPort: {{ $top.Values.server.authentication.httpPort }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "authentication") | indent 2 }}
   env:

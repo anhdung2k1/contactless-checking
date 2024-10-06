@@ -5,7 +5,7 @@
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   ports:
     - name: http-server-svc
-      containerPort: {{ $top.Values.server.faceModel.port }}
+      containerPort: {{ $top.Values.server.faceModel.httpPort }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-model") | indent 2 }}
   env:
