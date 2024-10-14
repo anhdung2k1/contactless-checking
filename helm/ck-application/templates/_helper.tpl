@@ -4,7 +4,8 @@
 Create a map from ".Values.global" with defaults if missing in values file.
 */}}
 {{ define "ck-application.global" }}
-    {{- $globalDefaults := dict "registry" (dict "url" "anhdung12399") -}}
+    {{- $globalDefaults := "security" (dict "tls" (dict "enabled" true)) -}}
+    {{- $globalDefaults := merge $globalDefaults (dict "registry" (dict "url" "anhdung12399")) -}}
     {{- $globalDefaults := merge $globalDefaults (dict "timezone" "UTC") -}}
     {{- $globalDefaults := merge $globalDefaults (dict "nodeSelector" (dict)) -}}
     {{ if .Values.global }}
