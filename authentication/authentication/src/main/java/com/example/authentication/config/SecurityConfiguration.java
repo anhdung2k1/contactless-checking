@@ -60,7 +60,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));  // Allow the specific origins
         logger.info("Allowed Origins: {}", Arrays.toString(allowedOrigins));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // Allow necessary methods
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"));  // Allow necessary methods
         logger.info("Allowed Methods: {}", configuration.getAllowedMethods());
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));  // Allow specific headers
         logger.info("Allowed Headers: {}", configuration.getAllowedHeaders());
