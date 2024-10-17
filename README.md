@@ -207,8 +207,3 @@ The collected images will be trained using Jenkins CI. Enter the appropriate par
 The trained model will be used to detect customer images. On the detection page, a snapshot of the customer's image will be sent to the model server for analysis, and the results will be returned to the client.
 
 ![Detection-page](https://github.com/user-attachments/assets/6b3d5317-d745-4ce8-bfca-8accdc5597c8)
-
-### Architecture
-![CK-User_diagram](https://github.com/user-attachments/assets/de5f890e-7418-47a2-ab97-8bc8fedac1fa)
-
-![Architecture CK](https://github.com/user-attachments/assets/f61d40f1-d625-4b85-a03b-cd65c1d1edf4)
