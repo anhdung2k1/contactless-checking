@@ -91,7 +91,7 @@ class ImageProcessor:
             info(f"Distance between embeddings: {distance}")
 
             # Determine if the images belong to the same person
-            threshold = 1.5
+            threshold = 0.5
             is_same_person = distance < threshold
             info("Images are of the same person" if is_same_person else "Images are of different persons")
             

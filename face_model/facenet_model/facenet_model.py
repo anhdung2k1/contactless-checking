@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 from concurrent.futures import ThreadPoolExecutor
 from sklearn.metrics import accuracy_score
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import cosine
 from logger import info, debug, error  # Assuming logger.py contains the functions for logging
 
 class FaceNetModel:
@@ -176,7 +176,7 @@ class FaceNetModel:
             for image_path in images[1:]:
                 test_image = self._preprocess_image(image_path).unsqueeze(0).to(self.device)
                 test_embedding = self.model(test_image).cpu().numpy().flatten()
-                distance = euclidean(reference_embedding, test_embedding)
+                distance = cosine(reference_embedding, test_embedding)
                 is_same = distance < threshold
                 distances.append(distance)
                 labels.append(1 if is_same else 0)
