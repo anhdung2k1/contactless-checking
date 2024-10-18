@@ -14,7 +14,7 @@ from logger import info, debug, error  # Assuming logger.py contains the functio
 class FaceNetModel:
     def __init__(self, image_paths=[], batch_size=32, lr=0.001, num_epochs=20, num_classes=2, device='cuda', 
                  save_path=None, model_file_path=None):
-        self.image_paths = image_paths
+        self.image_paths = image_paths if image_paths else []
         self.batch_size = batch_size
         self.lr = lr
         self.num_epochs = num_epochs
@@ -23,6 +23,7 @@ class FaceNetModel:
         self.save_path = save_path
         self.model_file_path = model_file_path
         self.image_cache = {}
+        self.label_map = {}  # Consistent label map across batches
 
         self._initialize_model()
 
@@ -72,6 +73,8 @@ class FaceNetModel:
                             labels.append(label)
                         else:
                             debug(f"Skipped non-image file: {image_path}")
+        # Create a consistent label map for the entire dataset
+        self.label_map = {label: idx for idx, label in enumerate(set(labels))}
         return image_paths, labels
 
     def _preprocess_image(self, image_path):
@@ -90,13 +93,12 @@ class FaceNetModel:
     def _load_batch(self, batch_paths, batch_labels):
         """Load a batch of images and their corresponding labels."""
         batch_images, batch_targets = [], []
-        label_map = {label: idx for idx, label in enumerate(set(batch_labels))}
         with ThreadPoolExecutor() as executor:
             results = list(executor.map(self._preprocess_image, batch_paths))
         for result, label in zip(results, batch_labels):
             if result is not None:
                 batch_images.append(result)
-                batch_targets.append(label_map[label])
+                batch_targets.append(self.label_map[label])  # Use consistent label mapping
         return batch_images, batch_targets
 
     def _split_dataset(self, image_paths, labels, split_ratio=0.8):
@@ -128,6 +130,7 @@ class FaceNetModel:
         """Run a single epoch for training or validation."""
         self.model.train() if train else self.model.eval()
         epoch_loss, all_labels, all_preds = 0.0, [], []
+        total_samples = 0
 
         for i in range(0, len(image_paths), self.batch_size):
             batch_paths = image_paths[i:i + self.batch_size]
@@ -136,6 +139,7 @@ class FaceNetModel:
             
             if not batch_images:
                 continue
+            total_samples += len(batch_images)
 
             images = torch.stack(batch_images).to(self.device)
             targets = torch.tensor(batch_targets, dtype=torch.long).to(self.device)
@@ -154,7 +158,8 @@ class FaceNetModel:
             all_preds.extend(preds.cpu().numpy())
 
         accuracy = accuracy_score(all_labels, all_preds)
-        return epoch_loss / len(image_paths), accuracy
+        average_loss = epoch_loss / total_samples if total_samples > 0 else 0
+        return average_loss, accuracy
 
     def verify_images(self, threshold=0.5):
         """Verify images by comparing embeddings."""
