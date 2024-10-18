@@ -150,9 +150,13 @@ class ImageProcessor:
             info(f"Person identified: {self.person_name}")
         except Exception as e:
             detection['person_name'] = "Unknown"
-            error(f"Error identifying person: {e}")
+            error(f"Error identifying person: str{e}")
+            info("Set person name to 'Unknown' due to identification error.")
         finally:
-            os.remove(temp_face_path)
+            try: 
+                os.remove(temp_face_path) 
+            except Exception as e: 
+                error(f"Error deleting temp file: {str(e)}")
 
     def _extract_face(self, image_np, x1, y1, x2, y2, padding=100):
         """Extract and return a face region from the image with padding."""
