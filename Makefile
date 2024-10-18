@@ -1,101 +1,108 @@
-# Makefile
+# Set default variables
+_TESTCON_IMAGE ?= "anhdung12399/testcon:1.1.0"
+_TESTCON_RUN ?= $(shell docker run -it --rm -v ${PWD}:${PWD} -w ${PWD} ${_TESTCON_IMAGE})
 
-RELEASE := $(RELEASE)
-USERNAME := $(USER)
+RELEASE ?= false
+USERNAME ?= $(USER)
+
+# Phony targets to avoid conflicts with files
+.PHONY: clean init build package-helm build-authentication build-face-client build-face-model train \
+        image image-authentication image-face-client image-face-model push push-authentication \
+        push-face-client push-face-model test test-authentication test-face-client test-face-model \
+        get_lfw_dataset
 
 # Clean the repository
 clean:
-	@echo "Clean Repository"
+	@echo "Cleaning repository"
 	./vas.sh clean
 
 # Init the repository
 init:
-	@echo "Create build dataset and model directory"
+	@echo "Creating build dataset and model directory"
 	./vas.sh dir_est
-	@echo "mkdir variables folder"
+	@echo "Creating variables folder"
 	mkdir -p build/var
-	@echo "Create training dataset"
+	@echo "Creating training dataset"
 	./vas.sh get_train_dataset
 	@if [ "$(RELEASE)" = "true" ]; then \
-		echo "Generate release version"; \
+		echo "Generating release version"; \
 		./vas.sh get_version > build/var/.release_version; \
 	else \
-		echo "Get version prefix"; \
+		echo "Getting version prefix"; \
 		./vas.sh get_version > build/var/.version; \
 	fi
 
-#Build process 
-build: 	package-helm \
-		build-authentication \
-		build-face-client \
-       	build-face-model	
+# Build process 
+build: package-helm build-authentication build-face-client build-face-model
 
 ## Package the helm chart
 package-helm:
-	@echo "Package helm"
-	./vas.sh build_helm \
-		--release=$(RELEASE)
-		--user=$(USERNAME)
+	@echo "Packaging Helm chart"
+	./vas.sh build_helm --release=$(RELEASE) --user=$(USERNAME)
+
+## Build individual components
 build-authentication:
-	@echo "build authentication Repository"
+	@echo "Building authentication repository"
 	./vas.sh build_repo --name=authentication
+
 build-face-client:
-	@echo "build face-client for web service"
+	@echo "Building face-client for web service"
 	./vas.sh build_repo --name=face_client
 
 build-face-model:
-	@echo "build face-model"
+	@echo "Building face-model"
 	./vas.sh build_repo --name=face_model
 
-
-## Train dataset
+# Train the dataset
 train:
-	## Training the YOLO dataset
-	@echo "training dataset"
-	./vas.sh train_dataset
-
-image: 	image-authentication \
-		image-face-client \
-		image-face-model
+	@echo "Training dataset"
+	docker run -it --rm -v ${PWD}:${PWD} -w ${PWD} ${_TESTCON_IMAGE} bash -c "which yolo && yolo version && ${PWD}/vas.sh train_dataset"
+# Build Docker images for each component
+image: image-authentication image-face-client image-face-model
 
 image-authentication:
-	@echo "build authentication Image"
+	@echo "Building authentication Docker image"
 	./vas.sh build_image --name=authentication
+
 image-face-client:
-	@echo "build face_client Image"
+	@echo "Building face-client Docker image"
 	./vas.sh build_image --name=face_client
+
 image-face-model:
-	@echo "build face_model Image"
+	@echo "Building face-model Docker image"
 	./vas.sh build_image --name=face_model
 
-
-push: 	push-authentication \
-		push-face-client \
-		push-face-model
+# Push Docker images to the registry
+push: push-authentication push-face-client push-face-model
 
 push-authentication:
-	@echo "push image-authentication"
+	@echo "Pushing authentication image"
 	./vas.sh push_image --name=authentication
+
 push-face-client:
-	@echo "push image-face-client"
+	@echo "Pushing face-client image"
 	./vas.sh push_image --name=face_client
+
 push-face-model:
-	@echo "push image-face-model"
+	@echo "Pushing face-model image"
 	./vas.sh push_image --name=face_model
 
-test: 	test-authentication \
-		test-face-client \
-		test-face-model
+# Run tests for each component
+test: test-authentication test-face-client test-face-model
 
 test-authentication:
-	@echo "test-authentication"
+	@echo "Testing authentication"
 	./vas.sh test_repo --name=authentication
-test-face-model:
-	@echo "test-face-model"
-	./vas.sh test_repo --name=face_model
+
 test-face-client:
-	@echo "test-face-client"
+	@echo "Testing face-client"
 	./vas.sh test_repo --name=face_client
+
+test-face-model:
+	@echo "Testing face-model"
+	./vas.sh test_repo --name=face_model
+
+# Additional tasks
 get_lfw_dataset:
-	@echo "Create LFW Dataset"
+	@echo "Creating LFW dataset"
 	./vas.sh get_lfw_dataset
