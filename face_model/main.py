@@ -97,7 +97,7 @@ def verify_images():
         return jsonify(result), 200
     except Exception as e:
         error(f"Error in /verify: {str(e)}", exc_info=True)
-        return jsonify({'error': f'Failed to verify images: {str(e)}'}), 500
+        return jsonify({'error': 'Failed to verify images: An unexpected error occurred during image verification.'}), 500
 
 @app.route('/train', methods=['POST'])
 def train_images():
