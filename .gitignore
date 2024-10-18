@@ -14,6 +14,7 @@
 /face_model/__pycache__/
 /face_model/argface_model/__pycache__/
 /face_model/s3_config/__pycache__/
+/face_model/facenet_model/__pycache__/
 /client-server/__pycache__/
 /build/
 /test/ssl/

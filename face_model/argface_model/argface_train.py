@@ -1,7 +1,6 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from ..logger import info
 
 class ArcFaceTrainer:
     def __init__(self, model, features, labels, lr=0.01, momentum=0.9):
@@ -37,4 +36,4 @@ class ArcFaceTrainer:
     def train(self, num_epochs=10):
         for epoch in range(num_epochs):
             loss, accuracy = self.train_epoch()
-            info(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
+            print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
