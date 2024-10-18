@@ -1,11 +1,7 @@
 from process_image import ImageProcessor
 import os
-import logging
-import io
 from PIL import Image, ImageDraw, ImageFont
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from logger import info, error
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
@@ -28,12 +24,12 @@ def main():
                     try:
                         image = Image.open(image_path)
                         result = image_processor.process_image(image)
-                        logging.info(f"Result: {result}")
+                        info(f"Result: {result}")
                         
                         # Save the detected image with bounding boxes
                         save_detected_image(image, result['detections'], os.path.join(build_dir, 'output', image_name))
                     except Exception as e:
-                        logging.error(f"Error processing image {image_name}: {e}")
+                        error(f"Error processing image {image_name}: {e}")
 
 def save_detected_image(image, detections, output_path):
     # Ensure the image is in RGB mode
@@ -60,9 +56,9 @@ def save_detected_image(image, detections, output_path):
 
     try:
         image.save(output_path)
-        logging.info(f"Saved detected image to {output_path}")
+        info(f"Saved detected image to {output_path}")
     except Exception as e:
-        logging.error(f"Error saving image {output_path}: {e}")
+        error(f"Error saving image {output_path}: {e}")
 
 if __name__ == '__main__':
     main()

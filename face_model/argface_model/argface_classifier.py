@@ -5,20 +5,10 @@ from PIL import Image
 from torchvision import transforms
 import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, mean_absolute_error, mean_squared_error, r2_score
-import logging
-
 from .argface_extract_features import FeatureExtractor
 from .argface_model import ArcFaceModel
 from .argface_train import ArcFaceTrainer
 
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler()
-handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
@@ -45,12 +35,10 @@ class ArcFaceClassifier:
             raise ValueError("Label map is not initialized. Call extract_labels() first.")
         feature_dim = 512
         self.model = ArcFaceModel(feature_dim=feature_dim, num_classes=num_classes, model_dir=arcface_model_dir)
-        logger.info("Model initialized with %d classes", num_classes)
 
     def extract_labels(self):
         self.feature_extractor.extract_labels()
         self.label_map = self.feature_extractor.label_map
-        logger.info("Labels extracted. Number of classes: %d", len(self.label_map))
 
     def extract_features(self):
         if self.model is None:
@@ -58,8 +46,6 @@ class ArcFaceClassifier:
         self.feature_extractor.extract_features(self.model)
         self.features, self.labels = self.feature_extractor.get_features_and_labels()
 
-        logger.info(f'Extracted features: {self.features.shape}')
-        logger.info(f'Extracted labels: {self.labels.shape}')
         if self.features is None or self.labels is None:
             raise ValueError("Features or labels not extracted correctly.")
         if len(self.features) == 0 or len(self.labels) == 0:
@@ -74,7 +60,7 @@ class ArcFaceClassifier:
             loss, accuracy = trainer.train_epoch()
             self.training_losses.append(loss)
             self.training_accuracies.append(accuracy)
-            logger.info(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
+            print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
 
         torch.save(self.model.state_dict(), model_save_path)
         self.print_evaluation_metrics(self.labels, trainer.get_predictions(), save_path=arcface_model_dir)
@@ -101,7 +87,7 @@ class ArcFaceClassifier:
 
         if save_path:
             plt.savefig(save_path)
-            logger.info(f'Plot saved to {save_path}')
+            print(f'Plot saved to {save_path}')
         else:
             plt.show()
     
@@ -110,13 +96,13 @@ class ArcFaceClassifier:
             self.initialize_model()
             self.model.load_state_dict(torch.load(model_save_path))
             self.model_loaded = True
-            logger.info(f"Model loaded: {model_save_path}")
+            print(f"Model loaded: {model_save_path}")
         else:
-            logger.info("Model already loaded, skipping reload.")
+            print("Model already loaded, skipping reload.")
 
     def model_exists(self):
         exists = os.path.exists(model_save_path)
-        logger.info(f"Model exists: {exists}")
+        print(f"Model exists: {exists}")
         return exists
 
     def identify_person(self, image_file):
@@ -135,7 +121,7 @@ class ArcFaceClassifier:
         predicted = self.model.predict(embedding)
         person_name = self.label_map[predicted.item()]
         
-        logger.info(f"Identified person: {person_name} from image: {image_file}")
+        print(f"Identified person: {person_name} from image: {image_file}")
         return person_name
     
     def identify_person_from_embedding(self, embedding):
@@ -143,7 +129,7 @@ class ArcFaceClassifier:
         predicted = self.model.predict(embedding_tensor)
         person_name = self.label_map[predicted.item()]
         
-        logger.info(f"Identified person: {person_name} from embedding")
+        print(f"Identified person: {person_name} from embedding")
         return person_name
 
     def print_evaluation_metrics(self, true_labels, predicted_labels, save_path=None):
@@ -154,12 +140,12 @@ class ArcFaceClassifier:
         mse = mean_squared_error(true_labels, predicted_labels)
         r2 = r2_score(true_labels, predicted_labels)
 
-        logger.info(f"Confusion Matrix:\n{conf_matrix}")
-        logger.info(f"Classification Report:\n{classification_report(true_labels, predicted_labels)}")
-        logger.info(f"Accuracy Score: {acc_score:.4f}")
-        logger.info(f"Mean Absolute Error: {mae:.4f}")
-        logger.info(f"Mean Squared Error: {mse:.4f}")
-        logger.info(f"R2 Score: {r2:.4f}")
+        print(f"Confusion Matrix:\n{conf_matrix}")
+        print(f"Classification Report:\n{classification_report(true_labels, predicted_labels)}")
+        print(f"Accuracy Score: {acc_score:.4f}")
+        print(f"Mean Absolute Error: {mae:.4f}")
+        print(f"Mean Squared Error: {mse:.4f}")
+        print(f"R2 Score: {r2:.4f}")
 
         if save_path:
             plt.figure(figsize=(10, 7))
@@ -168,11 +154,11 @@ class ArcFaceClassifier:
             plt.ylabel('Actual Label')
             plt.xlabel('Predicted Label')
             plt.savefig(os.path.join(save_path, 'confusion_matrix.png'))
-            logger.info(f'Confusion matrix saved to {os.path.join(save_path, "confusion_matrix.png")}')
+            print(f'Confusion matrix saved to {os.path.join(save_path, "confusion_matrix.png")}')
 
             plt.figure(figsize=(10, 7))
             plt.axis('off')
             plt.table(cellText=[[k, v] for k, v in class_report.items()], colLabels=["Class", "Metrics"], cellLoc='center', loc='center')
             plt.title('Classification Report')
             plt.savefig(os.path.join(save_path, 'classification_report.png'))
-            logger.info(f'Classification report saved to {os.path.join(save_path, "classification_report.png")}')
+            print(f'Classification report saved to {os.path.join(save_path, "classification_report.png")}')
