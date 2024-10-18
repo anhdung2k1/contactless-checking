@@ -41,6 +41,13 @@ class FaceNetModel:
         checkpoint = torch.load(model_file_path)
         self.model.load_state_dict(checkpoint, strict=False)
         info(f"Model loaded from {model_file_path}")
+        
+    def _save_model(self, save_path):
+        """Save the model state to a file."""
+        if save_path:
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            torch.save(self.model.state_dict(), save_path)
+            info(f"Model saved to {save_path}")
 
     def _transform(self):
         """Return image transformation pipeline."""
@@ -114,6 +121,8 @@ class FaceNetModel:
             val_loss, val_acc = self._run_epoch(val_image_paths, val_labels, train=False)
             info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, "
                  f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
+        # Save the model after training is complete
+        self._save_model(self.model_file_path)
 
     def _run_epoch(self, image_paths, labels, train=True):
         """Run a single epoch for training or validation."""
