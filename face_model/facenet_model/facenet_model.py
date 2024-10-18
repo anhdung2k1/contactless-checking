@@ -9,6 +9,7 @@ import torch.optim as optim
 from concurrent.futures import ThreadPoolExecutor
 from sklearn.metrics import accuracy_score
 from scipy.spatial.distance import cosine
+from threading import Lock  # For thread-safe access to the cache
 from logger import info, debug, error  # Assuming logger.py contains the functions for logging
 
 class FaceNetModel:
@@ -23,6 +24,7 @@ class FaceNetModel:
         self.save_path = save_path
         self.model_file_path = model_file_path
         self.image_cache = {}
+        self.cache_lock = Lock()  # Lock for thread-safe access to image_cache
         self.label_map = {}  # Consistent label map across batches
 
         self._initialize_model()
@@ -79,12 +81,14 @@ class FaceNetModel:
 
     def _preprocess_image(self, image_path):
         """Preprocess an image for input to the model."""
-        if image_path in self.image_cache:
-            return self.image_cache[image_path]
+        with self.cache_lock:
+            if image_path in self.image_cache:
+                return self.image_cache[image_path]
         try:
             image = Image.open(image_path).convert("RGB")
             transformed_image = self._transform()(image)
-            self.image_cache[image_path] = transformed_image
+            with self.cache_lock:
+                self.image_cache[image_path] = transformed_image
             return transformed_image
         except UnidentifiedImageError:
             error(f"Skipped non-image file: {image_path}")
