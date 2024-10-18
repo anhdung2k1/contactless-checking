@@ -56,7 +56,7 @@ def upload_image():
     try:
         image = Image.open(io.BytesIO(file.read()))
         result = image_processor.process_image(image)
-        debug("/upload: {result}")
+        debug(f"/upload: {result}")
         return jsonify(result), 200
     except Exception as e:
         error(f"Error in /process: {str(e)}", exc_info=True)

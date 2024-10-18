@@ -11,6 +11,7 @@ from sklearn.metrics import accuracy_score
 from scipy.spatial.distance import cosine
 from threading import Lock  # For thread-safe access to the cache
 from logger import info, debug, error  # Assuming logger.py contains the functions for logging
+from tqdm import tqdm
 
 class FaceNetModel:
     def __init__(self, image_paths=[], batch_size=32, lr=0.001, num_epochs=20, num_classes=2, device='cuda', 
@@ -45,6 +46,12 @@ class FaceNetModel:
         self.model.load_state_dict(checkpoint, strict=False)
         info(f"Model loaded from {model_file_path}")
         
+    def _save_model(self, save_path):
+        """Save the model state to a file."""
+        if save_path:
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            torch.save(self.model.state_dict(), save_path)
+            info(f"Model saved to {save_path}")
 
     def _transform(self):
         """Return image transformation pipeline."""
@@ -114,6 +121,8 @@ class FaceNetModel:
         info("Starting training process")
         image_paths, labels = self._load_images()
         train_image_paths, train_labels, val_image_paths, val_labels = self._split_dataset(image_paths, labels)
+        
+        best_val_acc = 0.0  # Initialize best validation accuracy
 
         for epoch in range(self.num_epochs):
             info(f"Epoch {epoch+1}/{self.num_epochs}")
@@ -121,7 +130,7 @@ class FaceNetModel:
             val_loss, val_acc = self._run_epoch(val_image_paths, val_labels, train=False)
             info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, "
                  f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
-             # Save checkpoint after each epoch
+            # Save checkpoint after each epoch
             checkpoint_path = os.path.join(self.save_path, f'checkpoint_epoch_{epoch+1}.pth')
             self._save_model(checkpoint_path)
         
@@ -146,8 +155,8 @@ class FaceNetModel:
             
             if not batch_images:
                 continue
-            total_samples += len(batch_images)
 
+            total_samples += len(batch_images)
             images = torch.stack(batch_images).to(self.device)
             targets = torch.tensor(batch_targets, dtype=torch.long).to(self.device)
 
@@ -159,7 +168,7 @@ class FaceNetModel:
                     loss.backward()
                     self.optimizer.step()
 
-            epoch_loss += loss.item()
+            epoch_loss += loss.item() * len(batch_images)
             _, preds = torch.max(outputs, 1)
             all_labels.extend(targets.cpu().numpy())
             all_preds.extend(preds.cpu().numpy())
@@ -168,7 +177,7 @@ class FaceNetModel:
         average_loss = epoch_loss / total_samples if total_samples > 0 else 0
         return average_loss, accuracy
 
-    def verify_images(self, threshold=0.5):
+    def verify_images(self, threshold=0.5, batch_size=32):
         """Verify images by comparing embeddings."""
         distances, labels = [], []
         for label_folder in os.listdir(self.image_paths[0]):
@@ -177,7 +186,7 @@ class FaceNetModel:
                 continue
 
             images = [os.path.join(folder_path, img) for img in os.listdir(folder_path)
-                      if img.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp'))]
+                    if img.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp'))]
 
             if len(images) < 2:
                 continue
@@ -185,13 +194,20 @@ class FaceNetModel:
             reference_image = self._preprocess_image(images[0]).unsqueeze(0).to(self.device)
             reference_embedding = self.model(reference_image).cpu().numpy().flatten()
 
-            for image_path in images[1:]:
-                test_image = self._preprocess_image(image_path).unsqueeze(0).to(self.device)
-                test_embedding = self.model(test_image).cpu().numpy().flatten()
-                distance = cosine(reference_embedding, test_embedding)
-                is_same = distance < threshold
-                distances.append(distance)
-                labels.append(1 if is_same else 0)
+            for i in tqdm(range(1, len(images), batch_size), desc=f"Verifying {label_folder}"):
+                batch = images[i:i+batch_size]
+                batch_images = [self._preprocess_image(img).unsqueeze(0) for img in batch]
+                batch_tensor = torch.cat(batch_images).to(self.device)
+                
+                with torch.no_grad():
+                    batch_embeddings = self.model(batch_tensor).cpu().numpy()
+
+                for _, embedding in enumerate(batch_embeddings):
+                    distance = cosine(reference_embedding, embedding.flatten())
+                    is_same = distance < threshold
+                    distances.append(distance)
+                    labels.append(1 if is_same else 0)
+        
         return distances, labels
 
 def main():
