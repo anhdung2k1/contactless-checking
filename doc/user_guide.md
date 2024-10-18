@@ -43,9 +43,9 @@ This document provides an overview of the Contactless Checking (CK) Server Servi
 
 CK Server is built on microservices architecture, which is obey loosely-coupling and singleton design rules. Scalable capability since the service handle its own feature.
 
-The CK Service implements CK Server for PaaS environments. CK Server provides two server services (Spring Boot and Flask frameworks) as two main back end for providing API endpoints that give capabilities for client web application (ReactJS) use to communicate with two server endpoints.
+The CK Service implements CK Server for PaaS environments. CK Server provides two server services (Spring Boot and Flask frameworks) as two main back end for providing API endpoints that give capabilities for client application use to communicate with two server endpoints.
 
-The CK Service use camera gadget and other biologies devices to capture customer's identities who are registered to the system. The service uses web client as an admin dashboard system to manage the customer's datasets with two primary servers to process the request from web client.
+The CK Service use camera gadget and other biologies devices to capture customer's identities who are registered to the system. The service uses client as an admin dashboard system to manage the customer's datasets with two primary servers to process the request from client.
 
 In order to handle multiple users simultaneously, CK Service implements concurrency for dividing multiple threadings in order to split tasks based on user requests.
 
@@ -80,7 +80,7 @@ The main use cases for CK Server are:
 
 * **RESTful API Endpoints**
 
-    The service exposes API endpoints for client interaction (ReactJS web client) with Spring Boot and Flask backends.
+    The service exposes API endpoints for client interaction with Spring Boot and Flask backends.
 
 * **Biometric Identification**
 
@@ -100,11 +100,12 @@ Figure 1 Architecture view of CK Server
 | MYSQL.CONFIG | MySQL Database Configurations supports backup and main DB | Xtrabackup and mysql configs ensure DB resilient and prevent data loss |
 | CK.SECRETS | Interface used by a service to inject TLS secrets, Opaque secrets | Multiples Secrets are used to secure and prevent secrets being exposed |
 | CK.JENKINS | Interface used Jenkins config to train model | Jenkins job CI for training model from remote and local customer dataset |
-| CK.PVC | Interface to configure Persistent Volume Claim to store data persistently |
+| CK.PVC | Interface to configure Persistent Volume Claim to store data persistently | Use to persist data in case pod in case pod is crashed |
 | CK.LOG.FILE | Interface to transform logging | Transform logging to readable and easily to debug |
-| CK.INTERACT | Interface to interact with service | Connect the web service via Ingress or LoadBalancer |
+| CK.INTERACT | Interface to interact with service | Connect the client service via Ingress or LoadBalancer |
 | K8S.CLUSTER | Interface to fetch info from K8S API Server | Fetching information to find services to scrape |
 | K8S.API | Interface used K8S API to control K8S Resources | Using Kubectl to control over the K8S Resources |
+| AWS.S3 | Interface used S3 Bucket Resources | Using Object Storages Management to remote storage customer datasets and best model trained |
 
 ### Deployment View
 
@@ -126,7 +127,7 @@ This section delves into the APIs and Security Context of Spring Boot server.
 
 #### JWT Authentication
 
-To secure APIs communication between application, JWT Web Token is used between the CK Server and client applications. JWT provides a token-based mechanism that ensures secure and stateless authentication for each user request without the need for storing session data on the server.
+To secure APIs communication between application, JWT Token is used between the CK Server and client applications. JWT provides a token-based mechanism that ensures secure and stateless authentication for each user request without the need for storing session data on the server.
 
 #### How JWT Authentication Works
 
@@ -161,7 +162,7 @@ HMACSHA256(
 )
 ```
 
-The token is sent back to the web client in response body or header after successfully authentication. The client stores this token usually in session storage (cookies) or local storage
+The token is sent back to the client in response body or header after successfully authentication. The client stores this token usually in session storage (cookies) or local storage
 
 For subsequent requests, the client includes the JWT in the `Authorization` header using `Bearer` scheme
 
@@ -173,7 +174,7 @@ Authorization: Bearer <token>
 
 This to control which domains can access resource hosted on a difference domain (cross-origin requests). By default, browsers block cross-origin requests for security reasons, CORs Policy to allow specific domains to access to Spring Boot resources.
 
-In the context of the `Contactless Checking (CK) Server` which provides API endpoints for a web client to interact between client-web service, setting a proper CORS policy is essential to allow secure cross-origin interactions.
+In the context of the `Contactless Checking (CK) Server` which provides API endpoints for a client to interact between client service, setting a proper CORS policy is essential to allow secure cross-origin interactions.
 
 #### Preflight Request
 
@@ -214,7 +215,7 @@ Leveraging `asynchronous processing` with `@Async` annotation. This allows non-b
 
 #### Web Socket
 
-Handling Web Socket connections for real-time features like send notifications to customer after finished validation. The data response to customer need to be fast deliver.
+Handling Web Socket connections for real-time features like send notifications to customer after finished validation. The data response to customer need to be fast deliver with TCP/IP connection. This will establish 3-way handshakes for accepting client-server requests.
 
 ### Flask AI Model Server
 
