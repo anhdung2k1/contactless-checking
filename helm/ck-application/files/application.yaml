@@ -1,0 +1,56 @@
+logging:
+  level:
+    org:
+      springframework:
+        web: debug
+#Get the ENV from k8s, docker env
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "health"
+    endpoint:
+      health:
+        show-details: "always"
+    health:
+      db:
+        enabled: true
+
+# AWS Cloud Configuration
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region:
+      static: ${AWS_DEFAULT_REGION}
+    stack:
+      auto: false
+
+server:
+  port: 8080
+
+bucket:
+  name: contactless-checking
+
+cors:
+  allowed-origins: "{{- $allowedOrigins := .Values.issuer.ipAddress | join ", http://" -}}
+  http://{{ $allowedOrigins }}
+  {{- range $ip := .Values.issuer.ipAddress -}}
+  , http://{{ $ip }}:{{ $.Values.server.faceClient.httpNodePort }}
+  {{- end -}}
+  {{- if .Values.ingress.enabled -}}
+  , http://{{ include "ck-application.ingressPath" (list . (include "ck-client.name" .)) }}
+  {{- end }}"

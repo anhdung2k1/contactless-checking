@@ -71,7 +71,8 @@ image-face-model:
 
 push: 	push-authentication \
 		push-face-client \
-		push-face-model
+		push-face-model \
+		push-helm
 
 push-authentication:
 	@echo "push image-authentication"
@@ -82,6 +83,9 @@ push-face-client:
 push-face-model:
 	@echo "push image-face-model"
 	./vas.sh push_image --name=face_model
+push-helm:
+	@echo "push helm chart"
+	./vas.sh push_helm
 
 test: 	test-authentication \
 		test-face-client \

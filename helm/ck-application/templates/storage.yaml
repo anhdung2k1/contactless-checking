@@ -1,58 +1,88 @@
+{{- if .Values.storage.enabled }}
+{{- $namespace := include "ck-application.namespace" . -}}
+{{- $storageClassName := printf "%s-%s" $namespace .Values.storage.storageClass.name -}}
+{{- $mysqlName := include "ck-mysql.name" . -}}
+{{- $serverName := include "ck-server.name" . -}}
+
+# StorageClass Definition
+{{- if .Values.storage.storageClass.enabled }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ $storageClassName }}
+provisioner: {{ .Values.storage.storageClass.provisioner }}
+volumeBindingMode: WaitForFirstConsumer
+{{- end }}
+---
+{{- if .Values.storage.persistentVolume.enabled }}
+# PersistentVolume for MySQL
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ template "ck-mysql.name" . }}-pv-volume-ck
+  name: {{ $mysqlName }}-pv-volume-ck
   labels:
-    type: local
+    app: {{ $mysqlName }}
 spec:
-  storageClassName: {{ include "ck-application.namespace" . }}-{{ .Values.storageClassName }}
+  {{- if .Values.storage.storageClass.enabled }}
+  storageClassName: {{ $storageClassName }}
+  {{- end }}
   capacity:
-    storage: {{ .Values.storageCapacity.mysql }}
+    storage: {{ .Values.storage.persistentVolume.storageCapacity.mysql }}
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /mnt/ck/data-mysql
+    path: {{ .Values.storage.persistentVolume.hostPath.mysql }}
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $serverName }}-pv-volume-ck
+  labels:
+    app: {{ $serverName }}
+spec:
+  {{- if .Values.storage.storageClass.enabled }}
+  storageClassName: {{ $storageClassName }}
+  {{- end }}
+  capacity:
+    storage: {{ .Values.storage.persistentVolume.storageCapacity.server }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.storage.persistentVolume.hostPath.server }}
+{{- end }}
+---
+# PersistentVolumeClaim for MySQL
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ template "ck-mysql.name" . }}-pv-claim
+  name: {{ $mysqlName }}-pv-claim
   labels:
-    app: {{ template "ck-mysql.name" .}}
+    app: {{ $mysqlName }}
     tier: database
 spec:
-  storageClassName: {{ include "ck-application.namespace" . }}-{{ .Values.storageClassName }}
+  {{- if .Values.storage.storageClass.enabled }}
+  storageClassName: {{ $storageClassName }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.storageRequest.mysql }}
+      storage: {{ .Values.storage.persistentVolume.storageCapacity.mysql }}
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: {{ template "ck-server.name" . }}-pv-volume-ck
-  labels:
-    type: local
-spec:
-  storageClassName: {{ include "ck-application.namespace" . }}-{{ .Values.storageClassName }}
-  capacity:
-    storage: {{ .Values.storageCapacity.server }}
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /mnt/ck/data-server
----
+# PersistentVolumeClaim for server faceModel
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ template "ck-server.name" . }}-pv-claim
+  name: {{ $serverName }}-pv-claim
   labels:
-    app: {{ template "ck-server.name" . }}
+    app: {{ $serverName }}
 spec:
-  storageClassName: {{ include "ck-application.namespace" . }}-{{ .Values.storageClassName }}
+  {{- if .Values.storage.storageClass.enabled }}
+  storageClassName: {{ $storageClassName }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.storageRequest.server }}
+      storage: {{ .Values.storage.persistentVolume.storageCapacity.server }}
+{{- end }}

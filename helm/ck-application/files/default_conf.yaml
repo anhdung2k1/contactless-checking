@@ -1,0 +1,14 @@
+server {
+  listen 80;
+  {{- if .Values.ingress.enabled }}
+  server_name {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }};
+  {{- else }}
+  server_name {{ .Values.issuer.ipAddress | join " " }};
+  {{- end }}
+
+  location / {
+      root /usr/share/nginx/html;
+      index index.html index.htm;
+      try_files $uri $uri/ =404;
+  }
+}

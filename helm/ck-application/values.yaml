@@ -126,15 +126,20 @@ seccompProfile:
 imageCredentials:
   pullPolicy: IfNotPresent
 
-storageClassName: local-storage
-
-storageCapacity:
-  mysql: 10Gi
-  server: 10Gi
-
-storageRequest:
-  mysql: 5Gi
-  server: 5Gi
+storage:
+  enabled: true
+  persistentVolume:
+    enabled: true
+    hostPath:
+      server: /mnt/ck/data-server
+      mysql: /mnt/ck/data-mysql
+    storageCapacity:
+      mysql: 30Gi
+      server: 10Gi
+  storageClass:
+    enabled: true
+    name: local-storage
+    provisioner: kubernetes.io/no-provisioner
 
 dbPass: ""
 

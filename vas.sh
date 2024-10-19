@@ -6,6 +6,7 @@
 # Directory
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
+test -n "$HELM_DIR" || export HELM_DIR="$BUILD_DIR/helm-build/ck-application"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
 test -n "$RELEASE" || export RELEASE=false
 test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
@@ -319,6 +320,25 @@ push_image() {
    ## Docker push to docker registry
    docker push $DOCKER_REGISTRY/$image_name:$version \
 	   || die "Failed to push docker registry: $DOCKER_REGISTRY"
+}
+
+## Push helm
+## Push helm package to Docker Registry
+##
+## --name=<module name>
+##
+push_helm() {
+   test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
+   test -n "$DOCKER_REGISTRY" || die "Not set [DOCKER_REGISTRY]"
+   test -n "$HELM_DIR" || die "Not set [HELM_DIR]"
+   image_name=ck-$__name
+   version=$(get_version)
+   registry=oci://registry-1.docker.io
+
+   ## Helm push to docker registry
+   helm push $HELM_DIR/ck-application-$version.tgz \
+        $registry/$DOCKER_REGISTRY \
+        || die "Failed to push helm chart to $registry/$DOCKER_REGISTRY"
 }
 
 ## Train the dataset
