@@ -25,14 +25,14 @@
         name: {{ template "ck-authentication.name" $top }}-secret
         key: {{ template "ck-authentication.name" $top }}-aws-region
   volumeMounts:
-  {{- if $top.Values.storage.persistentVolume.enabled }}
+  {{- if $top.Values.storage.enabled }}
   - name: {{ template "ck-server.name" $top }}-persistent-storage
   {{- else }}
   - name: {{ template "ck-server.name" $top }}-ephemeral-storage
   {{- end }}
     mountPath: /app/build
 volumes:
-{{- if $top.Values.storage.persistentVolume.enabled }}
+{{- if $top.Values.storage.enabled }}
 - name: {{ template "ck-server.name" $top }}-persistent-storage
   persistentVolumeClaim:
     claimName: {{ template "ck-server.name" $top }}-pv-claim

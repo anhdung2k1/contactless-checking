@@ -127,6 +127,7 @@ imageCredentials:
   pullPolicy: IfNotPresent
 
 storage:
+  enabled: true
   persistentVolume:
     enabled: true
     hostPath:
@@ -136,6 +137,7 @@ storage:
       mysql: 30Gi
       server: 10Gi
   storageClass:
+    enabled: true
     name: local-storage
     provisioner: kubernetes.io/no-provisioner
 
