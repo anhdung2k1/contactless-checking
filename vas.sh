@@ -7,7 +7,6 @@
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
-test -n "$LFW_DATASET_DIR" || export LFW_DATASET_DIR="$BUILD_DIR/lfw_dataset"
 test -n "$RELEASE" || export RELEASE=false
 test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
@@ -16,13 +15,12 @@ test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
 test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
-test -n "$PYTHON_VERSION" || export PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+\.\d+' | awk -F '.' '{print $2}')
 test -n "$MAVEN_IMAGE" || export MAVEN_IMAGE="maven:latest"
 # Hyper parameters
 test -n "$TASK_TYPE" || export TASK_TYPE=detect #DEFAULT task=detect is one of [detect, segment, classify]
 test -n "$MODE_TYPE" || export MODE_TYPE=train #DEFAULT mode=train is one of [train, val, predict, export, track]
 test -n "$EPOCHS" || export EPOCHS=50 #DEFAULT EPOCHS=50
-test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
+test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolo11n.pt" #DEFAULT we get the pretrained model for training process
 test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
 
 prg=$(basename $0) # vas.sh filename
@@ -35,8 +33,7 @@ change_id=$(git show $git_commit | grep '^\ *Change-Id' | awk '{print $2}')
 release=$git_commit
 
 # Dataset for Face Detection
-LFW_DATASET="http://vis-www.cs.umass.edu/lfw/lfw.tgz"
-DATASET="https://universe.roboflow.com/ds/EdI7sE1lHX?key=zHmiijqhOV"
+DATASET="https://universe.roboflow.com/ds/wer8JOfxRX?key=iGhxIxBjOM"
 MODEL_URL="https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip"
 
 clean() {
@@ -77,14 +74,6 @@ dir_est() {
         echo "$DATASET_DIR already exists. Skipping creation."
     fi
 
-    # Check and create LFW_DIR if it does not exist
-    if [ ! -d "$LFW_DATASET_DIR" ]; then
-        echo "Creating $LFW_DATASET_DIR..."
-        mkdir -p "$LFW_DATASET_DIR"
-    else
-        echo "$LFW_DATASET_DIR already exists. Skipping creation"
-    fi
-
     # Check and create MODEL_DIR if it does not exist
     if [ ! -d "$MODEL_DIR" ]; then
         echo "Creating $MODEL_DIR..."
@@ -110,23 +99,6 @@ get_train_dataset() {
         popd
     else
         echo "Dataset directory is not empty"
-    fi
-}
-
-# Get LFW Dataset for training ArcFace for testing, and training FaceNet
-get_lfw_dataset() {
-    if [[ -d "$LFW_DATASET_DIR" && -z $(ls -A $LFW_DATASET_DIR) ]]; then
-        echo "LFW Dataset zip fil"
-        curl -L $LFW_DATASET > "$LFW_DATASET_DIR/lfw.tgz"
-        # Push the current directory to stack
-        pushd .
-        cd $LFW_DATASET_DIR
-        # Untar the dataset and remove tar file
-        tar xvfz $LFW_DATASET_DIR/lfw.tgz && rm -rf $LFW_DATASET_DIR/lfw.tgz
-        # Go back to previous directory
-        popd
-    else 
-        echo "LFW Dataset directory is not empty"
     fi
 }
 
@@ -189,6 +161,7 @@ build_repo() {
         cd $API_DIR
         echo "Start to build Spring boot compile"
         # To compile the Spring boot, must start the mysql docker for temporaly -> remove after build
+        rm -f $API_DIR/src/main/resources/application.properties
         
         docker ps -a | grep -i mysql_container | awk '$1 {print $1}' | xargs docker rm -f
         # Start docker mysql container
@@ -214,7 +187,7 @@ build_repo() {
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
             || die "Target file does not exists in $API_DIR/target/"
         cp -f $API_DIR/src/main/resources/application.yaml $DOCKER_DIR/$__name/ \
-            || die "application.yaml file does not exists in $API_DIR/src/main/resources/"
+            || die "application.yaml file does not exists in $API_DIR/src/main/resources"
         # Remove the mysql container
         docker rm -f mysql_container \
             || die "Could not remove mysql container"
@@ -359,13 +332,6 @@ train_dataset() {
     #### Example usage ####
     # yolo task=detect mode=train model=yolov8n.pt data=data/mydataset.yaml epochs=50 imgsz=640
     #######################
-    
-    #Override the data.yaml file
-    echo "train: $DATASET_DIR/train/images" > $DATASET_DIR/data.yaml
-    echo "val: $DATASET_DIR/train/images" >> $DATASET_DIR/data.yaml
-    echo "test: $DATASET_DIR/test/images" >> $DATASET_DIR/data.yaml
-    echo "nc: 1" >> $DATASET_DIR/data.yaml
-    echo "names: ['face']" >> $DATASET_DIR/data.yaml
 
     MODEL_BUILD_DIR="runs/detect/train/weights"
     if [[ -f "$MODEL_DIR/$MODEL_BUILD_DIR/best.pt" ]]; then
@@ -377,7 +343,8 @@ train_dataset() {
          model=$DEFAULT_MODEL \
          data=$DATASET_DIR/data.yaml \
          epochs=$EPOCHS \
-         imgsz=$IMAGE_SIZE
+         imgsz=$IMAGE_SIZE \
+         save=true
     popd
 }
 
@@ -389,8 +356,23 @@ wsl_test() {
     chmod +x $VAS_GIT/test/application.properties
     cp -f $VAS_GIT/test/application.properties $API_DIR/src/main/resources/application.properties
 
-    sed -i -e "s/REPLACE_WITH_DB_IP/${wsl_ip}/g" $API_DIR/src/main/resources/application.properties
-    sed -i -e "s/REPLACE_WITH_DB_COMMON/${COMMON_DB}/g" $API_DIR/src/main/resources/application.properties
+    sed -i -e "s/@@REPLACE_WITH_DB_IP/${wsl_ip}/g" $API_DIR/src/main/resources/application.properties
+    sed -i -e "s/@@REPLACE_WITH_DB_COMMON/${COMMON_DB}/g" $API_DIR/src/main/resources/application.properties
+
+    mysql_container=$(docker ps -a --format "{{.Names}}" | grep -i mysql_container)
+    if [[ ! -n "$mysql_container" ]]; then
+            # Start docker mysql container
+        docker run -d --name mysql_container \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=${COMMON_DB} \
+            -e MYSQL_USER=${COMMON_DB} \
+            -e MYSQL_PASSWORD=${COMMON_DB} \
+            -p 3306:3306 \
+            mysql:latest \
+        || die "[ERROR]: Failed to run mysql docker"
+    else
+        docker start mysql_container
+    fi
 }
 
 ## image_testcon
@@ -471,6 +453,8 @@ test_repo() {
         fi
 
         docker run -it --rm -d --name $__name \
+                -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+                -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
                 -p 5000:5000 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"

@@ -5,11 +5,10 @@ import io
 import os
 from process_image import ImageProcessor
 from s3_config.s3Config import S3Config
-import logging
+from logger import info, debug, error
 from argface_model.argface_classifier import ArcFaceClassifier
+from facenet_model.facenet_model import FaceNetModel
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 CORS(app)
@@ -29,24 +28,20 @@ s3Config = S3Config()
 
 if not os.path.exists(build_dir):
     # Create build_dir if is not exist
-    logging.info(f"Create {build_dir}")
+    info(f"Create {build_dir}")
     os.makedirs(build_dir)
 
 if not os.path.exists(yolo_root_dir):
-    logging.info(f"Create {yolo_root_dir} folder")
+    info(f"Create {yolo_root_dir} folder")
     os.makedirs(yolo_root_dir)
 
 if not os.path.exists(yolo_path):
-    logging.info(f"Create {yolo_path} folder")
+    info(f"Create {yolo_path} folder")
     s3Config.download_all_objects('yolo_model/', build_dir)
     
 if not os.path.exists(arcface_dataset):
-    logging.info(f"{arcface_dataset} not found. Downloading from S3...")
+    info(f"{arcface_dataset} not found. Downloading from S3...")
     s3Config.download_all_objects('arcface_train_dataset/', build_dir)
-
-if not os.path.exists(arcface_model_dir):
-    logging.info("Download ArcFace Model from S3")
-    s3Config.download_all_objects('.insightface/', build_dir)
 
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
@@ -57,12 +52,14 @@ def upload_image():
         return jsonify({'error': 'No image provided'}), 400
 
     file = request.files['image']
+    debug(f"file: {file}")
     try:
         image = Image.open(io.BytesIO(file.read()))
         result = image_processor.process_image(image)
+        debug(f"/upload: {result}")
         return jsonify(result), 200
     except Exception as e:
-        logging.error(f"Error in /process: {str(e)}", exc_info=True)
+        error(f"Error in /process: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to process image: {str(e)}'}), 500
 
 @app.route('/retrieve', methods=['POST'])
@@ -72,15 +69,17 @@ def retrieve_image():
     
     file = request.files['image']
     customer_name = request.form['customerName']
+    debug(f"File: {file} \ncustomer_name: {customer_name}")
     
     try:
         image = Image.open(io.BytesIO(file.read()))
         # Initialize new Image Processor instance with customer name
         image_processor_with_name = ImageProcessor(yolo_path, customer_name)
         result = image_processor_with_name.retrieve_image(image)
+        debug(f"/retrieve: {result}")
         return jsonify(result), 200
     except Exception as e:
-        logging.error(f"Error in /retrieve: {str(e)}", exc_info=True)
+        error(f"Error in /retrieve: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to retrieve image: {str(e)}'}), 500
     
 @app.route('/verify', methods=['POST'])
@@ -89,15 +88,16 @@ def verify_images():
         return jsonify({'error': 'No image provided'}), 400
 
     file = request.files['image']
-    
+    debug(f"file: {file}")
     try:
         image_verify = Image.open(io.BytesIO(file.read()))
         result = image_processor.verify_images(image_verify)
         image_processor.plot_and_save_distances(os.path.join(build_dir, 'facenet_distance'))
+        debug(f"Result: {result}")
         return jsonify(result), 200
     except Exception as e:
-        logging.error(f"Error in /verify: {str(e)}", exc_info=True)
-        return jsonify({'error': f'Failed to verify images: {str(e)}'}), 500
+        error(f"Error in /verify: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Failed to verify images: An unexpected error occurred during image verification.'}), 500
 
 @app.route('/train', methods=['POST'])
 def train_images():
@@ -106,26 +106,31 @@ def train_images():
     variable_value = data.get('variableValue')
 
     config = dict(zip(variable_key, variable_value))
-    mode = config.get("MODE")
     num_epochs = int(config.get("NUM_EPOCHS"))
     learning_rate = float(config.get("LEARNING_RATE"))
     momentum = float(config.get("MOMENTUM"))
+    debug(f"config: {config}")
     
     if not os.path.exists(arcface_dataset):
-        print(f"{arcface_dataset} not found. Downloading from S3...")
+        error(f"{arcface_dataset} not found. Downloading from S3...")
         s3Config.download_all_objects('arcface_train_dataset/', build_dir)
 
+    # Import ArcFace Model
     classifier = ArcFaceClassifier(arcface_dataset)
     if classifier.model_exists():
-        print("Loading existing model and continuing training.")
+        info("Loading existing model and continuing training.")
         classifier.load_model()
         classifier.extract_features()
     else:
-        print("Initializing and training the model.")
+        info("Initializing and training the model.")
         classifier.initialize_model()
         classifier.extract_features()
     classifier.train(num_epochs=num_epochs, lr=learning_rate, momentum=momentum)
     classifier.plot_training_metrics(os.path.join(arcface_model_dir, 'arcface_train_loss'))
+
+    #Import FaceNet Model
+    faceNetModel = FaceNetModel(arcface_dataset)
+    faceNetModel.train()
     return jsonify({'status': 'success', 'message': 'Model trained success'}), 200
 
 if __name__ == '__main__':

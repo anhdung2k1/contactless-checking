@@ -1,5 +1,8 @@
 import boto3
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class S3Config:
     def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, region_name="us-east-1", bucket_name='contactless-checking', acl='public-read'):
@@ -27,12 +30,15 @@ class S3Config:
     def bucket_exists(self):
         try:
             self.s3.head_bucket(Bucket=self.bucket_name)
+            logging.info(f"Bucket {self.bucket_name} exists.")
             return True
         except self.s3.exceptions.ClientError as e:
             error_code = e.response['Error']['Code']
             if error_code == '404':
+                logging.info(f"Bucket {self.bucket_name} does not exist.")
                 return False
             else:
+                logging.error(f"Error checking bucket existence: {e}")
                 raise e
 
     def _create_bucket(self):
@@ -45,26 +51,29 @@ class S3Config:
                     },
                     ACL=self.acl
                 )
-                print(f'Bucket {self.bucket_name} created with ACL {self.acl}.')
+                logging.info(f'Bucket {self.bucket_name} created with ACL {self.acl}.')
             except Exception as e:
-                print(f'Error creating bucket: {e}')
+                logging.info(f'Error creating bucket: {e}')
         else:
-            print(f'Bucket {self.bucket_name} already exists. Skip ...')
+            logging.error(f'Bucket {self.bucket_name} already exists. Skipping creation.')
 
     def list_buckets(self):
-        buckets = self.s3.list_buckets()
-        print('Existing buckets: ')
-        for bucket in buckets['Buckets']:
-            print(f'  {bucket["Name"]}')
+        try:
+            buckets = self.s3.list_buckets()
+            logging.info('Listing existing buckets:')
+            for bucket in buckets['Buckets']:
+                logging.info(f'  {bucket["Name"]}')
+        except Exception as e:
+            logging.error(f'Error listing buckets: {e}')
 
     def create_folder(self, folder_name):
         if not folder_name.endswith('/'):
             folder_name += '/'
         try:
             self.s3.put_object(Bucket=self.bucket_name, Key=folder_name)
-            print(f'Folder {folder_name} created in bucket {self.bucket_name}')
+            logging.info(f'Folder {folder_name} created in bucket {self.bucket_name}.')
         except Exception as e:
-            print(f'Error creating folder: {e}')
+            logging.error(f'Error creating folder: {e}')
 
     def upload_file(self, object_name, file_name):
         folder_name = os.path.dirname(object_name)
@@ -72,24 +81,24 @@ class S3Config:
             self.create_folder(folder_name)
         try:
             self.s3.upload_file(file_name, self.bucket_name, object_name)
-            print(f'File {file_name} uploaded to {self.bucket_name}/{object_name}')
+            logging.info(f'File {file_name} uploaded to {self.bucket_name}/{object_name}.')
         except Exception as e:
-            print(f'Error uploading file: {e}')
+            logging.error(f'Error uploading file: {e}')
 
     def delete_file(self, folder_name, file_name):
         object_key = f"{folder_name}/{file_name}"
         try:
             self.s3.delete_object(Bucket=self.bucket_name, Key=object_key)
-            print(f'File {object_key} deleted from bucket {self.bucket_name}')
+            logging.info(f'File {object_key} deleted from bucket {self.bucket_name}.')
         except Exception as e:
-            print(f'Error deleting file: {e}')
+            logging.error(f'Error deleting file: {e}')
     
     def retrieve_file(self, object_name, download_path):
         try:
             self.s3.download_file(self.bucket_name, object_name, download_path)
-            print(f'File {object_name} downloaded to {download_path}')
+            logging.info(f'File {object_name} downloaded to {download_path}.')
         except Exception as e:
-            print(f'Error downloading file: {e}')
+            logging.info(f'Error downloading file: {e}')
             
     def list_object(self, prefix):
         try:
@@ -97,9 +106,12 @@ class S3Config:
             objects = []
             if 'Contents' in response:
                 objects = [obj['Key'] for obj in response['Contents']]
+                logging.info(f'Objects listed under {prefix}: {objects}')
+            else:
+                logging.info(f'No objects found under {prefix}.')
             return objects
         except Exception as e:
-            print(f'Error listing objects: {e}')
+            logging.error(f'Error listing objects: {e}')
             return []
 
     def download_all_objects(self, prefix, local_dir):
@@ -109,6 +121,7 @@ class S3Config:
             local_folder = os.path.dirname(local_path)
             if not os.path.exists(local_folder):
                 os.makedirs(local_folder)
+                logging.info(f'Created local directory {local_folder} for downloading files.')
             self.retrieve_file(obj, local_path)
             
     def upload_folder(self, s3_prefix='', folder_path=''):
@@ -118,16 +131,4 @@ class S3Config:
                 relative_path = os.path.relpath(local_path, folder_path)
                 s3_path = os.path.join(s3_prefix, relative_path).replace("\\", "/")  # Ensure S3 path uses forward slashes
                 self.upload_file(s3_path, local_path)
-    
-
-
-# Example usage
-# s3_manager = S3Manager(region_name='us-west-2', acl='public-read')
-# s3_manager.list_buckets()
-# s3_manager.upload_file('your_folder_name/your_file_name_in_s3', 'path_to_your_file')
-# s3_manager.delete_file('your_folder_name', 'your_file_name_in_s3')
-# s3_manager.list_object('arcface_train_dataset/', 'build/arcface_train_dataset')
-
-# local_folder_path = "path/to/local/folder"
-# s3_folder_prefix = "your/s3_folder/prefix"
-# s3_manager.upload_folder(s3_folder_prefix, local_folder_path)
+                logging.info(f'Uploaded {local_path} to {self.bucket_name}/{s3_path}.')
