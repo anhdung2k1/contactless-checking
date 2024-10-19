@@ -83,7 +83,11 @@
     exec ncat --listen --keep-open --send-only --max-conns=1 3307 -c \
     "xtrabackup --backup --slave-info --stream=xbstream --host=127.0.0.1 --user=$MYSQL_USER"
   volumeMounts:
+  {{- if $top.Values.storage.persistentVolume.enabled }}
   - name: {{ template "ck-mysql.name" $top }}-persistent-storage
+  {{- else }}
+  - name: {{ template "ck-mysql.name" $top }}-ephemeral-storage
+  {{- end }}
     mountPath: /var/lib/mysql
   - name: conf
     mountPath: /etc/mysql/conf.d
@@ -94,8 +98,13 @@ volumes:
   emptyDir: {}
 - name: config-map
   configMap:
-    name: db-config
+    name: {{ template "ck-mysql.name" $top }}-configmap
+{{- if $top.Values.storage.persistentVolume.enabled }}
 - name: {{ template "ck-mysql.name" $top }}-persistent-storage
   persistentVolumeClaim:
     claimName: {{ template "ck-mysql.name" $top }}-pv-claim
+{{- else }}
+- name: {{ template "ck-mysql.name" $top }}-ephemeral-storage
+  emptyDir: {}
+{{- end }}
 {{- end }}
