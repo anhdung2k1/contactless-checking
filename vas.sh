@@ -161,6 +161,7 @@ build_repo() {
         cd $API_DIR
         echo "Start to build Spring boot compile"
         # To compile the Spring boot, must start the mysql docker for temporaly -> remove after build
+        rm -f $API_DIR/src/main/resources/application.properties
         
         docker ps -a | grep -i mysql_container | awk '$1 {print $1}' | xargs docker rm -f
         # Start docker mysql container
@@ -186,7 +187,7 @@ build_repo() {
         cp -f $API_DIR/target/*.jar $DOCKER_DIR/$__name/ \
             || die "Target file does not exists in $API_DIR/target/"
         cp -f $API_DIR/src/main/resources/application.yaml $DOCKER_DIR/$__name/ \
-            || die "application.yaml file does not exists in $API_DIR/src/main/resources/"
+            || die "application.yaml file does not exists in $API_DIR/src/main/resources"
         # Remove the mysql container
         docker rm -f mysql_container \
             || die "Could not remove mysql container"
@@ -452,6 +453,8 @@ test_repo() {
         fi
 
         docker run -it --rm -d --name $__name \
+                -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+                -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
                 -p 5000:5000 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"

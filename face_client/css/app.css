@@ -15424,6 +15424,31 @@ span.flatpickr-weekday {
     width: 260px
 }
 
+.remove-btn {
+    cursor: pointer;
+    color: #dc3545; /* Red color for the "×" */
+    font-size: 1.2rem; /* Slightly smaller font size for better appearance */
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem; /* Adds more padding for a balanced look */
+    border: 2px solid #dc3545; /* Red border */
+    border-radius: 8px; /* Round the corners more */
+    background-color: #fff; /* White background */
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
 
+.remove-btn:hover {
+    background-color: #f8d7da; /* Light red background on hover */
+    color: #721c24; /* Darker red color for text on hover */
+    border-color: #721c24; /* Darker red border on hover */
+}
+
+.col-1 {
+    flex: 0 0 auto;
+    width: 8.333333%; /* One-twelfth of the full width */
+    max-width: 8.333333%;
+}
 
 /*# sourceMappingURL=app.css.map*/

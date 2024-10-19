@@ -9,14 +9,14 @@
 	<meta name="author" content="Dung Anh Tran">
 	<meta name="keywords" content="contactless-checking, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
-	<link rel="preconnect" href="http://fonts.gstatic.com">
+	<link rel="preconnect" href="//fonts.gstatic.com">
 	<link rel="shortcut icon" href="img/icons/icon-48x48.png" />
 
 	<title>Jenkins Pipeline | Contactless Checking</title>
 
 	<link href="css/app.css" rel="stylesheet">
-	<link href="http://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="http://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link href="//fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -56,23 +56,7 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <form id="jenkinsForm">
-                                        <div class="form-row align-items-center mb-2">
-                                            <label for="jenkinsUrl" class="col-2 col-form-label">Jenkins URL</label>
-                                            <input type="text" id="jenkinsUrl" class="form-control col-8 mr-2" name="jenkinsUrl" placeholder="http://172.20.90.52:8080" value="http://172.20.90.52:8080" required>
-                                        </div>
-                                        <div class="form-row align-items-center mb-2">
-                                            <label for="jobName" class="col-2 col-form-label">Job Name</label>
-                                            <input type="text" id="jobName" class="form-control col-8 mr-2" name="jobName" placeholder="your-job-name" value="checking-train" required>
-                                        </div>
-                                        <div class="form-row align-items-center mb-2">
-                                            <label for="jobName" class="col-2 col-form-label">User Name</label>
-                                            <input type="text" id="userName" class="form-control col-8 mr-2" name="userName" placeholder="your-user-name" value="checking" required>
-                                        </div>
-                                        <div class="form-row align-items-center mb-2">
-                                            <label for="jobName" class="col-2 col-form-label">API Token</label>
-                                            <input type="text" id="apiToken" class="form-control col-8 mr-2" name="apiToken" placeholder="your-api-token" required>
-                                        </div>
+                                    <form id="trainForm">
                                         <div id="formGroupsContainer">
                                             <div class="form-row align-items-center mb-2">
                                                 <select class="form-control col-2 mr-2">
@@ -106,22 +90,6 @@
                                                 <input type="text" class="form-control col-4 mr-2" name="variableValue[]" placeholder="Value" value="0.9">
                                                 <span class="remove-btn col-1" onclick="removeFormGroup(this)">×</span>
                                             </div>
-                                            <div class="form-row align-items-center mb-2">
-                                                <select class="form-control col-2 mr-2">
-                                                    <option>Variable</option>
-                                                </select>
-                                                <input type="text" class="form-control col-4 mr-2" name="variableKey[]" placeholder="Key" value="CONTINUE_TRAINING">
-                                                <input type="text" class="form-control col-4 mr-2" name="variableValue[]" placeholder="Value" value="true">
-                                                <span class="remove-btn col-1" onclick="removeFormGroup(this)">×</span>
-                                            </div>
-                                            <div class="form-row align-items-center mb-2">
-                                                <select class="form-control col-2 mr-2">
-                                                    <option>Variable</option>
-                                                </select>
-                                                <input type="text" class="form-control col-4 mr-2" name="variableKey[]" placeholder="Key" value="IS_UPLOAD">
-                                                <input type="text" class="form-control col-4 mr-2" name="variableValue[]" placeholder="Value" value="true">
-                                                <span class="remove-btn col-1" onclick="removeFormGroup(this)">×</span>
-                                            </div>
                                         </div>
                                         <button type="button" class="btn btn-primary mr-2" onclick="addFormGroup()">Add Form Group</button>
                                         <button type="button" class="btn btn-primary" onclick="runPipeline()">Run Pipeline</button>
@@ -137,14 +105,14 @@
 				<div class="container-fluid">
 					<div class="row text-muted">
 						<div class="col-6 text-start">
-							<p class="mb-0"><a class="text-muted" href="http://github.com/anhdung2k1/contactless-checking" target="_blank"><strong>Contactless Checking</strong></a> - <a class="text-muted" href="http://github.com/anhdung2k1/contactless-checking" target="_blank"><strong>Dung Anh Tran</strong></a> &copy;</p>
+							<p class="mb-0"><a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank"><strong>Contactless Checking</strong></a> - <a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank"><strong>Dung Anh Tran</strong></a> &copy;</p>
 						</div>
 						<div class="col-6 text-end">
 							<ul class="list-inline">
-								<li class="list-inline-item"><a class="text-muted" href="http://github.com/anhdung2k1/contactless-checking" target="_blank">Support</a></li>
-								<li class="list-inline-item"><a class="text-muted" href="http://github.com/anhdung2k1/contactless-checking" target="_blank">Help Center</a></li>
-								<li class="list-inline-item"><a class="text-muted" href="http://github.com/anhdung2k1/contactless-checking" target="_blank">Privacy</a></li>
-								<li class="list-inline-item"><a class="text-muted" href="http://github.com/anhdung2k1/contactless-checking" target="_blank">Terms</a></li>
+								<li class="list-inline-item"><a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Support</a></li>
+								<li class="list-inline-item"><a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Help Center</a></li>
+								<li class="list-inline-item"><a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Privacy</a></li>
+								<li class="list-inline-item"><a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Terms</a></li>
 							</ul>
 						</div>
 					</div>
@@ -200,7 +168,7 @@
         }
     
         function runPipeline() {
-            const form = document.getElementById('jenkinsForm');
+            const form = document.getElementById('trainForm');
             const formData = new FormData(form);
             const data = {};
             formData.forEach((value, key) => {
@@ -228,27 +196,6 @@
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
                 return response.json();
-            })
-            .catch(error => console.error('Error:', error));
-            
-            fetch(`${HOST_IP}/api/jenkins/buildWithParameters`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${TOKEN}`
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Status: ', data.status)
-                console.log('Message: ', data.message)
-                alert(`${data.status}`)
             })
             .catch(error => console.error('Error:', error));
         }
