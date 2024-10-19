@@ -21,6 +21,9 @@
 
 /venv/
 /authentication/authentication/target/
+/authentication/authentication/src/main/resources/application.properties
+/authentication/.idea
+/authentication/authentication/.idea
 # Precompiled Headers
 *.gch
 *.pch
@@ -39,6 +42,7 @@
 *.la
 *.a
 *.lib
+.idea
 
 # Executables
 *.exe

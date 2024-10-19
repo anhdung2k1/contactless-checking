@@ -74,7 +74,7 @@ function loadCards() {
     const container = document.getElementById('cards-container');
     const cards = [
         {
-            title: "Customer Checkin Records",
+            title: "Customer Checking Records",
             statIcon: "truck",
             statValue: `${recordSize}`
         },
@@ -90,7 +90,7 @@ function loadCards() {
         htmlContent += `<div class="col-sm-6">${createCard(card.title, card.statIcon, card.statValue)}</div>`;
     });
     container.innerHTML = htmlContent;
-    feather.replace(); // Replace Feather icons after the cards are loaded
+    feather.replace();
 }
 
 document.addEventListener("DOMContentLoaded", fetchCountsAndLoadCards);

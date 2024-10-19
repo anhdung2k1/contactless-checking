@@ -8,7 +8,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 from .argface_extract_features import FeatureExtractor
 from .argface_model import ArcFaceModel
 from .argface_train import ArcFaceTrainer
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
@@ -60,7 +62,7 @@ class ArcFaceClassifier:
             loss, accuracy = trainer.train_epoch()
             self.training_losses.append(loss)
             self.training_accuracies.append(accuracy)
-            print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
+            logging.info(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss:.4f}, Accuracy: {accuracy:.4f}')
 
         torch.save(self.model.state_dict(), model_save_path)
         self.print_evaluation_metrics(self.labels, trainer.get_predictions(), save_path=arcface_model_dir)
@@ -87,7 +89,7 @@ class ArcFaceClassifier:
 
         if save_path:
             plt.savefig(save_path)
-            print(f'Plot saved to {save_path}')
+            logging.info(f'Plot saved to {save_path}')
         else:
             plt.show()
     
@@ -96,13 +98,13 @@ class ArcFaceClassifier:
             self.initialize_model()
             self.model.load_state_dict(torch.load(model_save_path))
             self.model_loaded = True
-            print(f"Model loaded: {model_save_path}")
+            logging.info(f"Model loaded: {model_save_path}")
         else:
-            print("Model already loaded, skipping reload.")
+            logging.info("Model already loaded, skipping reload.")
 
     def model_exists(self):
         exists = os.path.exists(model_save_path)
-        print(f"Model exists: {exists}")
+        logging.info(f"Model exists: {exists}")
         return exists
 
     def identify_person(self, image_file):
@@ -121,7 +123,7 @@ class ArcFaceClassifier:
         predicted = self.model.predict(embedding)
         person_name = self.label_map[predicted.item()]
         
-        print(f"Identified person: {person_name} from image: {image_file}")
+        logging.info(f"Identified person: {person_name} from image: {image_file}")
         return person_name
     
     def identify_person_from_embedding(self, embedding):
@@ -129,7 +131,7 @@ class ArcFaceClassifier:
         predicted = self.model.predict(embedding_tensor)
         person_name = self.label_map[predicted.item()]
         
-        print(f"Identified person: {person_name} from embedding")
+        logging.info(f"Identified person: {person_name} from embedding")
         return person_name
 
     def print_evaluation_metrics(self, true_labels, predicted_labels, save_path=None):
@@ -140,12 +142,12 @@ class ArcFaceClassifier:
         mse = mean_squared_error(true_labels, predicted_labels)
         r2 = r2_score(true_labels, predicted_labels)
 
-        print(f"Confusion Matrix:\n{conf_matrix}")
-        print(f"Classification Report:\n{classification_report(true_labels, predicted_labels)}")
-        print(f"Accuracy Score: {acc_score:.4f}")
-        print(f"Mean Absolute Error: {mae:.4f}")
-        print(f"Mean Squared Error: {mse:.4f}")
-        print(f"R2 Score: {r2:.4f}")
+        logging.info(f"Confusion Matrix:\n{conf_matrix}")
+        logging.info(f"Classification Report:\n{classification_report(true_labels, predicted_labels)}")
+        logging.info(f"Accuracy Score: {acc_score:.4f}")
+        logging.info(f"Mean Absolute Error: {mae:.4f}")
+        logging.info(f"Mean Squared Error: {mse:.4f}")
+        logging.info(f"R2 Score: {r2:.4f}")
 
         if save_path:
             plt.figure(figsize=(10, 7))
@@ -154,11 +156,11 @@ class ArcFaceClassifier:
             plt.ylabel('Actual Label')
             plt.xlabel('Predicted Label')
             plt.savefig(os.path.join(save_path, 'confusion_matrix.png'))
-            print(f'Confusion matrix saved to {os.path.join(save_path, "confusion_matrix.png")}')
+            logging.info(f'Confusion matrix saved to {os.path.join(save_path, "confusion_matrix.png")}')
 
             plt.figure(figsize=(10, 7))
             plt.axis('off')
             plt.table(cellText=[[k, v] for k, v in class_report.items()], colLabels=["Class", "Metrics"], cellLoc='center', loc='center')
             plt.title('Classification Report')
             plt.savefig(os.path.join(save_path, 'classification_report.png'))
-            print(f'Classification report saved to {os.path.join(save_path, "classification_report.png")}')
+            logging.info(f'Classification report saved to {os.path.join(save_path, "classification_report.png")}')

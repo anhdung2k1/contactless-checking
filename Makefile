@@ -96,6 +96,3 @@ test-face-model:
 test-face-client:
 	@echo "test-face-client"
 	./vas.sh test_repo --name=face_client
-get_lfw_dataset:
-	@echo "Create LFW Dataset"
-	./vas.sh get_lfw_dataset

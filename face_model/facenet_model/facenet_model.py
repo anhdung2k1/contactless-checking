@@ -11,6 +11,9 @@ from sklearn.metrics import accuracy_score
 from scipy.spatial.distance import cosine
 from threading import Lock  # For thread-safe access to the cache
 from tqdm import tqdm
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class FaceNetModel:
     def __init__(self, image_paths=[], batch_size=32, lr=0.001, num_epochs=20, num_classes=2, device='cuda', 
@@ -43,14 +46,14 @@ class FaceNetModel:
         """Load a pre-trained model if the model file exists."""
         checkpoint = torch.load(model_file_path)
         self.model.load_state_dict(checkpoint, strict=False)
-        print(f"Model loaded from {model_file_path}")
+        logging.info(f"Model loaded from {model_file_path}")
         
     def _save_model(self, save_path):
         """Save the model state to a file."""
         if save_path:
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save(self.model.state_dict(), save_path)
-            print(f"Model saved to {save_path}")
+            logging.info(f"Model saved to {save_path}")
 
     def _transform(self):
         """Return image transformation pipeline."""
@@ -74,7 +77,7 @@ class FaceNetModel:
                             image_paths.append(image_path)
                             labels.append(label)
                         else:
-                            print(f"Skipped non-image file: {image_path}")
+                            logging.info(f"Skipped non-image file: {image_path}")
         # Create a consistent label map for the entire dataset
         self.label_map = {label: idx for idx, label in enumerate(set(labels))}
         return image_paths, labels
@@ -91,7 +94,7 @@ class FaceNetModel:
                 self.image_cache[image_path] = transformed_image
             return transformed_image
         except UnidentifiedImageError:
-            print(f"Skipped non-image file: {image_path}")
+            logging.info(f"Skipped non-image file: {image_path}")
             return None
 
     def _load_batch(self, batch_paths, batch_labels):
@@ -117,17 +120,17 @@ class FaceNetModel:
 
     def train(self):
         """Train the FaceNet model."""
-        print("Starting training process")
+        logging.info("Starting training process")
         image_paths, labels = self._load_images()
         train_image_paths, train_labels, val_image_paths, val_labels = self._split_dataset(image_paths, labels)
         
         best_val_acc = 0.0  # Initialize best validation accuracy
 
         for epoch in range(self.num_epochs):
-            print(f"Epoch {epoch+1}/{self.num_epochs}")
+            logging.info(f"Epoch {epoch+1}/{self.num_epochs}")
             train_loss, train_acc = self._run_epoch(train_image_paths, train_labels)
             val_loss, val_acc = self._run_epoch(val_image_paths, val_labels, train=False)
-            print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, "
+            logging.info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, "
                  f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
             # Save checkpoint after each epoch
             checkpoint_path = os.path.join(self.save_path, f'checkpoint_epoch_{epoch+1}.pth')
@@ -137,9 +140,9 @@ class FaceNetModel:
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
                 self._save_model(self.model_file_path)
-                print(f"New best model saved with validation accuracy: {best_val_acc:.4f}")
+                logging.info(f"New best model saved with validation accuracy: {best_val_acc:.4f}")
 
-        print("Training completed")
+        logging.info("Training completed")
 
     def _run_epoch(self, image_paths, labels, train=True):
         """Run a single epoch for training or validation."""
@@ -223,9 +226,9 @@ def main():
                                  model_file_path=model_file_path)
     facenet_model.train()
     distances, labels = facenet_model.verify_images(threshold=0.05)
-    print(f"Verification Results: {len(distances)} comparisons made.")
-    print(f"Distances: {distances}")
-    print(f"Labels: {labels}")
+    logging.info(f"Verification Results: {len(distances)} comparisons made.")
+    logging.info(f"Distances: {distances}")
+    logging.info(f"Labels: {labels}")
 
 if __name__ == "__main__":
     main()
