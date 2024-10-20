@@ -1,10 +1,17 @@
 {{- if .Values.ingress.enabled }}
+{{- $g := fromJson (include "ck-application.global" .) -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ template "ck-client.name" . }}-ingress
 spec:
   ingressClassName: "nginx"
+  {{- if $g.security.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }}
+      secretName: {{ template "ck-client.name" . }}-cert
+  {{- end }}
   rules:
   - host: {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }}
     http:
@@ -23,6 +30,12 @@ metadata:
   name: {{ template "ck-authentication.name" . }}-ingress
 spec:
   ingressClassName: "nginx"
+  {{- if $g.security.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ include "ck-application.ingressPath" (list . (include "ck-authentication.name" . )) }}
+      secretName: {{ template "ck-authentication.name" . }}-cert
+  {{- end }}
   rules:
   - host: {{ include "ck-application.ingressPath" (list . (include "ck-authentication.name" . )) }}
     http:
@@ -41,6 +54,12 @@ metadata:
   name: {{ template "ck-server.name" . }}-ingress
 spec:
   ingressClassName: "nginx"
+  {{- if $g.security.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ include "ck-application.ingressPath" (list . (include "ck-server.name" . )) }}
+      secretName: {{ template "ck-server.name" . }}-cert
+  {{- end }}
   rules:
   - host: {{ include "ck-application.ingressPath" (list . (include "ck-server.name" . )) }}
     http:

@@ -3,6 +3,7 @@
 {{- $storageClassName := printf "%s-%s" $namespace .Values.storage.storageClass.name -}}
 {{- $mysqlName := include "ck-mysql.name" . -}}
 {{- $serverName := include "ck-server.name" . -}}
+{{- $authenticationName := include "ck-authentication.name" . -}}
 
 # StorageClass Definition
 {{- if .Values.storage.storageClass.enabled }}
@@ -33,6 +34,7 @@ spec:
   hostPath:
     path: {{ .Values.storage.persistentVolume.hostPath.mysql }}
 ---
+# PersistentVolume for faceModel Server
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -49,6 +51,24 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: {{ .Values.storage.persistentVolume.hostPath.server }}
+---
+# PersistentVolume for authentication APIs
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $authenticationName }}-pv-volume-ck
+  labels:
+    app: {{ $authenticationName }}
+spec:
+  {{- if .Values.storage.storageClass.enabled }}
+  storageClassName: {{ $storageClassName }}
+  {{- end }}
+  capacity:
+    storage: {{ .Values.storage.persistentVolume.storageCapacity.authentication }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.storage.persistentVolume.hostPath.authentication }}
 {{- end }}
 ---
 # PersistentVolumeClaim for MySQL
@@ -69,7 +89,7 @@ spec:
     requests:
       storage: {{ .Values.storage.persistentVolume.storageCapacity.mysql }}
 ---
-# PersistentVolumeClaim for server faceModel
+# PersistentVolumeClaim for faceModel server
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -85,4 +105,21 @@ spec:
   resources:
     requests:
       storage: {{ .Values.storage.persistentVolume.storageCapacity.server }}
+---
+# PersistentVolumeClaim for authentication APIs
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $authenticationName }}-pv-claim
+  labels:
+    app: {{ $authenticationName }}
+spec:
+  {{- if .Values.storage.storageClass.enabled }}
+  storageClassName: {{ $storageClassName }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.persistentVolume.storageCapacity.authentication }}
 {{- end }}

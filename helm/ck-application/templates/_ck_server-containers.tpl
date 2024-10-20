@@ -4,12 +4,13 @@
 - name: {{ $top.Values.server.faceModel.name }}
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-face-model") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
-  ports:
-    - name: http-server-svc
-      containerPort: {{ $top.Values.server.faceModel.httpPort }}
+  ports:    
     {{- if $g.security.tls.enabled }}
     - name: tls-server-svc
       containerPort: {{ $top.Values.server.faceModel.httpsPort }}
+    {{- else }}
+    - name: http-server-svc
+      containerPort: {{ $top.Values.server.faceModel.httpPort }}
     {{- end }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-model") | indent 2 }}

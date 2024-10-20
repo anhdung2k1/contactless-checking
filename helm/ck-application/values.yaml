@@ -145,9 +145,11 @@ storage:
     hostPath:
       server: /mnt/ck/data-server
       mysql: /mnt/ck/data-mysql
+      authentication: /mnt/ck/data-authentication
     storageCapacity:
       mysql: 30Gi
       server: 10Gi
+      authentication: 1Gi
   storageClass:
     enabled: true
     name: local-storage

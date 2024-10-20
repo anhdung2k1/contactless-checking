@@ -49,7 +49,7 @@ server:
   port: {{ .Values.server.authentication.httpsPort }}
   ssl:
     enabled: true
-    key-store: ${KEY_STORE_PATH}
+    key-store: ${KEYSTORE_PATH}
     key-store-password: ${KEYSTORE_PASSWORD}
     key-store-type: PKCS12
     key-alias: ssl-cert
@@ -61,11 +61,15 @@ bucket:
   name: contactless-checking
 
 cors:
-  allowed-origins: "{{- $allowedOrigins := .Values.issuer.ipAddress | join ", $schema://" -}}
-  {{ $schema }}://{{ $allowedOrigins }}
+  allowed-origins: "
   {{- range $ip := .Values.issuer.ipAddress -}}
-  , {{ $schema }}://{{ $ip }}:{{ $.Values.server.faceClient.httpNodePort }}
+    {{- if $g.security.tls.enabled -}}
+      {{ printf "%s://%s:%s, " $schema $ip $.Values.server.faceClient.httpsNodePort }}
+    {{- else -}}
+      {{ printf "%s://%s:%s, " $schema $ip $.Values.server.faceClient.httpNodePort }}
+    {{- end -}}
+    {{ printf "%s://%s, " $schema $ip }}
   {{- end -}}
   {{- if .Values.ingress.enabled -}}
-  , {{ $schema }}://{{ include "ck-application.ingressPath" (list . (include "ck-client.name" .)) }}
+    {{ printf "%s://%s" $schema (include "ck-application.ingressPath" (list . (include "ck-client.name" .))) }}
   {{- end }}"

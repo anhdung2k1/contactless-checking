@@ -7,13 +7,6 @@ spec:
   selector:
     app: {{ template "ck-authentication.name" . }}
   ports:
-    - name: {{ template "ck-authentication.name" . }}-http
-      protocol: "TCP"
-      port: {{ .Values.server.authentication.httpPort }}
-      {{- if not (eq .Values.server.authentication.serviceType "ClusterIP" ) }}
-      nodePort: {{ .Values.server.authentication.httpNodePort }}
-      {{- end }}
-      targetPort: http-auth-svc
     {{- if $g.security.tls.enabled }}
     - name: {{ template "ck-authentication.name" . }}-https
       protocol: "TCP"
@@ -22,6 +15,14 @@ spec:
       nodePort: {{ .Values.server.authentication.httpsNodePort }}
       {{- end }}
       targetPort: tls-auth-svc
+    {{- else }}
+    - name: {{ template "ck-authentication.name" . }}-http
+      protocol: "TCP"
+      port: {{ .Values.server.authentication.httpPort }}
+      {{- if not (eq .Values.server.authentication.serviceType "ClusterIP" ) }}
+      nodePort: {{ .Values.server.authentication.httpNodePort }}
+      {{- end }}
+      targetPort: http-auth-svc
     {{- end }}
   type: {{ .Values.server.authentication.serviceType }}
 ---
@@ -33,13 +34,6 @@ spec:
   selector:
     app: {{ template "ck-server.name" . }}
   ports:
-    - name: {{ template "ck-server.name" . }}-http
-      protocol: TCP
-      port: {{ .Values.server.faceModel.httpPort }}
-      {{- if not (eq .Values.server.faceModel.serviceType "ClusterIP" ) }}
-      nodePort: {{ .Values.server.faceModel.httpNodePort }}
-      {{- end }}
-      targetPort: http-server-svc
     {{- if $g.security.tls.enabled }}
     - name: {{ template "ck-server.name" . }}-https
       protocol: TCP
@@ -48,24 +42,25 @@ spec:
       nodePort: {{ .Values.server.faceModel.httpsNodePort }}
       {{- end }}
       targetPort: tls-server-svc
+    {{- else }}
+    - name: {{ template "ck-server.name" . }}-http
+      protocol: TCP
+      port: {{ .Values.server.faceModel.httpPort }}
+      {{- if not (eq .Values.server.faceModel.serviceType "ClusterIP" ) }}
+      nodePort: {{ .Values.server.faceModel.httpNodePort }}
+      {{- end }}
+      targetPort: http-server-svc
     {{- end }}
   type: {{ .Values.server.faceModel.serviceType }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "ck-client.name" . }}-http
+  name: {{ template "ck-client.name" . }}
 spec:
   selector:
     app: {{ template "ck-client.name" . }}
   ports:
-    - name: {{ template "ck-client.name" . }}-http
-      protocol: TCP
-      port: {{ .Values.server.faceClient.httpPort }}
-      {{- if not (eq .Values.server.faceClient.serviceType "ClusterIP" ) }}
-      nodePort: {{ .Values.server.faceClient.httpNodePort }}
-      {{- end }}
-      targetPort: http-client-svc
     {{- if $g.security.tls.enabled }}
     - name: {{ template "ck-client.name" . }}-https
       protocol: TCP
@@ -74,5 +69,13 @@ spec:
       nodePort: {{ .Values.server.faceClient.httpsNodePort }}
       {{- end }}
       targetPort: tls-client-svc
+    {{- else }}
+    - name: {{ template "ck-client.name" . }}-http
+      protocol: TCP
+      port: {{ .Values.server.faceClient.httpPort }}
+      {{- if not (eq .Values.server.faceClient.serviceType "ClusterIP" ) }}
+      nodePort: {{ .Values.server.faceClient.httpNodePort }}
+      {{- end }}
+      targetPort: http-client-svc
     {{- end }}
   type: {{ .Values.server.faceClient.serviceType }}

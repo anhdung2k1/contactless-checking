@@ -10,12 +10,13 @@
     value: {{ include "ck-application.connection" (list $top (include "ck-server.name" $top)) }}
   - name: HOST_IP
     value: {{ include "ck-application.connection" (list $top (include "ck-authentication.name" $top)) }}
-  ports:
-    - name: http-client-svc
-      containerPort: {{ $top.Values.server.faceClient.httpPort }}
+  ports:    
     {{- if $g.security.tls.enabled }}
     - name: tls-client-svc
       containerPort: {{ $top.Values.server.faceClient.httpsPort }}
+    {{- else }}
+    - name: http-client-svc
+      containerPort: {{ $top.Values.server.faceClient.httpPort }}
     {{- end }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "face-client") | indent 2 }}

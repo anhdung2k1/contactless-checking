@@ -5,11 +5,12 @@
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-authentication") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   ports:
-    - name: http-auth-svc
-      containerPort: {{ $top.Values.server.authentication.httpPort }}
     {{- if $g.security.tls.enabled }}
     - name: tls-auth-svc
       containerPort: {{ $top.Values.server.authentication.httpsPort }}
+    {{- else }}
+    - name: http-auth-svc
+      containerPort: {{ $top.Values.server.authentication.httpPort }}
     {{- end }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "authentication") | indent 2 }}
