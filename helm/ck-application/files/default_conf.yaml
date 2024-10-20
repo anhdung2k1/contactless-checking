@@ -1,14 +1,38 @@
+{{- $g := fromJson (include "ck-application.global" .) -}}
 server {
-  listen 80;
-  {{- if .Values.ingress.enabled }}
-  server_name {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }};
-  {{- else }}
-  server_name {{ .Values.issuer.ipAddress | join " " }};
-  {{- end }}
+    listen {{ .Values.server.faceClient.httpPort }};
+    {{- if .Values.ingress.enabled }}
+    server_name {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }};
+    {{- else }}
+    server_name {{ .Values.issuer.ipAddress | join " " }};
+    {{- end }}
 
-  location / {
-      root /usr/share/nginx/html;
-      index index.html index.htm;
-      try_files $uri $uri/ =404;
-  }
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ =404;
+    }
 }
+
+{{- if $g.security.tls.enabled }}
+server {
+    listen {{ .Values.server.faceClient.httpsPort }} ssl;
+    {{- if .Values.ingress.enabled }}
+    server_name {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }};
+    {{- else }}
+    server_name {{ .Values.issuer.ipAddress | join " " }};
+    {{- end }}
+
+    ssl_certificate {{ .Values.server.secretsPath.certPath }}/tls.crt;
+    ssl_certificate_key {{ .Values.server.secretsPath.certPath }}/tls.key;
+    ssl_trusted_certificate {{ .Values.server.secretsPath.certPath }}/ca.crt;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ =404;
+    }
+}
+{{- end }}

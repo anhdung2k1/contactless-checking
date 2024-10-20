@@ -5,6 +5,7 @@
 
 # Directory
 test -n "$VAS_GIT" || export VAS_GIT=$(pwd -P)
+test -n "$TEST_DIR" || export TEST_DIR="$VAS_GIT/test"
 test -n "$BUILD_DIR" || export BUILD_DIR="$VAS_GIT/build"
 test -n "$HELM_DIR" || export HELM_DIR="$BUILD_DIR/helm-build/ck-application"
 test -n "$DATASET_DIR" || export DATASET_DIR="$BUILD_DIR/dataset"
@@ -13,6 +14,7 @@ test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
+test -n "$INT_HELM_DIR" || export INT_HELM_DIR="$VAS_GIT/helm/ck-application-integration-chart"
 test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
@@ -144,6 +146,41 @@ get_version() {
     fi
 }
 
+# Copy CA file to integration charts
+generate_ca() {
+    test -n "$INT_HELM_DIR" || die "Module [INT_HELM_DIR] not set"
+    test -n "$TEST_DIR" || die "Module [TEST_DIR] not set"
+
+    SSL_TEST_DIR="$TEST_DIR/ssl"
+    HELM_TEMPLATE_FILE_DIR="$INT_HELM_DIR/files"
+    gen_ca_path="$TEST_DIR/generate_ca.sh"
+    key_file="ca.key"
+    cert_file="ca.crt"
+
+    echo "############### Generating Ceritificate Authority ############"
+    echo "Go to $TEST_DIR"
+    pushd .
+    cd $TEST_DIR
+    $gen_ca_path
+
+    # Check if HELM_TEMPLATE_FILE_DIR exists, if not, create the directory
+    if [ ! -d "$HELM_TEMPLATE_FILE_DIR" ]; then
+        echo "Creating directory $HELM_TEMPLATE_FILE_DIR"
+        mkdir -p "$HELM_TEMPLATE_FILE_DIR" \
+            || die "Failed to create directory $HELM_TEMPLATE_FILE_DIR"
+    fi
+
+    echo "############### Certificates ############"
+    # Copy ca key file
+    cp -f "$SSL_TEST_DIR/$key_file" "$HELM_TEMPLATE_FILE_DIR/$key_file" \
+        || die "Failed to copy $SSL_TEST_DIR/$key_file to $HELM_TEMPLATE_FILE_DIR/$key_file"
+    echo "Copy $cert_file file from $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"
+    # Copy ca cert file
+    cp -f "$SSL_TEST_DIR/$cert_file" "$HELM_TEMPLATE_FILE_DIR/$cert_file" \
+        || die "Failed to copy $SSL_TEST_DIR/$cert_file to $HELM_TEMPLATE_FILE_DIR/$cert_file"s
+    popd
+}
+
 ## Build Spring boot *.tar and socket binary
 build_repo() {
     test -n "$API_DIR" || die "Not set [API_DIR]"
@@ -155,6 +192,8 @@ build_repo() {
     echo "##################################"
 
     COMMON_DB="checking"
+    # Generate CA files
+    $vas generate_ca
 
     case $__name in
     "authentication")

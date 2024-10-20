@@ -1,4 +1,7 @@
 #global:
+# security:
+#   tls:
+#     enabled: true
 # registry:
 #   url: anhdung12399
 #   repoPath:
@@ -7,7 +10,7 @@
 # annotations: {}
 # labels: {}
 # networkPolicy:
-#   enabled:
+#   enabled:z
 # topologySpreadConstraints:
 # podSecurityContext:
 #   supplementalGroups: []
@@ -22,6 +25,9 @@ updateStrategy:
 
 server:
   replicaCount: 1
+  secretsPath:
+    certPath: /run/secrets/tls
+    keyStorePath: /run/secrets/keystore
   nodeIP: 192.168.122.65
   mysqlServer:
     name: mysql-server
@@ -35,7 +41,9 @@ server:
     name: authentication
     serviceType: LoadBalancer
     httpPort: "8080"
+    httpsPort: "8443"
     httpNodePort: "30800"
+    httpsNodePort: "30844"
     probes:
       readiness:
         initialDelaySeconds: 5
@@ -54,13 +62,17 @@ server:
     name: face-model
     serviceType: LoadBalancer
     httpPort: "5000"
+    httpsPort: "5443"
     httpNodePort: "30500"
+    httpsNodePort: "30544"
 
   faceClient:
     name: face-client
     serviceType: LoadBalancer
     httpPort: "80"
+    httpsPort: "443"
     httpNodePort: "30080"
+    httpsNodePort: "30443"
 
 resources:
   initcontainer:
@@ -141,7 +153,9 @@ storage:
     name: local-storage
     provisioner: kubernetes.io/no-provisioner
 
-dbPass: ""
+password:
+  dbPass: ""
+  keystorePass: ""
 
 ingress:
   enabled: true

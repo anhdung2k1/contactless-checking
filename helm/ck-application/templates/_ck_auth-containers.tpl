@@ -1,11 +1,16 @@
 {{- define "ck-auth-containers" -}}
 {{- $top := index . 0 -}}
+{{- $g := fromJson (include "ck-application.global" $top) -}}
 - name: {{ $top.Values.server.authentication.name }}
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-authentication") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   ports:
     - name: http-auth-svc
       containerPort: {{ $top.Values.server.authentication.httpPort }}
+    {{- if $g.security.tls.enabled }}
+    - name: tls-auth-svc
+      containerPort: {{ $top.Values.server.authentication.httpsPort }}
+    {{- end }}
   resources:
 {{- include "ck-application.resources" (index $top.Values "resources" "authentication") | indent 2 }}
   env:
@@ -53,9 +58,22 @@
         key: {{ template "ck-authentication.name" $top }}-aws-region
   - name: CONFIG_PATH
     value: /etc/config/application.yaml
+  {{- if $g.security.tls.enabled }}
+  - name: KEYSTORE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "ck-authentication.name" $top }}-secret
+        key: {{ template "ck-authentication.name" $top }}-keystore-password
+  - name: KEYSTORE_PATH
+    value: {{ $top.Values.server.secretsPath.keyStorePath }}/keystore.p12
+  {{- end }}
   volumeMounts:
   - name: config-properties
     mountPath: /etc/config
+  {{- if $g.security.tls.enabled }}
+  - name: keystore-cert
+    mountPath: {{ $top.Values.server.secretsPath.keyStorePath }}
+  {{- end }}
 {{ include "ck-authentication.readinessProbe" $top | indent 2 }}
 {{ include "ck-authentication.livenessProbe" $top | indent 2 }}
 volumes:
@@ -65,4 +83,16 @@ volumes:
     items:
       - key: application.yaml
         path: application.yaml
+{{- if $g.security.tls.enabled }}
+- name: tls-auth-secret
+  secret:
+    secretName: {{ template "ck-authentication.name" $top }}-cert
+- name: keystore-cert
+  {{- if $top.Values.storage.enabled }}
+  persistentVolumeClaim:
+    claimName: {{ template "ck-authentication.name" $top }}-pv-claim
+  {{- else }}
+  emptyDir: {}
+  {{- end }}
+{{- end }}
 {{- end -}}

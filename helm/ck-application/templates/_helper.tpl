@@ -4,7 +4,8 @@
 Create a map from ".Values.global" with defaults if missing in values file.
 */}}
 {{ define "ck-application.global" }}
-    {{- $globalDefaults := dict "registry" (dict "url" "anhdung12399") -}}
+    {{- $globalDefaults := dict "security" (dict "tls" (dict "enabled" true)) -}}
+    {{- $globalDefaults := merge $globalDefaults (dict "registry" (dict "url" "anhdung12399")) -}}
     {{- $globalDefaults := merge $globalDefaults (dict "timezone" "UTC") -}}
     {{- $globalDefaults := merge $globalDefaults (dict "nodeSelector" (dict)) -}}
     {{ if .Values.global }}
@@ -380,8 +381,8 @@ Define resources
 
 {{- define "ck-mysql.password" -}}
 {{- $pass := "checking" | b64enc -}}
-{{- if .Values.dbPass -}}
-    {{- $pass := .Values.dbPass -}}
+{{- if .Values.password.dbPass -}}
+    {{- $pass := .Values.password.dbPass -}}
 {{- end -}}
 {{- print $pass -}}
 {{- end -}}
@@ -409,7 +410,8 @@ Create secret for authentication
 data:
   {{ template "ck-authentication.name" . }}-aws-key: {{- print .Values.aws.key | b64enc | indent 2 }}
   {{ template "ck-authentication.name" . }}-aws-secret: {{- print .Values.aws.secret | b64enc | indent 2 }}
-  {{ template "ck-authentication.name" . }}-aws-region: {{- print .Values.aws.region | b64enc | indent 2 -}}
+  {{ template "ck-authentication.name" . }}-aws-region: {{- print .Values.aws.region | b64enc | indent 2 }}
+  {{ template "ck-authentication.name" . }}-keystore-password: {{- print .Values.password.keystorePass | b64enc | indent 2 }}
 {{- end -}}
 
 {{/*
@@ -420,6 +422,42 @@ Ingress Auth Connection
 {{- $name := index . 1 }}
 {{- $ingressHost := $top.Values.ingress.hostName -}}
 {{- printf "%s.%s" $name $ingressHost -}}
+{{- end -}}
+
+{{/*
+Connection services via Ingress or LoadBalanacer
+*/}}
+{{- define "ck-application.connection" -}}
+{{- $top := index . 0 -}}
+{{- $name := index . 1 -}}
+{{- $g := fromJson (include "ck-application.global" $top) -}}
+{{- $servicePort := 0 -}}
+{{- $scheme := "http" -}}
+{{- if $g.security.tls.enabled -}}
+  {{- $scheme = "https" -}}
+{{- end -}}
+{{- if $top.Values.ingress.enabled }}
+  {{- $ingressPath := (include "ck-application.ingressPath" (list $top $name)) -}}
+  {{- printf "%s://%s" $scheme $ingressPath -}}
+{{- else }}
+  {{- $nodeIP := $top.Values.server.nodeIP -}}
+  {{- $serverName := (include "ck-server.name" $top) -}}
+  {{- $authenticationName := (include "ck-authentication.name" $top) -}}
+  {{- if eq $name $serverName -}}
+    {{- if $g.security.tls.enabled -}}
+        {{- $servicePort = $top.Values.server.faceModel.httpsNodePort -}}
+    {{- else -}}
+        {{- $servicePort = $top.Values.server.faceModel.httpNodePort -}}
+    {{- end -}}
+  {{- else if eq $name $authenticationName -}}
+    {{- if $g.security.tls.enabled -}}
+        {{- $servicePort = $top.Values.server.authentication.httpsNodePort -}}
+    {{- else -}}
+        {{- $servicePort = $top.Values.server.authentication.httpNodePort -}}
+    {{- end -}}
+  {{- end -}}
+  {{- printf "%s://%s:%s" $scheme $nodeIP $servicePort -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "ck-authentication.readinessProbe" -}}

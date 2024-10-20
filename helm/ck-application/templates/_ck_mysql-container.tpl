@@ -29,7 +29,11 @@
   ports:
   - containerPort: {{ $top.Values.server.mysqlServer.port }}
   volumeMounts:
+  {{- if $top.Values.storage.enabled }}
   - name: {{ template "ck-mysql.name" $top }}-persistent-storage
+  {{- else }}
+  - name: {{ template "ck-mysql.name" $top }}-ephemeral-storage
+  {{- end }}
     mountPath: /var/lib/mysql
   - name: conf
     mountPath: /etc/mysql/conf.d

@@ -1,3 +1,8 @@
+{{- $g := fromJson (include "ck-application.global" .) -}}
+{{- $schema := "http" -}}
+{{- if $g.security.tls.enabled -}}
+  {{- $schema = "https" -}}
+{{- end -}}
 logging:
   level:
     org:
@@ -40,17 +45,27 @@ cloud:
       auto: false
 
 server:
-  port: 8080
+  {{- if $g.security.tls.enabled }}
+  port: {{ .Values.server.authentication.httpsPort }}
+  ssl:
+    enabled: true
+    key-store: ${KEY_STORE_PATH}
+    key-store-password: ${KEYSTORE_PASSWORD}
+    key-store-type: PKCS12
+    key-alias: ssl-cert
+  {{- else }}
+  port: {{ .Values.server.authentication.httpPort }}
+  {{- end }}
 
 bucket:
   name: contactless-checking
 
 cors:
-  allowed-origins: "{{- $allowedOrigins := .Values.issuer.ipAddress | join ", http://" -}}
-  http://{{ $allowedOrigins }}
+  allowed-origins: "{{- $allowedOrigins := .Values.issuer.ipAddress | join ", $schema://" -}}
+  {{ $schema }}://{{ $allowedOrigins }}
   {{- range $ip := .Values.issuer.ipAddress -}}
-  , http://{{ $ip }}:{{ $.Values.server.faceClient.httpNodePort }}
+  , {{ $schema }}://{{ $ip }}:{{ $.Values.server.faceClient.httpNodePort }}
   {{- end -}}
   {{- if .Values.ingress.enabled -}}
-  , http://{{ include "ck-application.ingressPath" (list . (include "ck-client.name" .)) }}
+  , {{ $schema }}://{{ include "ck-application.ingressPath" (list . (include "ck-client.name" .)) }}
   {{- end }}"
