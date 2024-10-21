@@ -28,6 +28,12 @@ public class NotificationRecordController {
         return ResponseEntity.ok(notificationRecordService.getAllNotifications());
     }
 
+    // Delete all Notifications
+    @DeleteMapping(value = "/notifications")
+    public ResponseEntity<Boolean> deleteNotifications() throws Exception {
+        return ResponseEntity.ok(notificationRecordService.deleteAllNotifications());
+    }
+
     // Create new Record
     @PostMapping(value = "/records")
     public ResponseEntity<Boolean> createRecord(@RequestBody Records record) throws Exception {
@@ -40,9 +46,22 @@ public class NotificationRecordController {
         return ResponseEntity.ok(notificationRecordService.getAllRecords(dateStr));
     }
 
+
     // Count Records
     @GetMapping(value = "/records/count")
     public ResponseEntity<Long> getAllRecords() throws Exception {
         return ResponseEntity.ok(notificationRecordService.countRecords());
+    }
+
+    // Delete one record
+    @DeleteMapping(value = "/records/{recordId}")
+    public ResponseEntity<Boolean> deleteRecord(@PathVariable Long recordId) throws Exception {
+        return ResponseEntity.ok(notificationRecordService.deleteRecordById(recordId));
+    }
+
+    // Delete all Records by Date
+    @DeleteMapping(value = "/records/query")
+    public ResponseEntity<Boolean> deleteAllRecords(@RequestParam("date") String dateStr) throws Exception {
+        return ResponseEntity.ok(notificationRecordService.deleteAllRecordsByDate(dateStr));
     }
 }

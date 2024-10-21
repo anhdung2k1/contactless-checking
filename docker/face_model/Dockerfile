@@ -45,7 +45,10 @@ COPY --chmod=0755 --chown=0:0 face_model/ /app/face_model
 ENV PATH="/app/venv/bin:$PATH"
 
 # Expose the application port
+# HTTP PORT
 EXPOSE 5000
+# HTTPS PORT
+EXPOSE 5443
 
 # Run the application
 CMD ["python", "/app/face_model/main.py"]

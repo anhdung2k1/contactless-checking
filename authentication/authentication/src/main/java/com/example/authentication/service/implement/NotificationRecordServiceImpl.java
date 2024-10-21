@@ -30,6 +30,16 @@ public class NotificationRecordServiceImpl implements NotificationRecordService 
     }
 
     @Override
+    public Boolean deleteAllNotifications() throws Exception {
+        try {
+            notificationRepository.deleteAll();
+            return true;
+        } catch (Exception e) {
+            throw new Exception("Error deleting records: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public List<RecordEntity> getAllRecords(String dateStr) throws Exception {
         try {
             return recordRepository.findAllRecordsByDateStr(dateStr).isPresent() ?
@@ -65,6 +75,29 @@ public class NotificationRecordServiceImpl implements NotificationRecordService 
             return recordRepository.countRecords();
         } catch (NoSuchElementException e) {
             throw new Exception("Could not count records: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Boolean deleteRecordById(Long recordId) throws Exception {
+        try {
+            recordRepository.deleteById(recordId);
+            return true;
+        } catch (NoSuchElementException e) {
+            throw new Exception("Could not delete record: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Boolean deleteAllRecordsByDate(String dateStr) throws Exception {
+        try {
+            List<RecordEntity> recordEntities = recordRepository.findAllRecordsByDateStr(dateStr).isPresent() ?
+                    recordRepository.findAllRecordsByDateStr(dateStr).get() : null;
+            assert recordEntities != null;
+            recordRepository.deleteAll(recordEntities);
+            return true;
+        } catch (Exception e) {
+            throw new Exception("Error deleting records: " + e.getMessage(), e);
         }
     }
 }
