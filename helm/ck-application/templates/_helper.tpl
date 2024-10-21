@@ -462,12 +462,18 @@ Connection services via Ingress or LoadBalanacer
 
 {{- define "ck-authentication.readinessProbe" -}}
 {{- $global := . -}}
+{{- $g := fromJson (include "ck-application.global" $global) -}}
 {{- with $global.Values.server.authentication.probes.readiness }}
 readinessProbe:
   httpGet:
     path: /actuator/health
+    {{- if $g.security.tls.enabled }}
+    port: {{ $global.Values.server.authentication.httpsPort }}
+    scheme: HTTPS
+    {{- else }}
     port: {{ $global.Values.server.authentication.httpPort }}
     scheme: HTTP
+    {{- end }}
   initialDelaySeconds: {{ .initialDelaySeconds }}
   periodSeconds: {{ .periodSeconds }}
   timeoutSeconds: {{ .timeoutSeconds }}
@@ -478,12 +484,18 @@ readinessProbe:
 
 {{- define "ck-authentication.livenessProbe" -}}
 {{- $global := . -}}
+{{- $g := fromJson (include "ck-application.global" $global) -}}
 {{- with $global.Values.server.authentication.probes.liveness }}
 livenessProbe:
   httpGet:
     path: /actuator/health
+    {{- if $g.security.tls.enabled }}
+    port: {{ $global.Values.server.authentication.httpsPort }}
+    scheme: HTTPS
+    {{- else }}
     port: {{ $global.Values.server.authentication.httpPort }}
     scheme: HTTP
+    {{- end }}
   initialDelaySeconds: {{ .initialDelaySeconds }}
   periodSeconds: {{ .periodSeconds }}
   timeoutSeconds: {{ .timeoutSeconds }}
