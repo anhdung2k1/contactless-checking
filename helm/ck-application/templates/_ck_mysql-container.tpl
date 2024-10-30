@@ -3,6 +3,16 @@
 - name: {{ $top.Values.server.mysqlServer.name }}
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
+  securityContext:
+    {{- include "ck-application.appArmorProfile.securityContext" (list $top "mysql") | indent 4 }}
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    {{- with (index $top.Values "seccompProfile" "mysql") }}
+    seccompProfile:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
   env:
   - name: MYSQL_PASSWORD
     valueFrom:
@@ -41,6 +51,17 @@
 {{- include "ck-application.resources" (index $top.Values "resources" "mysql") | indent 2 }}
 - name: {{ $top.Values.server.xtrabackup.name }}
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-xtrabackup") $top) }}
+  imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
+  securityContext:
+    {{- include "ck-application.appArmorProfile.securityContext" (list $top "mysql") | indent 4 }}
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    {{- with (index $top.Values "seccompProfile" "mysql") }}
+    seccompProfile:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
   ports:
   - name: {{ $top.Values.server.xtrabackup.name }}
     containerPort: {{ $top.Values.server.xtrabackup.port }}

@@ -16,6 +16,7 @@ spec:
       labels: {{- include "ck-server.labels" . | nindent 8 }}
     spec:
       securityContext:
+        {{- include "ck-application.appArmorProfile.securityContext" (list .) | indent 8 }}
         fsGroup: {{ template "ck-application.fsGroup.coordinated" . }}
         {{- include "ck-application.podSeccompProfile" . | indent 8 }}
         {{- include "ck-application.supplementalGroups" . }}

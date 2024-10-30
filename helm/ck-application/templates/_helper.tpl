@@ -503,3 +503,58 @@ livenessProbe:
   failureThreshold: {{ .failureThreshold }}
 {{- end }}
 {{- end -}}
+
+{{/*
+Common function to render ck-application.appArmorProfile.securityContext (Kubernetes version >= 1.30.0)
+*/}}
+{{- define "ck-application.renderAppArmorProfile.securityContext" -}}
+{{- $profile := index . 0 -}}
+{{- $acceptedProfiles := list "Unconfined" "RuntimeDefault" "Localhost" "unconfined" "runtime/default" "localhost" }}
+{{- $profileType := "" -}}
+{{- if $profile.type -}}
+  {{- if not (has $profile.type $acceptedProfiles) -}}
+    {{- fail (printf "Unsupported appArmor profile type: %s, use one of the supported profiles %s" $profile.type $acceptedProfiles) -}}
+  {{- end -}}
+  {{- if and (eq (lower $profile.type) "localhost") (empty $profile.localhostProfile) -}}
+    {{- fail "The 'localhost' appArmor profile requires a profile name to be provided in localhostProfile parameter." -}}
+  {{- end }}
+  {{- if eq (lower $profile.type) "localhost" -}}
+    {{- $profileType = "Localhost" -}}
+  {{- else if eq $profile.type "runtime/default" -}}
+    {{- $profileType = "RuntimeDefault" -}}
+  {{- else if eq $profile.type "unconfined" -}}
+    {{- $profileType = "Unconfined" -}}
+  {{- else -}}
+    {{- $profileType = $profile.type -}}
+  {{- end }}
+appArmorProfile:
+  type: {{ $profileType }}
+  {{- eq (lower $profileType) "localhost" | ternary (printf "\nlocalhostProfile: %s" $profile.localhostProfile) "" | indent 2 }}
+{{- end -}}
+{{- end -}}
+ 
+{{/*
+Define ck-application.appArmorProfile.securityContext (Kubernetes version >= 1.30.0)
+*/}}
+{{- define "ck-application.appArmorProfile.securityContext" -}}
+{{- $root := index . 0 -}}
+{{- $profile := dict -}}
+{{- $kubeVersionMinor := default 30 (int $root.Capabilities.KubeVersion.Minor) -}}
+{{- $kubeVersionMajor := default 1 (int $root.Capabilities.KubeVersion.Major) -}}
+{{- $minKubeVersionMinor := 30 -}}
+{{- $minKubeVersionMajor := 1 -}}
+{{- if or (gt $kubeVersionMajor $minKubeVersionMajor) (and (eq $kubeVersionMajor $minKubeVersionMajor) (ge $kubeVersionMinor $minKubeVersionMinor)) }}
+  {{- if eq (len .) 1 -}}
+    {{- $profile = $root.Values.appArmorProfile -}}
+  {{- else if eq (len .) 2 -}}
+    {{- $container := index . 1 -}}
+    {{- if empty $container -}}
+      {{- fail "The container name must not be empty" -}}
+    {{- end -}}
+    {{- $profile = index $root.Values.appArmorProfile $container -}}
+  {{- else }}
+    {{- fail "Invalid number of arguments passed to ck-application.appArmorProfile.securityContext" -}}
+  {{- end -}}
+  {{- include "ck-application.renderAppArmorProfile.securityContext" (list $profile) -}}
+{{- end -}}
+{{- end -}}

@@ -122,21 +122,43 @@ annotations: {}
 
 seccompProfile:
   type:
-  # ck-mysql:
+  # initcontainer:
   #   type:
   #   localhostProfile:
-  # ck-authentication:
+  # mysql:
   #   type:
   #   localhostProfile:
-  # ck-client:
+  # authentication:
   #   type:
   #   localhostProfile:
-  # ck-socket-server:
+  # face-client:
+  #   type:
+  #   localhostProfile:
+  # face-model:
   #   type:
   #   localhostProfile:
 
 imageCredentials:
   pullPolicy: IfNotPresent
+
+appArmorProfile:
+  type: ""
+  localhostProfile:
+  initcontainer:
+    type: ""
+    localhostProfile:
+  authentication:
+    type: ""
+    localhostProfile:
+  face-client:
+    type: ""
+    localhostProfile:
+  face-model:
+    type: ""
+    localhostProfile:
+  mysql:
+    type: ""
+    localhostProfile:
 
 storage:
   enabled: true

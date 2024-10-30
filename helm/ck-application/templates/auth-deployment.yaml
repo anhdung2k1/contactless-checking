@@ -22,108 +22,11 @@ spec:
         {{- include "ck-authentication.labels" . | nindent 8 }}
     spec:
       securityContext:
+        {{- include "ck-application.appArmorProfile.securityContext" (list .) | indent 8 }}
         fsGroup: {{ template "ck-application.fsGroup.coordinated" . }}
         {{- include "ck-application.podSeccompProfile" . | indent 8 }}
         {{- include "ck-application.supplementalGroups" . }}
       initContainers:
-        {{- if $g.security.tls.enabled }}
-        - name: init-keystore
-          image: alpine:3.13
-          command: ["/bin/sh", "-c"]
-          args:
-          - |
-            apk add --no-cache openssl;
-            # Remove existing keystore if it exists
-            rm -rf {{ .Values.server.secretsPath.keyStorePath }}/keystore.p12;
-            # Create keystore.p12
-            openssl pkcs12 -export \
-              -in {{ .Values.server.secretsPath.certPath }}/tls.crt \
-              -inkey {{ .Values.server.secretsPath.certPath }}/tls.key \
-              -out {{ .Values.server.secretsPath.keyStorePath }}/keystore.p12 \
-              -CAfile {{ .Values.server.secretsPath.certPath }}/ca.crt \
-              -name ssl-cert \
-              -passout pass:$KEYSTORE_PASSWORD
-            # Check is file or directory for debugging
-            if [ -f {{ .Values.server.secretsPath.keyStorePath }}/keystore.p12 ]; then
-              echo "{{ .Values.server.secretsPath.keyStorePath }}/keystore.p12 is a file"
-            else
-              echo "{{ .Values.server.secretsPath.keyStorePath }}/keystore.p12 is a directory"
-            fi
-            echo "Check if keystore.p12 exists directly:"
-            if [ -f "{{ .Values.server.secretsPath.keyStorePath }}/keystore.p12" ]; then
-              echo "keystore.p12 exists!";
-            else
-              echo "keystore.p12 did not exist!";
-            fi
-            echo "Waiting for keystore.p12 to be found...";
-            while ! stat "{{ .Values.server.secretsPath.keyStorePath }}/keystore.p12" > /dev/null 2>&1; do
-              echo "keystore.p12 not found, waiting...";
-              sleep 5;
-            done;
-            echo "keystore.p12 found! Listing its permissions:";
-            # Verify the keystore once it's found
-            while true; do
-              openssl pkcs12 -info -in "{{ .Values.server.secretsPath.keyStorePath }}/keystore.p12" -nokeys -passin pass:$KEYSTORE_PASSWORD;
-              if [ $? -eq 0 ]; then
-                echo "Keystore verification successful!";
-                break;
-              else
-                echo "Keystore verification failed! Retrying in 5 seconds...";
-                sleep 5;
-              fi
-            done;
-          env:
-          - name: KEYSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "ck-authentication.name" . }}-secret
-                key: {{ template "ck-authentication.name" . }}-keystore-password
-          volumeMounts:
-          - name: keystore-cert
-            mountPath: {{ .Values.server.secretsPath.keyStorePath }}
-          - name: tls-auth-secret
-            mountPath: {{ .Values.server.secretsPath.certPath }}
-        {{- end }}
-        - name: wait-for-mysql
-          image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") .) }}
-          env:
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "ck-mysql.name" . }}-secret
-                  key: {{ template "ck-mysql.name" . }}-host
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "ck-mysql.name" . }}-secret
-                  key: {{ template "ck-mysql.name" . }}-dbName
-            - name: DB_USERNAME
-              {{- if not (eq ((include "ck-mysql.password" .) | b64dec) "root") }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "ck-mysql.name" . }}-secret
-                  key: {{ template "ck-mysql.name" . }}-user
-              {{- else }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "ck-mysql.name" . }}-secret
-                  key: {{ template "ck-mysql.name" . }}-root-password
-              {{- end }}
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "ck-mysql.name" . }}-secret
-                  key: {{ template "ck-mysql.name" . }}-password
-          command:
-            - sh
-            - -c
-            - |
-              echo "Starting initContainer to wait for MySQL";
-              until mysql -h $DB_HOST -u $DB_USERNAME -p$DB_PASSWORD -e "SELECT 1"; do
-                echo "Waiting for MySQL to be ready...";
-                sleep 5;
-              done;
-              echo "MySQL is up and running";
-              echo "Init container finished successfully";
+      {{- include "ck-initContainers" (list . "authentication") | indent 6 }}
       containers:
-        {{- include "ck-auth-containers" (list .) | nindent 6 }}
+      {{- include "ck-auth-containers" (list .) | nindent 6 }}

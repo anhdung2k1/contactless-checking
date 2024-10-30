@@ -4,6 +4,16 @@
 - name: {{ $top.Values.server.faceClient.name }}
   image: {{ include "ck-application.imagePath" (merge (dict "imageName" "ck-face-client") $top) }}
   imagePullPolicy: {{ include "ck-application.imagePullPolicy" $top }}
+  securityContext:
+    {{- include "ck-application.appArmorProfile.securityContext" (list $top "face-client") | indent 4 }}
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    {{- with (index $top.Values "seccompProfile" "face-client") }}
+    seccompProfile:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
   env:
   # The fetch client used external IP from LoadBalancer/NodePort or Ingress. Not working with ClusterIP
   - name: MODEL_URL
