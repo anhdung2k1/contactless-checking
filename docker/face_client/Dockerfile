@@ -17,7 +17,7 @@ LABEL \
     ck.image.title="CK API Client" \
     ck.image.created="$BUILD_TIME"
 
-EXPOSE 9080
+EXPOSE 80
 
 ENTRYPOINT ["/entrypoint.sh"]
 
