@@ -4,7 +4,7 @@
 {{- $g := fromJson (include "ck-application.global" $top ) -}}
 {{- if eq $pod "mysql" }}
 - name: ck-mysql-initcontainer
-  image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
+  image: mysql:8.0.32
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   securityContext:
     allowPrivilegeEscalation: false
@@ -151,7 +151,7 @@
     mountPath: {{ $top.Values.server.secretsPath.certPath }}
 {{- end }}
 - name: wait-for-mysql
-  image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
+  image: mysql:8.0.32
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   securityContext:
     allowPrivilegeEscalation: false

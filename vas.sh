@@ -336,6 +336,7 @@ build_helm() {
 
     sed -i -e "s/^version: .*/version: ${version}/" $source/Chart.yaml
     sed -i -e "s/%%VERSION%%/${version}/" $source/ck-product-info.yaml
+    sed -i -e "s/%%REGISTRY%%/${DOCKER_REGISTRY}/" $source/ck-product-info.yaml
     
     helm package $source \
         --dependency-update \
