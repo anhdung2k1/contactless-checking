@@ -1,7 +1,7 @@
 {{- define "ck-mysql.container" -}}
 {{- $top := index . 0 -}}
 - name: {{ $top.Values.server.mysqlServer.name }}
-  image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
+  image: mysql:8.0.32
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   securityContext:
     allowPrivilegeEscalation: false

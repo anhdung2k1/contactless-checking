@@ -2,26 +2,21 @@ productName: Contactless Checking Monitoring System
 images:
   ck-xtrabackup:
     productName: CK XtraBackup IMAGE
-    registry: anhdung12399
+    registry: gcr.io/google-samples
     name: xtrabackup
     tag: "1.0"
-  ck-mysql:
-    productName: CK MySQL Database
-    registry: anhdung12399
-    name: mysql
-    tag: "8.0.32"
   ck-authentication:
     productName: CK Authentication API server
-    registry: anhdung12399
+    registry: '%%REGISTRY%%'
     name: ck-authentication
     tag: '%%VERSION%%'
   ck-face-model:
     productName: CK Face Model server
-    registry: anhdung12399
+    registry: '%%REGISTRY%%'
     name: ck-face_model
     tag: '%%VERSION%%'
   ck-face-client:
     productName: CK Face Web Client
-    registry: anhdung12399
+    registry: '%%REGISTRY%%'
     name: ck-face_client
     tag: '%%VERSION%%'
