@@ -20,6 +20,6 @@ spec:
         {{- include "ck-application.supplementalGroups" . }}
       # serviceAccountName: {{ template "ck-mysql.serviceAccountName" . }}
       initContainers:
-      {{- include "ck-mysql.initContainer" (list . "ck-mysql") | nindent 6 }}
+      {{- include "ck-initContainers" (list . "mysql") | indent 6 }}
       containers:
-      {{- include "ck-mysql.container" (list . "ck-mysql") | nindent 6 }}
+      {{- include "ck-mysql.container" (list .) | nindent 6 }}

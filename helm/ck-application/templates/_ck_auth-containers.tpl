@@ -4,6 +4,19 @@
 - name: {{ $top.Values.server.authentication.name }}
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-authentication") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
+  securityContext:
+    {{- include "ck-application.appArmorProfile.securityContext" (list $top "authentication") | indent 4 }}
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    capabilities:
+      drop:
+        - ALL
+    {{- with (index $top.Values "seccompProfile" "authentication") }}
+    seccompProfile:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
   ports:
     {{- if $g.security.tls.enabled }}
     - name: tls-auth-svc

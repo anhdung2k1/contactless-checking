@@ -3,7 +3,11 @@ kind: Deployment
 metadata:
   name: {{ template "ck-server.name" . }}
   labels: {{- include "ck-server.labels" . | nindent 4 }}
-  annotations: {{- include "ck-application.annotations" . | nindent 4 }}
+  annotations:
+    {{- $appArmorAnn := include "ck-application.appArmorProfileAnnotation" . | fromYaml -}}
+    {{- $defaultAnn := include "ck-application.annotations" . | fromYaml -}}
+    {{- $annotations := list $appArmorAnn $defaultAnn -}}
+    {{- include "ck-application.mergeAnnotations" (dict "location" (.Template.Name) "sources" $annotations) | trim | nindent 4 }}
 spec:
   replicas: {{ .Values.server.replicaCount }}
   strategy:
@@ -16,6 +20,7 @@ spec:
       labels: {{- include "ck-server.labels" . | nindent 8 }}
     spec:
       securityContext:
+        {{- include "ck-application.appArmorProfile.securityContext" (list .) | indent 8 }}
         fsGroup: {{ template "ck-application.fsGroup.coordinated" . }}
         {{- include "ck-application.podSeccompProfile" . | indent 8 }}
         {{- include "ck-application.supplementalGroups" . }}

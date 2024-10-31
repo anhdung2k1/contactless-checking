@@ -34,7 +34,7 @@ spec:
   hostPath:
     path: {{ .Values.storage.persistentVolume.hostPath.mysql }}
 ---
-# PersistentVolume for faceModel Server
+# PersistentVolume for face-model Server
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -89,7 +89,7 @@ spec:
     requests:
       storage: {{ .Values.storage.persistentVolume.storageCapacity.mysql }}
 ---
-# PersistentVolumeClaim for faceModel server
+# PersistentVolumeClaim for face-model server
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

@@ -69,8 +69,8 @@ server:
   faceClient:
     name: face-client
     serviceType: LoadBalancer
-    httpPort: "80"
-    httpsPort: "443"
+    httpPort: "9080"
+    httpsPort: "9443"
     httpNodePort: "30080"
     httpsNodePort: "30443"
 
@@ -122,21 +122,37 @@ annotations: {}
 
 seccompProfile:
   type:
-  # ck-mysql:
+  # initcontainer:
   #   type:
   #   localhostProfile:
-  # ck-authentication:
+  # mysql:
   #   type:
   #   localhostProfile:
-  # ck-client:
+  # authentication:
   #   type:
   #   localhostProfile:
-  # ck-socket-server:
+  # face-client:
+  #   type:
+  #   localhostProfile:
+  # face-model:
   #   type:
   #   localhostProfile:
 
 imageCredentials:
   pullPolicy: IfNotPresent
+
+appArmorProfile:
+  type: ""
+  localhostProfile:
+  authentication:
+    type: ""
+    localhostProfile:
+  face-client:
+    type: ""
+    localhostProfile:
+  face-model:
+    type: ""
+    localhostProfile:
 
 storage:
   enabled: true

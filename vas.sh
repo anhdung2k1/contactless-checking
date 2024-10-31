@@ -146,6 +146,12 @@ get_version() {
     fi
 }
 
+get_user_id() {
+    local_container=$1
+    local hash=$(sha256sum <<< "${container}" | cut -f1 -d ' ')
+    bc -q <<< "scale=0;obase=10;ibase=16;(${hash^^}%30D41)+186A0"
+}
+
 # Copy CA file to integration charts
 generate_ca() {
     test -n "$INT_HELM_DIR" || die "Module [INT_HELM_DIR] not set"
@@ -267,6 +273,7 @@ build_image() {
             --build-arg COMMIT=$git_commit \
             --build-arg APP_VERSION=$version \
             --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
+            --build-arg USER_ID="$(get_user_id $image_name)" \
         || die "Failed to build docker images: $__name"
 }
 
@@ -525,8 +532,7 @@ test_repo() {
         fi
 
         docker run -it --rm -d --name $__name \
-                -p 80:80 \
-                -p 443:443 \
+                -p 9080:9080 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"
     ;;
