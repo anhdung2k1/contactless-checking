@@ -69,8 +69,8 @@ server:
   faceClient:
     name: face-client
     serviceType: LoadBalancer
-    httpPort: "80"
-    httpsPort: "443"
+    httpPort: "9080"
+    httpsPort: "9443"
     httpNodePort: "30080"
     httpsNodePort: "30443"
 
@@ -144,9 +144,6 @@ imageCredentials:
 appArmorProfile:
   type: ""
   localhostProfile:
-  initcontainer:
-    type: ""
-    localhostProfile:
   authentication:
     type: ""
     localhostProfile:
@@ -154,9 +151,6 @@ appArmorProfile:
     type: ""
     localhostProfile:
   face-model:
-    type: ""
-    localhostProfile:
-  mysql:
     type: ""
     localhostProfile:
 

@@ -532,8 +532,7 @@ test_repo() {
         fi
 
         docker run -it --rm -d --name $__name \
-                -p 80:80 \
-                -p 443:443 \
+                -p 9080:9080 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"
     ;;

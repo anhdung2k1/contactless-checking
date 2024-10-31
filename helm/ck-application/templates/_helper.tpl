@@ -505,6 +505,47 @@ livenessProbe:
 {{- end -}}
 
 {{/*
+Define ck-application.appArmorProfileAnnotation
+*/}}
+{{- define "ck-application.appArmorProfileAnnotation" -}}
+{{- $kubeVersionMinor := default 30 (int .Capabilities.KubeVersion.Minor) -}}
+{{- $kubeVersionMajor := default 1 (int .Capabilities.KubeVersion.Major) -}}
+{{- $minKubeVersionMinor := 30 -}}
+{{- $minKubeVersionMajor := 1 -}}
+{{- if or (lt $kubeVersionMajor $minKubeVersionMajor) (and (eq $kubeVersionMajor $minKubeVersionMajor) (lt $kubeVersionMinor $minKubeVersionMinor)) }}
+  {{- $acceptedProfiles := list "unconfined" "runtime/default" "localhost" }}
+  {{- $commonProfile := dict -}}
+  {{- if .Values.appArmorProfile.type -}}
+    {{- $_ := set $commonProfile "type" .Values.appArmorProfile.type -}}
+    {{- if and (eq .Values.appArmorProfile.type "localhost") .Values.appArmorProfile.localhostProfile -}}
+      {{- $_ := set $commonProfile "localhostProfile" .Values.appArmorProfile.localhostProfile -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $profiles := dict -}}
+  {{- $containers := list "authentication" "face-model" "face-client" -}}
+  {{- range $container := $containers -}}
+    {{- $_ := set $profiles $container $commonProfile -}}
+    {{- if (hasKey $.Values.appArmorProfile $container) -}}
+      {{- if (index $.Values.appArmorProfile $container "type") -}}
+        {{- $_ := set $profiles $container (index $.Values.appArmorProfile $container) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- range $key, $value := $profiles -}}
+    {{- if $value.type -}}
+      {{- if not (has $value.type $acceptedProfiles) -}}
+        {{- fail (printf "Unsupported appArmor profile type: %s, use one of the supported profiles %s" $value.type $acceptedProfiles) -}}
+      {{- end -}}
+      {{- if and (eq $value.type "localhost") (empty $value.localhostProfile) -}}
+        {{- fail "The 'localhost' appArmor profile requires a profile name to be provided in localhostProfile parameter." -}}
+      {{- end }}
+container.apparmor.security.beta.kubernetes.io/{{ $key }}: {{ $value.type }}{{ eq $value.type "localhost" | ternary (printf "/%s" $value.localhostProfile) "" }}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Common function to render ck-application.appArmorProfile.securityContext (Kubernetes version >= 1.30.0)
 */}}
 {{- define "ck-application.renderAppArmorProfile.securityContext" -}}

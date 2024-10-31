@@ -44,12 +44,6 @@ COPY --chmod=0755 --chown=0:0 face_model/ /app/face_model
 # Ensure the virtual environment is used
 ENV PATH="/app/venv/bin:$PATH"
 
-# Expose the application port
-# HTTP PORT
-EXPOSE 5000
-# HTTPS PORT
-EXPOSE 5443
-
 ARG COMMIT
 ARG APP_VERSION
 ARG BUILD_TIME
@@ -60,11 +54,7 @@ LABEL \
     ck.image.title="CK API Server" \
     ck.image.created="$BUILD_TIME"
 
-ARG USER_ID
-RUN echo "${USER_ID}:x:${USER_ID}:${USER_ID}:Identity for ck-application-server:/nonexistent:/bin/false" >> /etc/passwd && \
-    echo "${USER_ID}:!::0:::::" >> /etc/shadow
-
-USER ${USER_ID}
+EXPOSE 5000
 
 # Run the application
 CMD ["python", "/app/face_model/main.py"]

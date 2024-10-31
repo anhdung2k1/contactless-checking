@@ -4,7 +4,6 @@
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-mysql") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   securityContext:
-    {{- include "ck-application.appArmorProfile.securityContext" (list $top "mysql") | indent 4 }}
     allowPrivilegeEscalation: false
     privileged: false
     readOnlyRootFilesystem: false
@@ -53,7 +52,6 @@
   image: {{ template "ck-application.imagePath" (merge (dict "imageName" "ck-xtrabackup") $top) }}
   imagePullPolicy: {{ template "ck-application.imagePullPolicy" $top }}
   securityContext:
-    {{- include "ck-application.appArmorProfile.securityContext" (list $top "mysql") | indent 4 }}
     allowPrivilegeEscalation: false
     privileged: false
     readOnlyRootFilesystem: false
