@@ -69,8 +69,8 @@ server:
   faceClient:
     name: face-client
     serviceType: LoadBalancer
-    httpPort: "9080"
-    httpsPort: "9443"
+    httpPort: "80"
+    httpsPort: "443"
     httpNodePort: "30080"
     httpsNodePort: "30443"
 
