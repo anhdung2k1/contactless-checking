@@ -199,7 +199,7 @@ We can edit all customer information and create a new image dataset for the chec
 ![Customer-page-camera](https://github.com/user-attachments/assets/4cf7462c-f87d-40aa-a749-b025409ddaca)
 ![Customer-page-camera-2](https://github.com/user-attachments/assets/e9d9be0b-d63c-49d0-9b69-e9a906014966)
 
-The collected images will be trained using Jenkins CI. Enter the appropriate parameters and trigger the Jenkins pipeline to train the model with the collected datasets.
+The collected images will be trained using Jenkins CI. Enter the appropriate parameters and trigger the Jenkins pipeline to train the model with the collected datasets. update
 
 ![Jenkins-web-page](https://github.com/user-attachments/assets/dc88da78-3112-45ff-8732-164bc86c9033)
 ![Jenkins-jobs](https://github.com/user-attachments/assets/afa145f6-4daa-4f1d-9fdf-0bf3490f4b58)
