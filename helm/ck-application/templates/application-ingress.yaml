@@ -20,7 +20,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ template "ck-client.name" . }}-http
+            name: {{ template "ck-client.name" . }}
             port:
               number: {{ .Values.server.faceClient.httpPort }}
 ---

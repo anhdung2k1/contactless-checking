@@ -135,7 +135,7 @@ def train_images():
     return jsonify({'status': 'success', 'message': 'Model trained success'}), 200
 
 if __name__ == '__main__':
-    tls_enabled = os.getenv('TLS_ENABLED')
+    tls_enabled = os.getenv('TLS_ENABLED', "false").lower() == "true"
 
     if (tls_enabled):
         cert_path = os.getenv("CERT_PATH")
