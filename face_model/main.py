@@ -140,11 +140,9 @@ if __name__ == '__main__':
     if (tls_enabled):
         cert_path = os.getenv("CERT_PATH")
         key_path = os.getenv("KEY_PATH")
-        ca_path = os.getenv("CA_PATH")
         context = ssl.SSLContext(ssl.PROTOCOL_TLS)
         context.verify_mode = ssl.CERT_OPTIONAL
         context.load_cert_chain(certfile=cert_path, keyfile=key_path)
-        context.load_verify_locations(cafile=ca_path)
         app.run(host='0.0.0.0', port=5443, ssl_context=context)
     else:
         app.run(host='0.0.0.0', port=5000)

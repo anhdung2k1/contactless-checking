@@ -25,7 +25,6 @@ server {
 
     ssl_certificate {{ .Values.server.secretsPath.certPath }}/tls.crt;
     ssl_certificate_key {{ .Values.server.secretsPath.certPath }}/tls.key;
-    ssl_trusted_certificate {{ .Values.server.secretsPath.certPath }}/ca.crt;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
