@@ -445,15 +445,31 @@ Connection services via Ingress or LoadBalanacer
   {{- $authenticationName := (include "ck-authentication.name" $top) -}}
   {{- if eq $name $serverName -}}
     {{- if $g.security.tls.enabled -}}
+      {{- if eq $top.Values.server.faceModel.serviceType "LoadBalancer" -}}
+        {{- $servicePort = $top.Values.server.faceModel.httpsPort -}}
+      {{- else -}}
         {{- $servicePort = $top.Values.server.faceModel.httpsNodePort -}}
+      {{- end -}}
     {{- else -}}
+      {{- if eq $top.Values.server.faceModel.serviceType "LoadBalancer" -}}
+        {{- $servicePort = $top.Values.server.faceModel.httpPort -}}
+      {{- else -}}
         {{- $servicePort = $top.Values.server.faceModel.httpNodePort -}}
+      {{- end -}}
     {{- end -}}
   {{- else if eq $name $authenticationName -}}
     {{- if $g.security.tls.enabled -}}
+      {{- if eq $top.Values.server.authentication.serviceType "LoadBalancer" -}}
+        {{- $servicePort = $top.Values.server.authentication.httpsPort -}}
+      {{- else -}}
         {{- $servicePort = $top.Values.server.authentication.httpsNodePort -}}
+      {{- end -}}
     {{- else -}}
+      {{- if eq $top.Values.server.authentication.serviceType "LoadBalancer" -}}
+        {{- $servicePort = $top.Values.server.authentication.httpPort -}}
+      {{- else -}}
         {{- $servicePort = $top.Values.server.authentication.httpNodePort -}}
+      {{- end -}}
     {{- end -}}
   {{- end -}}
   {{- printf "%s://%s:%s" $scheme $nodeIP $servicePort -}}
