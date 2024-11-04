@@ -25,6 +25,9 @@ spec:
       targetPort: http-auth-svc
     {{- end }}
   type: {{ .Values.server.authentication.serviceType }}
+  {{- if eq .Values.server.authentication.serviceType "LoadBalancer" }}
+  loadBalancerIP: {{ .Values.server.nodeIP }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -52,6 +55,9 @@ spec:
       targetPort: http-server-svc
     {{- end }}
   type: {{ .Values.server.faceModel.serviceType }}
+  {{- if eq .Values.server.faceModel.serviceType "LoadBalancer" }}
+  loadBalancerIP: {{ .Values.server.nodeIP }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -79,3 +85,6 @@ spec:
       targetPort: http-client-svc
     {{- end }}
   type: {{ .Values.server.faceClient.serviceType }}
+  {{- if eq .Values.server.faceClient.serviceType "LoadBalancer" }}
+  loadBalancerIP: {{ .Values.server.nodeIP }}
+  {{- end }}
