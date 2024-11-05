@@ -37,7 +37,6 @@ class ImageProcessor:
         """Initialize the FaceNet model."""
         if os.path.exists(facenet_model_file_path):
             self.facenet_trainer = FaceNetModel(device=self.device, save_path=facenet_model_file_path)
-            self.facenet_trainer.load_model(facenet_model_file_path)
             self.facenet_model = self.facenet_trainer.model
             info(f"Loaded FaceNet model from {facenet_model_file_path}")
         else:

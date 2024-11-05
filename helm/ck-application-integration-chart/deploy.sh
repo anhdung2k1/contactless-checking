@@ -174,7 +174,7 @@ fi
 [ $use_local_build = true ] && replace_with_local_build
 
 if [ $helm_upgrade = true ] ; then
-    run_helm_command upgrade $@ --set ck-application.aws.key=$AWS_ACCESS_KEY_ID --set ck-application.aws.secret=$AWS_SECRET_ACCESS_KEY --set ck-application.ingress.enabled=true
+    run_helm_command upgrade $@ --set ck-application.aws.key=$AWS_ACCESS_KEY_ID --set ck-application.aws.secret=$AWS_SECRET_ACCESS_KEY --set ck-application.ingress.enabled=false
 else
-    run_helm_command install $@ --set ck-application.aws.key=$AWS_ACCESS_KEY_ID --set ck-application.aws.secret=$AWS_SECRET_ACCESS_KEY --set ck-application.ingress.enabled=true
+    run_helm_command install $@ --set ck-application.aws.key=$AWS_ACCESS_KEY_ID --set ck-application.aws.secret=$AWS_SECRET_ACCESS_KEY --set ck-application.ingress.enabled=false
 fi
