@@ -22,7 +22,11 @@ spec:
           service:
             name: {{ template "ck-client.name" . }}
             port:
+              {{- if $g.security.tls.enabled }}
+              number: {{ .Values.server.faceClient.httpsPort }}
+              {{- else }}
               number: {{ .Values.server.faceClient.httpPort }}
+              {{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -46,7 +50,11 @@ spec:
           service:
             name: {{ template "ck-authentication.name" . }}
             port:
+              {{- if $g.security.tls.enabled }}
+              number: {{ .Values.server.authentication.httpsPort }}
+              {{- else }}
               number: {{ .Values.server.authentication.httpPort }}
+              {{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -70,5 +78,9 @@ spec:
           service:
             name: {{ template "ck-server.name" . }}
             port:
-              number: {{ .Values.server.faceModel.httpPort }}              
+              {{- if $g.security.tls.enabled }}
+              number: {{ .Values.server.faceModel.httpsPort }}
+              {{- else }}
+              number: {{ .Values.server.faceModel.httpPort }}
+              {{- end }}
 {{- end }}

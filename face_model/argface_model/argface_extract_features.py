@@ -3,12 +3,10 @@ from PIL import Image
 import numpy as np
 import torch
 from torchvision import transforms
-from facenet_pytorch import InceptionResnetV1
 
 class FeatureExtractor:
     def __init__(self, data_path):
         self.data_path = data_path
-        self.resnet = InceptionResnetV1(pretrained='vggface2').eval()
         self.transform = transforms.Compose([
             transforms.Resize((112, 112)),
             transforms.ToTensor(),
@@ -52,13 +50,13 @@ class FeatureExtractor:
                 try:
                     with torch.no_grad():
                         embedding = model.get_embedding(image_tensor)
+                    self.features.append(embedding.squeeze().numpy())
+                    self.labels.append(label)                    
                 except Exception:
+                    print(f"Error extracting embedding for {image_path}: {e}")
                     continue
 
-                self.features.append(embedding.squeeze().numpy())
-                self.labels.append(label)
-
-        if not self.features or not self.labels:
+        if self.features.size == 0 or self.labels.size == 0:
             raise ValueError("Feature extraction failed. No valid images found.")
 
         self.features = np.array(self.features)
@@ -66,6 +64,6 @@ class FeatureExtractor:
 
     def get_features_and_labels(self):
         """Return the extracted features and labels."""
-        if not self.features or not self.labels:
+        if self.features.size == 0 or self.labels.size == 0:
             raise ValueError("No features or labels available. Please run extract_features() first.")
         return self.features, self.labels
