@@ -14,8 +14,6 @@ init:
 	./vas.sh dir_est
 	@echo "mkdir variables folder"
 	mkdir -p build/var
-	@echo "Create training dataset"
-	./vas.sh get_train_dataset
 	@if [ "$(RELEASE)" = "true" ]; then \
 		echo "Generate release version"; \
 		./vas.sh get_version > build/var/.release_version; \
@@ -50,6 +48,8 @@ build-face-model:
 
 ## Train dataset
 train:
+	@echo "Create training dataset"
+	./vas.sh get_train_dataset
 	## Training the YOLO dataset
 	@echo "training dataset"
 	./vas.sh train_dataset
