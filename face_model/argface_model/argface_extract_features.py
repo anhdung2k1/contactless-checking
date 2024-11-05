@@ -44,6 +44,7 @@ class FeatureExtractor:
                 try:
                     image = Image.open(image_path).convert("RGB")
                 except Exception as e:
+                    print(f"Error opening image {image_path}: {e}")
                     continue
 
                 image_tensor = self.transform(image).unsqueeze(0)
@@ -51,16 +52,17 @@ class FeatureExtractor:
                     with torch.no_grad():
                         embedding = model.get_embedding(image_tensor)
                     self.features.append(embedding.squeeze().numpy())
-                    self.labels.append(label)                    
-                except Exception:
+                    self.labels.append(label)
+                except Exception as e:
                     print(f"Error extracting embedding for {image_path}: {e}")
                     continue
 
-        if self.features.size == 0 or self.labels.size == 0:
-            raise ValueError("Feature extraction failed. No valid images found.")
-
+        # Convert to NumPy arrays and check size
         self.features = np.array(self.features)
         self.labels = np.array(self.labels)
+
+        if self.features.size == 0 or self.labels.size == 0:
+            raise ValueError("Feature extraction failed. No valid images found.")
 
     def get_features_and_labels(self):
         """Return the extracted features and labels."""
