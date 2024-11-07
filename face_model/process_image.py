@@ -119,7 +119,7 @@ class ImageProcessor:
                     'embeddings': 0
                 }
 
-            for detection, box, score, cls in zip(total_crops[0], total_boxes[0], total_scores[0], total_cls[0]):
+            for crop, box, score, cls in zip(total_crops[0], total_boxes[0], total_scores[0], total_cls[0]):
                 detection_data = {'bbox': box, 'score': score, 'class': cls}
                 self._identify_person(detection_data, image_np)
 
@@ -213,7 +213,7 @@ class ImageProcessor:
             info(f"Person identified: {self.person_name}")
         except Exception as e:
             detection['person_name'] = "Unknown"
-            error(f"Error identifying person: str{e}")
+            error(f"Error identifying person: {str(e)}")
             info("Set person name to 'Unknown' due to identification error.")
         finally:
             try: 
