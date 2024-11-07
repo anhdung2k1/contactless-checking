@@ -23,7 +23,7 @@ test -n "$MAVEN_IMAGE" || export MAVEN_IMAGE="maven:latest"
 test -n "$TASK_TYPE" || export TASK_TYPE=detect #DEFAULT task=detect is one of [detect, segment, classify]
 test -n "$MODE_TYPE" || export MODE_TYPE=train #DEFAULT mode=train is one of [train, val, predict, export, track]
 test -n "$EPOCHS" || export EPOCHS=50 #DEFAULT EPOCHS=50
-test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolo11n.pt" #DEFAULT we get the pretrained model for training process
+test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
 test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
 
 prg=$(basename $0) # vas.sh filename
@@ -399,6 +399,13 @@ train_dataset() {
     #### Example usage ####
     # yolo task=detect mode=train model=yolov8n.pt data=data/mydataset.yaml epochs=50 imgsz=640
     #######################
+
+    #Override the data.yaml file
+    echo "train: $DATASET_DIR/train/images" > $DATASET_DIR/data.yaml
+    echo "val: $DATASET_DIR/train/images" >> $DATASET_DIR/data.yaml
+    echo "test: $DATASET_DIR/test/images" >> $DATASET_DIR/data.yaml
+    echo "nc: 1" >> $DATASET_DIR/data.yaml
+    echo "names: ['face']" >> $DATASET_DIR/data.yaml
 
     MODEL_BUILD_DIR="runs/detect/train/weights"
     if [[ -f "$MODEL_DIR/$MODEL_BUILD_DIR/best.pt" ]]; then
