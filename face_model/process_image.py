@@ -8,7 +8,6 @@ from ultralytics import YOLO
 from facenet_pytorch import InceptionResnetV1
 from argface_model.argface_classifier import ArcFaceClassifier
 from facenet_model.facenet_model import FaceNetModel
-from s3_config.s3Config import S3Config
 from logger import info, error
 import matplotlib.pyplot as plt
 
@@ -22,14 +21,12 @@ model_save_path = os.path.join(arcface_model_dir, 'arcface_model.pth')
 facenet_model_dir = os.path.join(build_dir, 'face_net_train')
 facenet_model_file_path = os.path.join(facenet_model_dir, 'facenet_model.pth')
 
-
 class ImageProcessor:
     def __init__(self, yolo_model_path, person_name="UNKNOWN"):
         self.yolo_model = YOLO(yolo_model_path)
         self.argface_model = ArcFaceClassifier(arcface_dataset)
         self.person_name = person_name
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.s3Config = S3Config()
         self.distances = []
         self._initialize_facenet_model()
 
@@ -107,33 +104,101 @@ class ImageProcessor:
 
     def process_image(self, image):
         """Detect faces in the image and identify the person."""
-        info("Starting image processing")
-        image_np = np.array(image.convert('RGB'))
-        detections = self._detect_faces(image_np)
+        try:
+            info("Starting image processing")
+            image_np = np.array(image.convert('RGB'))
+            total_crops, total_boxes, total_scores, total_cls = self._detect_faces(image_np)
 
-        # Identify persons in detected faces
-        for detection in detections:
-            self._identify_person(detection, image_np)
+            # Check if any faces were detected
+            if not total_boxes or len(total_boxes[0]) == 0:
+                info("No faces detected in the image.")
+                return {
+                    'status': 'success',
+                    'message': 'No faces detected',
+                    'detections': [],
+                    'embeddings': 0
+                }
 
-        info(f"Image processing complete with {len(detections)} detections")
-        return {
-            'status': 'success',
-            'message': 'Image processed',
-            'detections': detections,
-            'embeddings': len(detections)
-        }
+            for detection, box, score, cls in zip(total_crops[0], total_boxes[0], total_scores[0], total_cls[0]):
+                detection_data = {'bbox': box, 'score': score, 'class': cls}
+                self._identify_person(detection_data, image_np)
 
-    def _detect_faces(self, image_np):
-        """Run YOLO model to detect faces in the image."""
-        results = self.yolo_model(image_np)
-        detections = [
-            {
-                'bbox': tuple(map(int, box.xyxy[0])),
-                'confidence': box.conf.item()
+            info(f"Image processing complete with {len(total_boxes[0])} detections")
+            return {
+                'status': 'success',
+                'message': 'Image processed',
+                'detections': total_boxes[0],
+                'embeddings': len(total_boxes[0])
             }
-            for result in results for box in result.boxes if box.cls == 0
-        ]
-        return detections
+        except Exception as e:
+            error(f"Error in process_image: {str(e)}")
+            return {'status': 'error', 'message': str(e)}
+
+    def _detect_faces(self, image_np, box_format='xyxy', th=0.5):
+        """Run YOLO model to detect faces in the image."""
+        try:
+            total_crops = []
+            total_boxes = []
+            total_scores = []
+            total_cls = []
+
+            # Run YOLO model to get predictions
+            results = self.yolo_model.predict(image_np, stream=False, verbose=False)
+
+            for i, image_result in enumerate(results):
+                filtered_crops = []
+                filtered_boxes = []
+                filtered_scores = []
+                filtered_cls = []
+
+                # Get the corresponding image
+                img = image_np if isinstance(image_np, list) else [image_np]
+                img = img[i]
+                img_h, img_w = img.shape[:2]
+
+                # Extract bounding boxes, scores, and classes
+                if box_format == 'xyxy':
+                    image_boxes = image_result.boxes.xyxy.cpu().numpy()
+                elif box_format == 'xywh':
+                    image_boxes = image_result.boxes.xyxy.cpu().numpy()
+                    image_boxes = [[round(x1), round(y1), round(np.abs(x1-x2)), round(np.abs(y1-y2))] for x1, y1, x2, y2 in image_boxes]
+                elif box_format == 'xyxyn':
+                    image_boxes = image_result.boxes.xyxyn.cpu().numpy()
+                elif box_format == 'xywhn':
+                    image_boxes = image_result.boxes.xyxyn.cpu().numpy()
+                    image_boxes = [[float(x1), float(y1), float(np.abs(x1-x2)), float(np.abs(y1-y2))] for x1, y1, x2, y2 in image_boxes]
+
+                image_scores = image_result.boxes.conf.cpu().numpy()
+                image_cls = image_result.boxes.cls.cpu().numpy()
+
+                # Filter the results based on the threshold
+                for j in range(len(image_boxes)):
+                    (x1, y1, x2, y2), score, c = image_boxes[j], image_scores[j], image_cls[j]
+                    if score >= th:
+                        filtered_scores.append(score)
+                        filtered_cls.append(c)
+                        if box_format == 'xyxy':
+                            filtered_crops.append(Image.fromarray(img[int(y1):int(y2), int(x1):int(x2)]))
+                            filtered_boxes.append([int(x1), int(y1), int(x2), int(y2)])
+                        elif box_format == 'xyxyn':
+                            filtered_crops.append(Image.fromarray(img[int(y1 * img_h):int(y2 * img_h), int(x1 * img_w):int(x2 * img_w)]))
+                            filtered_boxes.append([float(x1), float(y1), float(x2), float(y2)])
+                        elif box_format == 'xywh':
+                            filtered_crops.append(Image.fromarray(img[int(y1):int(y1 + y2), int(x1):int(x1 + x2)]))
+                            filtered_boxes.append([int(x1), int(y1), int(x2), int(y2)])
+                        elif box_format == 'xywhn':
+                            filtered_crops.append(Image.fromarray(img[int(y1 * img_h):int((y1 + y2) * img_h), int(x1 * img_w):int((x1 + x2) * img_w)]))
+                            filtered_boxes.append([float(x1), float(y1), float(x2), float(y2)])
+
+                total_crops.append(filtered_crops)
+                total_boxes.append(filtered_boxes)
+                total_scores.append(filtered_scores)
+                total_cls.append(filtered_cls)
+
+            return total_crops, total_boxes, total_scores, total_cls
+        except Exception as e:
+            error(f"Error in _detect_faces: {str(e)}")
+            return [], [], [], []
 
     def _identify_person(self, detection, image_np):
         """Identify the person in the detected face."""
