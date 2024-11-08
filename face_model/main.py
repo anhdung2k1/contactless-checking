@@ -6,7 +6,7 @@ import os
 import ssl
 from process_image import ImageProcessor
 from s3_config.s3Config import S3Config
-from logger import info, debug, error
+from logger import info, error
 from argface_model.argface_classifier import ArcFaceClassifier
 from facenet_model.facenet_model import FaceNetModel
 
@@ -53,14 +53,14 @@ def upload_image():
         return jsonify({'error': 'No image provided'}), 400
 
     file = request.files['image']
-    debug(f"file: {file}")
+    info(f"file: {file}")
     try:
         image = Image.open(io.BytesIO(file.read()))
         result = image_processor.process_image(image)
-        debug(f"/upload: {result}")
+        info(f"/upload: {result}")
         return jsonify(result), 200
     except Exception as e:
-        error(f"Error in /process: {str(e)}", exc_info=True)
+        error(f"Error in /process: {str(e)}")
         return jsonify({'error': f'Failed to process image: {str(e)}'}), 500
 
 @app.route('/retrieve', methods=['POST'])
@@ -70,17 +70,17 @@ def retrieve_image():
     
     file = request.files['image']
     customer_name = request.form['customerName']
-    debug(f"File: {file} \ncustomer_name: {customer_name}")
+    info(f"File: {file} \ncustomer_name: {customer_name}")
     
     try:
         image = Image.open(io.BytesIO(file.read()))
         # Initialize new Image Processor instance with customer name
         image_processor_with_name = ImageProcessor(yolo_path, customer_name)
         result = image_processor_with_name.retrieve_image(image)
-        debug(f"/retrieve: {result}")
+        info(f"/retrieve: {result}")
         return jsonify(result), 200
     except Exception as e:
-        error(f"Error in /retrieve: {str(e)}", exc_info=True)
+        error(f"Error in /retrieve: {str(e)}")
         return jsonify({'error': f'Failed to retrieve image: {str(e)}'}), 500
     
 @app.route('/verify', methods=['POST'])
@@ -89,15 +89,15 @@ def verify_images():
         return jsonify({'error': 'No image provided'}), 400
 
     file = request.files['image']
-    debug(f"file: {file}")
+    info(f"file: {file}")
     try:
         image_verify = Image.open(io.BytesIO(file.read()))
         result = image_processor.verify_images(image_verify)
         image_processor.plot_and_save_distances(os.path.join(build_dir, 'facenet_distance'))
-        debug(f"Result: {result}")
+        info(f"Result: {result}")
         return jsonify(result), 200
     except Exception as e:
-        error(f"Error in /verify: {str(e)}", exc_info=True)
+        error(f"Error in /verify: {str(e)}")
         return jsonify({'error': 'Failed to verify images: An unexpected error occurred during image verification.'}), 500
 
 @app.route('/train', methods=['POST'])
@@ -110,7 +110,7 @@ def train_images():
     num_epochs = int(config.get("NUM_EPOCHS"))
     learning_rate = float(config.get("LEARNING_RATE"))
     momentum = float(config.get("MOMENTUM"))
-    debug(f"config: {config}")
+    info(f"config: {config}")
     
     if not os.path.exists(arcface_dataset):
         error(f"{arcface_dataset} not found. Downloading from S3...")

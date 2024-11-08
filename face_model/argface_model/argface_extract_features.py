@@ -51,7 +51,8 @@ class FeatureExtractor:
                 try:
                     with torch.no_grad():
                         embedding = model.get_embedding(image_tensor)
-                    self.features.append(embedding.squeeze().numpy())
+                    # Ensure the tensor is moved to the CPU before converting to a NumPy array
+                    self.features.append(embedding.squeeze().cpu().numpy())
                     self.labels.append(label)
                 except Exception as e:
                     print(f"Error extracting embedding for {image_path}: {e}")
