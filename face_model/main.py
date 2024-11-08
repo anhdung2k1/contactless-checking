@@ -21,7 +21,7 @@ arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
 arcface_model_dir = os.path.join(build_dir, '.insightface')
 
 yolo_root_dir = os.path.join(build_dir, 'yolo_model')
-yolo_dir = "yolo_model/runs/detect/train/weights/best.pt"
+yolo_dir = "yolo_model/train/weights/best.pt"
 yolo_path = os.path.join(root_directory, '..', 'build', yolo_dir)
 
 # Export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION in your env

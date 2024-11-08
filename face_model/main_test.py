@@ -8,7 +8,7 @@ root_directory = os.path.dirname(file_location)  # Get root dir
 build_dir = os.path.join(root_directory, '..', 'build')
 arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
 
-yolo_dir = "yolo_model/runs/detect/train/weights/best.pt"
+yolo_dir = "yolo_model/train/weights/best.pt"
 yolo_path = os.path.join(root_directory, '..', 'build', yolo_dir)
 
 def main():
