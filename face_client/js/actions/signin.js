@@ -22,7 +22,7 @@ const signin = async (formData) => {
             window.location.href = 'index.html'; // Redirect on successful signin
         }
     } catch (error) {
-        console.error('Signin failed:', error);
+        console.error('Login failed:', error);
         alert('Login failed: ' + error.message);
     }
 };

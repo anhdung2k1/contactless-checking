@@ -69,11 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayResults(data, imageSource);
                 await verifyPerson(formData);
             } else {
-                alert(`Error: ${data.message}`);
+                console.error(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error in sendImage:', error); // Log the error
-            alert(`Error: ${error.message}`);
         }
     }
 
