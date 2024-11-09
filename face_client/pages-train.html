@@ -12,7 +12,18 @@
 	<link rel="preconnect" href="//fonts.gstatic.com">
 	<link rel="shortcut icon" href="img/icons/icon-48x48.png" />
 
-	<title>Jenkins Pipeline | Contactless Checking</title>
+	<title>Training Pipeline | Contactless Checking</title>
+    <script src="js/actions/tokenValidation.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			// Check if token is valid
+			console.log("Check Token Valid: ", isTokenValid())
+			if (!isTokenValid()) {
+				logout();
+				window.location.href = 'pages-sign-in.html';
+			}
+		});
+	</script>
 
 	<link href="css/app.css" rel="stylesheet">
 	<link href="//fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">

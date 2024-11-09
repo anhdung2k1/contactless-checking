@@ -8,7 +8,7 @@
 ![MySQL](https://img.shields.io/badge/MySQL-blue?style=for-the-badge&logo=MYSQL&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-green?style=for-the-badge&logo=spring-boot&logoColor=white)
 
-Contacless checking repository works as client-server connection within microservices running on Kubernetes environment. This repository based on the YOLO-v8, FaceNet, ArcFace serves as checking the people registered and recognize by the system.
+Contacless checking repository works as client-server connection within microservices running on Kubernetes environment. This repository based on the YOLOv11, FaceNet, ArcFace serves as checking the people registered and recognize by the system.
 
 ---
 The repository using socket connection with Spring Boot web as main hosting APIs to ensure the security connection in each API request. The MYSQL database serves as a relational-database to perform query and storage datasets.
@@ -81,14 +81,14 @@ The recommend standard development environment is Ubuntu 18.04 LTS or later. You
     make clean init train build image push
     ```
 
-    The training process will take default hyper-parameters used for YOLOv8, more information, please check: [YOLOv8 ultralystics](https://github.com/ultralytics/ultralytics). The hyperparameters can be found in `vas.sh`. <br/>
+    The training process will take default hyper-parameters used for Yolov11, more information, please check: [Yolov11 ultralystics](https://github.com/ultralytics/ultralytics). The hyperparameters can be found in `vas.sh`. <br/>
 
     ```bash
     # Hyper parameters
     test -n "$TASK_TYPE" || export TASK_TYPE=detect #DEFAULT task=detect is one of [detect, segment, classify]
     test -n "$MODE_TYPE" || export MODE_TYPE=train #DEFAULT mode=train is one of [train, val, predict, export, track]
     test -n "$EPOCHS" || export EPOCHS=50 #DEFAULT EPOCHS=50
-    test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
+    test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="Yolov11n.pt" #DEFAULT we get the pretrained model for training process
     test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
     ```
 5. Using `testcon` image which integrate the environment for run requirement `face_model`. Check at `test/testcon`. In case you don't want to rebuild all necessary library with pip which takes a lot of efforts and time.

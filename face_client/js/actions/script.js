@@ -94,12 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.status === 'success') {
                 if (data.is_same_person) {
-                    alert(`Valid Person! Distance: ${data.similarity}`);
+                    alert(`Valid Person! Similarity: ${data.similarity}`);
                     const recordData = `${data.person_name} has checked in at ${getCurrentDate()}`;
                     await record(recordData, 'success');
                     await sendNotification(recordData);
                 } else {
-                    alert(`Invalid Person! Distance: ${data.similarity}`);
+                    alert(`Invalid Person! Similarity: ${data.similarity}`);
                     const recordData = `${data.person_name} has failed to check in at ${getCurrentDate()}`;
                     await record(recordData, 'failed');
                     await sendNotification(recordData);

@@ -71,14 +71,6 @@ dir_est() {
         echo "$BUILD_DIR already exists. Skipping creation."
     fi
 
-    # Check and create DATASET_DIR if it does not exist
-    if [ ! -d "$DATASET_DIR" ]; then
-        echo "Creating $DATASET_DIR..."
-        mkdir -p "$DATASET_DIR"
-    else
-        echo "$DATASET_DIR already exists. Skipping creation."
-    fi
-
     # Check and create MODEL_DIR if it does not exist
     if [ ! -d "$MODEL_DIR" ]; then
         echo "Creating $MODEL_DIR..."
@@ -92,6 +84,15 @@ dir_est() {
 
 # Get Roflow Dataset for training YOLO
 get_train_dataset() {
+    test -n "$DATASET_DIR" || die "DATASET_DIR must be created"
+    # Check and create DATASET_DIR if it does not exist
+    if [ ! -d "$DATASET_DIR" ]; then
+        echo "Creating $DATASET_DIR..."
+        mkdir -p "$DATASET_DIR"
+    else
+        echo "$DATASET_DIR already exists. Skipping creation."
+    fi
+
     if [[ -d "$DATASET_DIR" && -z $(ls -A $DATASET_DIR) ]]; then
         echo "Roboflow zip file"
         curl -L $DATASET > "$DATASET_DIR/roboflow.zip"
@@ -275,7 +276,6 @@ build_image() {
             --build-arg COMMIT=$git_commit \
             --build-arg APP_VERSION=$version \
             --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
-            --build-arg USER_ID="$(get_user_id $image_name)" \
         || die "Failed to build docker images: $__name"
 }
 

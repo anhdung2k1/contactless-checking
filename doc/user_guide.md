@@ -229,7 +229,7 @@ Figure 3 Flow of Contactless Checking Face Recognition
 
 This used for real-time object detection, including face detection. It enables the system to quickly identify and locate faces in images or video frames captured by the camera.
 
-In Contactless Checking System, YOLOv8 with ultralystics capable of processing frames at high speeds, making it suitable for real-time applications.
+In Contactless Checking System, Yolov11 with ultralystics capable of processing frames at high speeds, making it suitable for real-time applications.
 
 Return the coordinates of the detected faces, which can be used to crop the region of interest for further processing. When users approach the camera for check-in, the YOLO model detects their face in the fram, providing bounding boxes that indicate the location of the detected faces.
 

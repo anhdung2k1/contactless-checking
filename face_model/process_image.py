@@ -162,9 +162,7 @@ class ImageProcessor:
             try:
                 info(f"Processing face at path: {temp_face_path}")
                 self.person_name = self.argface_model.identify_person(temp_face_path)
-                debug(f"DEBUG: {self.person_name}")
-                detection['person_name'] = self.person_name
-                info(f"Person identified: {self.person_name}")
+                detection['person_name'] = self.person_name                
             except Exception as e:
                 error_msg = str(e)
                 # Additional debug to check if the error is related to device mismatches
@@ -176,8 +174,10 @@ class ImageProcessor:
                 error(f"Error identifying person: {error_msg}")
 
             os.remove(temp_face_path)
+            info(f"Person identified: {detection['person_name']}")
 
         info(f"Image processing complete with {len(detections)} detections")
+
         return {
             'status': 'success',
             'message': 'Image processed',
