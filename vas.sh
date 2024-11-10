@@ -23,8 +23,10 @@ test -n "$MAVEN_IMAGE" || export MAVEN_IMAGE="maven:latest"
 test -n "$TASK_TYPE" || export TASK_TYPE=detect #DEFAULT task=detect is one of [detect, segment, classify]
 test -n "$MODE_TYPE" || export MODE_TYPE=train #DEFAULT mode=train is one of [train, val, predict, export, track]
 test -n "$EPOCHS" || export EPOCHS=50 #DEFAULT EPOCHS=50
-test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolov8n.pt" #DEFAULT we get the pretrained model for training process
+test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolo11n.pt" #DEFAULT we get the pretrained model for training process
 test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
+test -n "$BATCH_SIZE" || export BATCH_SIZE=8
+test -n "$SAVE_PATH" || export SAVE_PATH=$MODEL_DIR
 
 prg=$(basename $0) # vas.sh filename
 dir=$(dirname $0); dir=$(cd $dir; pwd) #Get root dir
@@ -36,7 +38,7 @@ change_id=$(git show $git_commit | grep '^\ *Change-Id' | awk '{print $2}')
 release=$git_commit
 
 # Dataset for Face Detection
-DATASET="https://universe.roboflow.com/ds/wer8JOfxRX?key=iGhxIxBjOM"
+DATASET="https://universe.roboflow.com/ds/lXdnWfLr4T?key=dSif05B23L"
 MODEL_URL="https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip"
 
 clean() {
@@ -69,14 +71,6 @@ dir_est() {
         echo "$BUILD_DIR already exists. Skipping creation."
     fi
 
-    # Check and create DATASET_DIR if it does not exist
-    if [ ! -d "$DATASET_DIR" ]; then
-        echo "Creating $DATASET_DIR..."
-        mkdir -p "$DATASET_DIR"
-    else
-        echo "$DATASET_DIR already exists. Skipping creation."
-    fi
-
     # Check and create MODEL_DIR if it does not exist
     if [ ! -d "$MODEL_DIR" ]; then
         echo "Creating $MODEL_DIR..."
@@ -90,6 +84,15 @@ dir_est() {
 
 # Get Roflow Dataset for training YOLO
 get_train_dataset() {
+    test -n "$DATASET_DIR" || die "DATASET_DIR must be created"
+    # Check and create DATASET_DIR if it does not exist
+    if [ ! -d "$DATASET_DIR" ]; then
+        echo "Creating $DATASET_DIR..."
+        mkdir -p "$DATASET_DIR"
+    else
+        echo "$DATASET_DIR already exists. Skipping creation."
+    fi
+
     if [[ -d "$DATASET_DIR" && -z $(ls -A $DATASET_DIR) ]]; then
         echo "Roboflow zip file"
         curl -L $DATASET > "$DATASET_DIR/roboflow.zip"
@@ -273,7 +276,6 @@ build_image() {
             --build-arg COMMIT=$git_commit \
             --build-arg APP_VERSION=$version \
             --build-arg BUILD_TIME=`date +"%d/%m/%Y:%H:%M:%S"` \
-            --build-arg USER_ID="$(get_user_id $image_name)" \
         || die "Failed to build docker images: $__name"
 }
 
@@ -397,15 +399,8 @@ train_dataset() {
     # Saved the model in dir
     cd $MODEL_DIR
     #### Example usage ####
-    # yolo task=detect mode=train model=yolov8n.pt data=data/mydataset.yaml epochs=50 imgsz=640
+    # yolo task=detect mode=train model=yolo11n.pt data=data/mydataset.yaml epochs=50 imgsz=640
     #######################
-
-    #Override the data.yaml file
-    echo "train: $DATASET_DIR/train/images" > $DATASET_DIR/data.yaml
-    echo "val: $DATASET_DIR/train/images" >> $DATASET_DIR/data.yaml
-    echo "test: $DATASET_DIR/test/images" >> $DATASET_DIR/data.yaml
-    echo "nc: 1" >> $DATASET_DIR/data.yaml
-    echo "names: ['face']" >> $DATASET_DIR/data.yaml
 
     MODEL_BUILD_DIR="runs/detect/train/weights"
     if [[ -f "$MODEL_DIR/$MODEL_BUILD_DIR/best.pt" ]]; then
@@ -418,7 +413,9 @@ train_dataset() {
          data=$DATASET_DIR/data.yaml \
          epochs=$EPOCHS \
          imgsz=$IMAGE_SIZE \
-         save=true
+         batch=$BATCH_SIZE \
+         save=true \
+         project=$SAVE_PATH
     popd
 }
 

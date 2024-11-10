@@ -22,7 +22,7 @@ const getUserID = async () => {
         return data;
     } catch (error) {
         console.error('Get User ID failed: ', error);
-        alert('Failed to get user ID: ' + error.message);
+        console.error('Failed to get user ID: ' + error.message);
     }
 };
 

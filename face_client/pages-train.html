@@ -12,7 +12,19 @@
 	<link rel="preconnect" href="//fonts.gstatic.com">
 	<link rel="shortcut icon" href="img/icons/icon-48x48.png" />
 
-	<title>Jenkins Pipeline | Contactless Checking</title>
+	<title>Training Pipeline | Contactless Checking</title>
+    <script src="js/actions/tokenValidation.js"></script>
+    <script src="js/actions/logout.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			// Check if token is valid
+			console.log("Check Token Valid: ", isTokenValid())
+			if (!isTokenValid()) {
+				logout();
+				window.location.href = 'pages-sign-in.html';
+			}
+		});
+	</script>
 
 	<link href="css/app.css" rel="stylesheet">
 	<link href="//fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -51,7 +63,8 @@
 
 			<main class="content">
                 <div class="container-fluid p-0">
-                    <h1 class="h3 mb-3"><strong>Jenkins Pipeline Configuration</strong></h1>
+                    <h1 class="h3 mb-3"><strong>Pipeline Configuration</strong></h1>
+                    <div id="spinner" class="spinner" style="display: none;"></div>
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -122,7 +135,6 @@
 	</div>
 	<script src="js/actions/config.js"></script>
 	<script src="js/app.js"></script>
-	<script src="js/actions/logout.js"></script>
 	<script src="js/actions/navUser.js"></script>
 	<script src="js/actions/notifications.js"></script>
     <script>
@@ -169,8 +181,12 @@
     
         function runPipeline() {
             const form = document.getElementById('trainForm');
+            const spinner = document.getElementById('spinner')
             const formData = new FormData(form);
             const data = {};
+
+            spinner.style.display = 'block';
+
             formData.forEach((value, key) => {
                 if (key.endsWith('[]')) {
                     const baseKey = key.slice(0, -2);
@@ -197,7 +213,11 @@
                 }
                 return response.json();
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                // Hide the spinner when the function completes (success or error)
+                spinner.style.display = 'none';
+            });
         }
     </script>
 </body>

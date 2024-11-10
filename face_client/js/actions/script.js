@@ -67,49 +67,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.status === 'success') {
                 displayResults(data, imageSource);
-                await verifyPerson(formData);
+                verifyPerson(data);
             } else {
-                alert(`Error: ${data.message}`);
+                console.error(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error in sendImage:', error); // Log the error
-            alert(`Error: ${error.message}`);
         }
     }
 
-    async function verifyPerson(formData) {
-        try {
-            const response = await fetch(`${MODEL_URL}/verify`, {  // Use the base URL
-                method: 'POST',
-                body: formData,
-            });
+    function verifyPerson(data) {
+         // Use fallback values if data fields are undefined
+        const isSamePerson = data.is_same_person !== undefined ? data.is_same_person : false;
+        const similarity = data.similarity !== undefined ? data.similarity : 0;
+        const personName = data.person_name || 'Unknown';
 
-            if (!response.ok) {
-                console.log(`Error in response: ${response.status}, message: ${response.error}`)
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Verify response data:', data); // Log the response data
-
-            if (data.status === 'success') {
-                if (data.is_same_person) {
-                    alert(`Valid Person! Distance: ${data.distance}`);
-                    const recordData = `${data.person_name} has checked in at ${getCurrentDate()}`;
-                    await record(recordData, 'success');
-                    await sendNotification(recordData);
-                } else {
-                    alert(`Invalid Person! Distance: ${data.distance}`);
-                    const recordData = `${data.person_name} has failed to check in at ${getCurrentDate()}`;
-                    await record(recordData, 'failed');
-                    await sendNotification(recordData);
-                }
-            } else {
-                alert(`Error: ${data.message}`);
-            }
-        } catch (error) {
-            console.error('Error in verifyPerson:', error); // Log the error
-            alert(`Error: ${error.message}`);
+        console.log(`is_same_person: ${isSamePerson}, similarity: ${similarity}, person_name: ${personName}`);
+        if (isSamePerson) {
+            alert(`Valid Person! Similarity: ${similarity}`);
+            const recordData = `${personName} has checked in at ${getCurrentDate()}`;
+            record(recordData, 'success');
+            sendNotification(recordData);
+        } else {
+            alert(`Invalid Person! Similarity: ${similarity}`);
+            const recordData = `${personName} has failed to check in at ${getCurrentDate()}`;
+            record(recordData, 'failed');
+            sendNotification(recordData);
         }
     }
 
@@ -177,12 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayResults(data, imageSource) {
         const image = new Image();
+        const personName = data.person_name || 'Unknown';
+
         image.onload = () => {
             resultCanvas.width = image.width;
             resultCanvas.height = image.height;
             resultCtx.drawImage(image, 0, 0);
             data.detections.forEach(detection => {
-                const { bbox, confidence, person_name } = detection;
+                const { bbox, confidence } = detection;
                 const [x1, y1, x2, y2] = bbox;
                 resultCtx.strokeStyle = 'red';
                 resultCtx.lineWidth = 2;
@@ -190,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultCtx.fillStyle = 'red';
                 resultCtx.font = '16px Arial';
                 resultCtx.fillText(`confidence: (${confidence.toFixed(2)})`, x1, y1 - 10);
-                resultCtx.fillText(`person_name: ${person_name}`, x1, y1 - 30);
+                resultCtx.fillText(`person_name: ${personName}`, x1, y1 - 30);
             });
         };
         if (imageSource instanceof Blob) {

@@ -166,7 +166,7 @@ const addCustomerImage = async (customerID, base64Image) => {
 
         const dataBool = await response.json();
         if (dataBool) {
-            alert("Add customer image successfully");
+            console.log("Add customer image successfully");
         }
 
         await delay(2000); // 2s delay for stable
@@ -266,7 +266,7 @@ async function sendImageDataToModelHost(formData) {
 
         const data = await response.json();
         if (data.status === 'success') {
-            alert('Download Image success');
+            console.log('Download Image success');
         } else {
             alert(`Error: ${data.error}`);
         }

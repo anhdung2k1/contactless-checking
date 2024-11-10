@@ -22,7 +22,7 @@ const getUserID = async () => {
         return data;
     } catch (error) {
         console.error('Get User ID failed: ', error);
-        alert('Failed to get user ID: ' + error.message);
+        console.error('Failed to get user ID: ' + error.message);
     }
 };
 
@@ -59,7 +59,7 @@ const getUser = async () => {
         return userData;
     } catch (error) {
         console.error('Fetch User failed:', error);
-        alert('Fetch User Failed: ' + error.message);
+        console.error('Fetch User Failed: ' + error.message);
     }
 };
 
@@ -82,7 +82,7 @@ const updateUser = async (formData) => {
         }
     } catch (error) {
         console.error('Update User failed:', error);
-        alert('Update User Failed: ' + error.message);
+        console.error('Update User Failed: ' + error.message);
     }
 };
 
@@ -110,8 +110,7 @@ const updateProfilePicture = async (base64Image) => {
         document.getElementById('profilePicture').src = data.imageUrl;
         console.log('Profile picture updated:', data);
     } catch (error) {
-        console.error('Update Profile Picture failed:', error);
-        alert('Update Profile Picture Failed: ' + error.message);
+        console.error('Update Profile Picture failed:', error.message);
     }
 };
 

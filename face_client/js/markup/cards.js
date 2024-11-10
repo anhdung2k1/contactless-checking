@@ -18,8 +18,7 @@ const countCustomer = async () => {
         const data = await response.json();
         customerSize = data;
     } catch (error) {
-        console.error('Count Customers failed: ', error);
-        alert('Failed to count customers: ' + error.message);
+        console.error('Failed to count customers: ' + error.message);
     }
 };
 
@@ -40,8 +39,7 @@ const countRecords = async () => {
         const data = await response.json();
         recordSize = data;
     } catch (error) {
-        console.error('Count Records failed: ', error);
-        alert('Failed to count records: ' + error.message);
+        console.error('Count Records failed: ', error.message);
     }
 };
 
