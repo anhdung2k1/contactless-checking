@@ -17,12 +17,10 @@ CORS(app)
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
 build_dir = os.path.join(root_directory, '..', 'build')
-arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
-arcface_model_dir = os.path.join(build_dir, '.insightface')
 
 yolo_root_dir = os.path.join(build_dir, 'yolo_model')
 yolo_dir = "yolo_model/train/weights/best.pt"
-yolo_path = os.path.join(root_directory, '..', 'build', yolo_dir)
+yolo_path = os.path.join(build_dir, yolo_dir)
 
 # Export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION in your env
 s3Config = S3Config()
@@ -39,10 +37,6 @@ if not os.path.exists(yolo_root_dir):
 if not os.path.exists(yolo_path):
     info(f"Create {yolo_path} folder")
     s3Config.download_all_objects('yolo_model/', build_dir)
-    
-if not os.path.exists(arcface_dataset):
-    info(f"{arcface_dataset} not found. Downloading from S3...")
-    s3Config.download_all_objects('arcface_train_dataset/', build_dir)
 
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
@@ -82,26 +76,17 @@ def retrieve_image():
     except Exception as e:
         error(f"Error in /retrieve: {str(e)}")
         return jsonify({'error': f'Failed to retrieve image: {str(e)}'}), 500
-    
-@app.route('/verify', methods=['POST'])
-def verify_images():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image provided'}), 400
-
-    file = request.files['image']
-    info(f"file: {file}")
-    try:
-        image_verify = Image.open(io.BytesIO(file.read()))
-        result = image_processor.verify_images(image_verify)
-        image_processor.plot_and_save_distances(os.path.join(build_dir, 'facenet_distance'))
-        info(f"Result: {result}")
-        return jsonify(result), 200
-    except Exception as e:
-        error(f"Error in /verify: {str(e)}")
-        return jsonify({'error': 'Failed to verify images: An unexpected error occurred during image verification.'}), 500
 
 @app.route('/train', methods=['POST'])
 def train_images():
+    arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
+    arcface_model_dir = os.path.join(build_dir, '.insightface')
+    arcface_model_save = os.path.join(arcface_model_dir, 'arcface_model.pth')
+    
+    if not os.path.exists(arcface_dataset):
+        error(f"{arcface_dataset} not found. Downloading from S3...")
+        s3Config.download_all_objects('arcface_train_dataset/', build_dir)
+
     data = request.get_json()
     variable_key = data.get('variableKey')
     variable_value = data.get('variableValue')
@@ -111,21 +96,12 @@ def train_images():
     learning_rate = float(config.get("LEARNING_RATE"))
     momentum = float(config.get("MOMENTUM"))
     info(f"config: {config}")
-    
-    if not os.path.exists(arcface_dataset):
-        error(f"{arcface_dataset} not found. Downloading from S3...")
-        s3Config.download_all_objects('arcface_train_dataset/', build_dir)
 
     # Import ArcFace Model
-    classifier = ArcFaceClassifier(arcface_dataset)
-    if classifier.model_exists():
-        info("Loading existing model and continuing training.")
-        classifier.load_model()
-        classifier.extract_features()
-    else:
-        info("Initializing and training the model.")
-        classifier.initialize_model()
-        classifier.extract_features()
+    classifier = ArcFaceClassifier(arcface_dataset, arcface_model_dir, arcface_model_save)
+    info("Initializing and training the model.")
+    classifier.initialize_model()
+    classifier.extract_features()
     classifier.train(num_epochs=num_epochs, lr=learning_rate, momentum=momentum)
     classifier.plot_training_metrics(os.path.join(arcface_model_dir, 'arcface_train_loss'))
 

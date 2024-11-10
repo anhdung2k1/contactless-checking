@@ -1,15 +1,13 @@
 import os
 import uuid
+import tempfile
 import numpy as np
 import torch
 from PIL import Image
-from torchvision import transforms
 from ultralytics import YOLO
-from facenet_pytorch import InceptionResnetV1
 from argface_model.argface_classifier import ArcFaceClassifier
 from facenet_model.facenet_model import FaceNetModel
-from logger import info, debug, error
-import matplotlib.pyplot as plt
+from logger import info, error
 from sklearn.metrics.pairwise import cosine_similarity
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
@@ -18,30 +16,24 @@ root_directory = os.path.dirname(file_location)  # Get root dir
 build_dir = os.path.join(root_directory, '..', 'build')
 arcface_dataset = os.path.join(build_dir, 'arcface_train_dataset')
 arcface_model_dir = os.path.join(build_dir, '.insightface')
-model_save_path = os.path.join(build_dir, '.insightface/arcface_model.pth')
+model_save_path = os.path.join(arcface_model_dir, 'arcface_model.pth')
 # Face Net
 facenet_model_dir = os.path.join(build_dir, 'face_net_train')
 facenet_model_file_path = os.path.join(facenet_model_dir, 'facenet_model.pth')
 
 class ImageProcessor:
     def __init__(self, yolo_model_path, person_name="UNKNOWN"):
-        self.argface_model = ArcFaceClassifier(arcface_dataset)
+        self.argface_model = ArcFaceClassifier(arcface_dataset, arcface_model_dir, model_save_path)
         self.person_name = person_name
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.yolo_model = YOLO(yolo_model_path).to(self.device)
         self.distances = []
-        
-        if os.path.exists(facenet_model_file_path):
-            self.facenet_model = FaceNetModel(device=self.device, save_path=facenet_model_file_path).model.to(self.device)
-            info(f"Loaded FaceNet model from {facenet_model_file_path}")
-        else:
-            self.facenet_model = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
-            info("Using pretrained InceptionResnetV1 model")
+        self.facenet_model = FaceNetModel(image_path=arcface_dataset, model_file_path=facenet_model_file_path, save_path=facenet_model_file_path)
 
-    def verify_images(self, image2):
+    def verify_images(self, image_path):
         try:
             info("Starting verification process")
-
+            
             customer_dir = os.path.join(arcface_dataset, self.person_name)
             if not os.path.exists(customer_dir):
                 error(f"Customer directory not found: {customer_dir}")
@@ -55,68 +47,33 @@ class ImageProcessor:
             first_image_path = os.path.join(customer_dir, customer_images[0])
             info(f"Using first image for verification: {first_image_path}")
 
-            preprocess = transforms.Compose([
-                transforms.Resize((112, 112)),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-            ])
+            # Get embeddings for the first customer image and the provided image
+            embeddings = self.facenet_model.get_embeddings([first_image_path, image_path])
 
-            image1 = Image.open(first_image_path).convert('RGB')
-            if image2.mode != 'RGB':
-                image2 = image2.convert('RGB')
+            if embeddings.shape[0] != 2:
+                error("Failed to calculate embeddings for both images.")
+                return {'status': 'error', 'message': 'Failed to calculate embeddings for both images'}
 
-            # Move image tensors to the device
-            image1_tensor = preprocess(image1).unsqueeze(0).to(self.device)
-            image2_tensor = preprocess(image2).unsqueeze(0).to(self.device)
-
-            info(f"Image1 tensor shape: {image1_tensor.shape}")
-            info(f"Image2 tensor shape: {image2_tensor.shape}")
-
-            # Set the model to evaluation mode
-            self.facenet_model.eval()
-            with torch.no_grad():
-                # Ensure embeddings are calculated on the correct device
-                embedding1 = self.facenet_model(image1_tensor)
-                embedding2 = self.facenet_model(image2_tensor)
-
-                info(f"Raw embedding1 shape: {embedding1.shape}")
-                info(f"Raw embedding2 shape: {embedding2.shape}")
-
-                # Move the embeddings to the CPU before converting to NumPy
-                embedding1 = embedding1.cpu().numpy()
-                embedding2 = embedding2.cpu().numpy()
-
-            info(f"Embeddings shapes after processing: {embedding1.shape}, {embedding2.shape}")
-
-            if embedding1.shape != embedding2.shape:
-                error(f"Embedding shapes do not match: {embedding1.shape} vs {embedding2.shape}")
-                return {'status': 'error', 'message': 'Embedding shapes do not match'}
-
+            embedding1, embedding2 = embeddings[0], embeddings[1]
             info("Embeddings calculated for both images")
 
-            # Calculate cosine similarity (closer to 1 indicates more similarity)
-            similarity = cosine_similarity(embedding1, embedding2)[0][0]
-            info(f"Cosine similarity between embeddings: {similarity}")
+            # Calculate Euclidean distance (lower indicates more similarity)
+            similarity = np.linalg.norm(embedding1 - embedding2)
+            info(f"Euclidean distance between embeddings: {similarity}")
 
             # Decide based on a threshold
-            threshold = 0.6
-            is_same_person = similarity > threshold
+            threshold = 0.8
+            is_same_person = similarity < threshold
             info("Images are of the same person" if is_same_person else "Images are of different persons")
 
             self.distances.append(similarity)
 
             return {
-                'status': 'success',
                 'is_same_person': bool(is_same_person),
-                'person_name': self.person_name,
                 'similarity': float(similarity)
             }
         except Exception as e:
-            error(f"Error in verify_images: {str(e)}")
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
+            raise ValueError(f"Error in verify_images: {str(e)}")
 
     def process_image(self, image):
         info("Starting image processing")
@@ -127,6 +84,9 @@ class ImageProcessor:
 
         results = self.yolo_model(image_np)
         detections = []
+        is_same_person = False
+        similarity = 0.0
+        embedding_count = 0
         for result in results:
             for box in result.boxes:
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
@@ -156,25 +116,31 @@ class ImageProcessor:
             face_roi = image_np[y1:y2, x1:x2]
             face_pil = Image.fromarray(face_roi)
 
-            temp_face_path = f"/tmp/{uuid.uuid4()}.png"
-            face_pil.save(temp_face_path)
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_face_file:
+                face_pil.save(temp_face_file.name)
+                temp_face_path = temp_face_file.name
 
             try:
                 info(f"Processing face at path: {temp_face_path}")
-                self.person_name = self.argface_model.identify_person(temp_face_path)
-                detection['person_name'] = self.person_name                
+                self.person_name = self.argface_model.identify_person(temp_face_path)            
             except Exception as e:
                 error_msg = str(e)
-                # Additional debug to check if the error is related to device mismatches
-                if "cuda:0" in error_msg and "to numpy" in error_msg:
-                    error_msg += " - Ensure tensors are transferred to the CPU before converting to NumPy."
-                    error("Debug: Model device: {}".format(self.argface_model.model.device))
-                    error("Debug: Tensor device in identify_person method was likely incorrect.")
-                detection['person_name'] = "Unknown"
+                error("Debug: Model device: {}".format(self.argface_model.model.device))
+                error("Debug: Tensor device in identify_person method was likely incorrect.")
+                self.person_name = "Unknown"
                 error(f"Error identifying person: {error_msg}")
 
+            if self.person_name != 'Unknown':
+                info('Validating person...')
+                validate_person = self.verify_images(temp_face_path)
+                is_same_person = validate_person['is_same_person']
+                similarity = validate_person['similarity']
+                embedding_count += 1
+                info(f"is_same_person: {is_same_person}")
+                info(f"similarity: {similarity}")
+
             os.remove(temp_face_path)
-            info(f"Person identified: {detection['person_name']}")
+            info(f"Person identified: {self.person_name}")
 
         info(f"Image processing complete with {len(detections)} detections")
 
@@ -182,54 +148,8 @@ class ImageProcessor:
             'status': 'success',
             'message': 'Image processed',
             'detections': detections,
-            'embeddings': len(detections)
+            'is_same_person': is_same_person,
+            'similarity': similarity,
+            'person_name': self.person_name,
+            'embeddings': embedding_count
         }
-
-
-    def retrieve_image(self, image):
-        info("Starting image retrieval")
-
-        result_dir = arcface_dataset
-        if not os.path.exists(result_dir):
-            os.makedirs(result_dir)
-            info(f"Directory {result_dir} created.")
-        else:
-            info(f"Directory {result_dir} already exists.")
-
-        label_dir = os.path.join(result_dir, self.person_name)
-        if not os.path.exists(label_dir):
-            os.makedirs(label_dir)
-            info(f"Directory {label_dir} created.")
-        else:
-            info(f"Directory {label_dir} already exists.")
-
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-
-        face_img = f"{self.person_name}_{uuid.uuid4()}.png"
-        face_save_path = os.path.join(label_dir, face_img)
-        image.save(face_save_path)
-        info(f"Saved processed face image to {face_save_path}")
-
-        return {
-            'status': 'success',
-            'message': 'Image downloaded'
-        }
-    
-    def plot_and_save_distances(self, save_path):
-        # Create directory if it does not exist
-        save_dir = os.path.dirname(save_path)
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-            info(f"Directory {save_dir} created.")
-        else:
-            info(f"Directory {save_dir} already exists.")
-        
-        plt.figure(figsize=(10, 5))
-        plt.plot(self.distances, marker='o', linestyle='-')
-        plt.title('Distances Between Image Embeddings')
-        plt.xlabel('Image Pair Index')
-        plt.ylabel('Distance')
-        plt.grid(True)
-        plt.savefig(save_path)
-        info(f"Plot saved to {save_path}")

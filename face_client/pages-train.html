@@ -63,7 +63,8 @@
 
 			<main class="content">
                 <div class="container-fluid p-0">
-                    <h1 class="h3 mb-3"><strong>Jenkins Pipeline Configuration</strong></h1>
+                    <h1 class="h3 mb-3"><strong>Pipeline Configuration</strong></h1>
+                    <div id="spinner" class="spinner" style="display: none;"></div>
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -180,8 +181,12 @@
     
         function runPipeline() {
             const form = document.getElementById('trainForm');
+            const spinner = document.getElementById('spinner')
             const formData = new FormData(form);
             const data = {};
+
+            spinner.style.display = 'block';
+
             formData.forEach((value, key) => {
                 if (key.endsWith('[]')) {
                     const baseKey = key.slice(0, -2);
@@ -208,7 +213,11 @@
                 }
                 return response.json();
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                // Hide the spinner when the function completes (success or error)
+                spinner.style.display = 'none';
+            });
         }
     </script>
 </body>

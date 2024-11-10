@@ -11,19 +11,17 @@ from sklearn.metrics import accuracy_score
 from scipy.spatial.distance import cosine
 from threading import Lock  # For thread-safe access to the cache
 from tqdm import tqdm
-import logging
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from logger import info, error
 
 class FaceNetModel:
-    def __init__(self, image_path='', batch_size=32, lr=0.001, num_epochs=20, num_classes=2, device='cuda', 
+    def __init__(self, image_path='', batch_size=32, lr=0.001, num_epochs=20, num_classes=2, 
                  save_path=None, model_file_path=None):
         self.image_path = image_path if image_path else ''
         self.batch_size = batch_size
         self.lr = lr
         self.num_epochs = num_epochs
         self.num_classes = num_classes
-        self.device = device
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.save_path = save_path if save_path else './checkpoints'
         self.model_file_path = model_file_path
         self.image_cache = {}
@@ -39,8 +37,7 @@ class FaceNetModel:
 
     def _initialize_model(self):
         """Initialize the model, optimizer, and criterion."""
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        logging.info(f"Using device: {self.device}")
+        info(f"Using device: {self.device}")
         self.model = InceptionResnetV1(pretrained='vggface2', classify=False).to(self.device)
         # Adding dropout layer after the final pooling layer
         self.model.dropout = nn.Dropout(p=0.5)
@@ -60,16 +57,16 @@ class FaceNetModel:
         """Load a pre-trained model if the model file exists."""
         checkpoint = torch.load(model_file_path)
         self.model.load_state_dict(checkpoint, strict=False)
-        logging.info(f"Model loaded from {model_file_path}")
+        info(f"Model loaded from {model_file_path}")
         
     def _save_model(self, save_path):
         """Save the model state to a file."""
         if save_path:
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save(self.model.state_dict(), save_path)
-            logging.info(f"Model saved to {save_path}")
+            info(f"Model saved to {save_path}")
 
-    def _transform(self):
+    def transform(self):
         """Return image transformation pipeline with augmentation."""
         return transforms.Compose([
             transforms.RandomHorizontalFlip(),
@@ -86,7 +83,7 @@ class FaceNetModel:
         valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 
         if not os.path.exists(self.image_path) or not os.path.isdir(self.image_path):
-            logging.error(f"Invalid directory: {self.image_path}")
+            error(f"Invalid directory: {self.image_path}")
             return image_paths, labels
 
         for label in os.listdir(self.image_path):
@@ -98,14 +95,14 @@ class FaceNetModel:
                         image_paths.append(image_path)
                         labels.append(label)
                     else:
-                        logging.info(f"Skipped non-image file: {image_path}")
+                        info(f"Skipped non-image file: {image_path}")
 
         # Create a consistent label map across the dataset
         if labels:
             self.label_map = {label: idx for idx, label in enumerate(sorted(set(labels)))}
-            logging.info(f"Label map created: {self.label_map}")
+            info(f"Label map created: {self.label_map}")
         else:
-            logging.warning("No labels found; check your dataset structure.")
+            info("No labels found; check your dataset structure.")
 
         return image_paths, labels
 
@@ -116,12 +113,12 @@ class FaceNetModel:
                 return self.image_cache[image_path]
         try:
             image = Image.open(image_path).convert("RGB")
-            transformed_image = self._transform()(image)
+            transformed_image = self.transform()(image)
             with self.cache_lock:
                 self.image_cache[image_path] = transformed_image
             return transformed_image
         except UnidentifiedImageError:
-            logging.info(f"Skipped non-image file: {image_path}")
+            info(f"Skipped non-image file: {image_path}")
             return None
 
     def _load_batch(self, batch_paths, batch_labels):
@@ -147,10 +144,10 @@ class FaceNetModel:
 
     def train(self):
         """Train the FaceNet model."""
-        logging.info("Starting training process")
+        info("Starting training process")
         image_paths, labels = self._load_images()
         if not image_paths:
-            logging.error("No valid images found for training.")
+            error("No valid images found for training.")
             return
 
         train_image_paths, train_labels, val_image_paths, val_labels = self._split_dataset(image_paths, labels)
@@ -158,19 +155,19 @@ class FaceNetModel:
         best_val_acc = 0.0  # Initialize best validation accuracy
 
         for epoch in range(self.num_epochs):
-            logging.info(f"Epoch {epoch+1}/{self.num_epochs}")
+            info(f"Epoch {epoch+1}/{self.num_epochs}")
             train_loss, train_acc = self._run_epoch(train_image_paths, train_labels)
             val_loss, val_acc = self._run_epoch(val_image_paths, val_labels, train=False)
-            logging.info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, "
+            info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, "
                  f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
         
             # Save best model based on validation accuracy
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
                 self._save_model(self.model_file_path)
-                logging.info(f"New best model saved with validation accuracy: {best_val_acc:.4f}")
+                info(f"New best model saved with validation accuracy: {best_val_acc:.4f}")
 
-        logging.info("Training completed")
+        info("Training completed")
 
     def _run_epoch(self, image_paths, labels, train=True):
         """Run a single epoch for training or validation."""
@@ -222,7 +219,7 @@ class FaceNetModel:
                 continue
 
             reference_image = self._preprocess_image(images[0]).unsqueeze(0).to(self.device)
-            reference_embedding = self.model(reference_image).cpu().numpy().flatten()
+            reference_embedding = self.model(reference_image).detach().cpu().numpy().flatten()
 
             for i in tqdm(range(1, len(images), batch_size), desc=f"Verifying {label_folder}"):
                 batch = images[i:i+batch_size]
@@ -230,7 +227,7 @@ class FaceNetModel:
                 batch_tensor = torch.cat(batch_images).to(self.device)
                 
                 with torch.no_grad():
-                    batch_embeddings = self.model(batch_tensor).cpu().numpy()
+                    batch_embeddings = self.model(batch_tensor).detach().cpu().numpy()
 
                 for _, embedding in enumerate(batch_embeddings):
                     distance = cosine(reference_embedding, embedding.flatten())
@@ -240,28 +237,19 @@ class FaceNetModel:
         
         return distances, labels
 
-def main():
-    file_location = os.path.abspath(__file__)  # Get current file abspath
-    root_directory = os.path.dirname(file_location)  # Get root dir
+    def get_embeddings(self, image_paths):
+        """Get embeddings for a list of image paths."""
+        self.model.eval()  # Set the model to evaluation mode
+        embeddings = []
 
-    build_dir = os.path.join(root_directory, '..', '../build')
-    data_path = os.path.join(build_dir, 'arcface_train_dataset')
-    save_path = os.path.join(build_dir, 'face_net_train')
-    model_file_path = os.path.join(save_path, 'facenet_model.pth')
+        with torch.no_grad():  # Disable gradient computation
+            for image_path in image_paths:
+                image = self._preprocess_image(image_path)
+                if image is not None:
+                    image_tensor = image.unsqueeze(0).to(self.device)
+                    embedding = self.model(image_tensor).cpu().numpy().flatten()
+                    embeddings.append(embedding)
+                else:
+                    info(f"Skipped invalid image: {image_path}")
 
-    logging.info(f"Build Dir: {build_dir}")
-    logging.info(f"Data Path: {data_path}")
-
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-    facenet_model = FaceNetModel(image_path=data_path, batch_size=32, lr=0.001, 
-                                 num_epochs=20, device=device, save_path=save_path, 
-                                 model_file_path=model_file_path)
-    facenet_model.train()
-    distances, labels = facenet_model.verify_images(threshold=0.05)
-    logging.info(f"Verification Results: {len(distances)} comparisons made.")
-    logging.info(f"Distances: {distances}")
-    logging.info(f"Labels: {labels}")
-
-if __name__ == "__main__":
-    main()
+        return np.array(embeddings)
