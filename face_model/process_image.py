@@ -1,5 +1,4 @@
 import os
-import uuid
 import tempfile
 import numpy as np
 import torch
@@ -8,7 +7,6 @@ from ultralytics import YOLO
 from argface_model.argface_classifier import ArcFaceClassifier
 from facenet_model.facenet_model import FaceNetModel
 from logger import info, error
-from sklearn.metrics.pairwise import cosine_similarity
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
