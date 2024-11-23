@@ -10,9 +10,6 @@
     privileged: false
     readOnlyRootFilesystem: false
     runAsNonRoot: false
-    capabilities:
-      drop:
-        - ALL
     {{- with (index $top.Values "seccompProfile" "face-model") }}
     seccompProfile:
     {{- toYaml . | nindent 6 }}
