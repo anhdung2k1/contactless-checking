@@ -22,11 +22,12 @@ test -n "$MAVEN_IMAGE" || export MAVEN_IMAGE="maven:latest"
 # Hyper parameters
 test -n "$TASK_TYPE" || export TASK_TYPE=detect #DEFAULT task=detect is one of [detect, segment, classify]
 test -n "$MODE_TYPE" || export MODE_TYPE=train #DEFAULT mode=train is one of [train, val, predict, export, track]
-test -n "$EPOCHS" || export EPOCHS=50 #DEFAULT EPOCHS=50
-test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolo11n.pt" #DEFAULT we get the pretrained model for training process
+test -n "$EPOCHS" || export EPOCHS=100 #DEFAULT EPOCHS=50
+test -n "$DEFAULT_MODEL" || export DEFAULT_MODEL="yolo11m.pt" #DEFAULT we get the pretrained model for training process
 test -n "$IMAGE_SIZE" || export IMAGE_SIZE=640
 test -n "$BATCH_SIZE" || export BATCH_SIZE=8
 test -n "$SAVE_PATH" || export SAVE_PATH=$MODEL_DIR
+test -n "$AMP" || export AMP=false
 
 prg=$(basename $0) # vas.sh filename
 dir=$(dirname $0); dir=$(cd $dir; pwd) #Get root dir
@@ -415,7 +416,8 @@ train_dataset() {
          imgsz=$IMAGE_SIZE \
          batch=$BATCH_SIZE \
          save=true \
-         project=$SAVE_PATH
+         project=$SAVE_PATH \
+         amp=$AMP
     popd
 }
 

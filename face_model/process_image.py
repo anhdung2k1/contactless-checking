@@ -1,6 +1,7 @@
 import os
 import tempfile
 import numpy as np
+import uuid
 import torch
 from PIL import Image
 from ultralytics import YOLO
@@ -26,7 +27,7 @@ class ImageProcessor:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.yolo_model = YOLO(yolo_model_path).to(self.device)
         self.distances = []
-        self.facenet_model = FaceNetModel(image_path=arcface_dataset, model_file_path=facenet_model_file_path, save_path=facenet_model_file_path)
+        self.facenet_model = FaceNetModel(image_path=arcface_dataset, model_file_path=facenet_model_file_path, save_path=facenet_model_dir)
 
     def verify_images(self, image_path):
         try:
@@ -151,3 +152,14 @@ class ImageProcessor:
             'person_name': self.person_name,
             'embeddings': embedding_count
         }
+    
+    def retrieve_image(self, image):
+        """Save the processed image to the local directory."""
+        info("Starting image retrieval")
+        label_dir = os.path.join(arcface_dataset, self.person_name)
+        os.makedirs(label_dir, exist_ok=True)
+        face_img = f"{self.person_name}_{uuid.uuid4()}.png"
+        face_save_path = os.path.join(label_dir, face_img)
+        image.convert('RGB').save(face_save_path)
+        info(f"Saved processed face image to {face_save_path}")
+        return {'status': 'success', 'message': 'Image downloaded'}

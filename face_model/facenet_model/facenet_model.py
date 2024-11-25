@@ -27,12 +27,6 @@ class FaceNetModel:
         self.image_cache = {}
         self.cache_lock = Lock()  # Lock for thread-safe access to image_cache
         self.label_map = {}  # Consistent label map across batches
-
-        if not self.save_path:
-            raise ValueError("The save_path cannot be None. Please provide a valid directory path.")
-        if not os.path.exists(self.save_path):
-            os.makedirs(self.save_path)
-
         self._initialize_model()
 
     def _initialize_model(self):
@@ -49,8 +43,9 @@ class FaceNetModel:
         ).to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
+        info(f"Using model InceptionResnetV1")
 
-        if self.model_file_path and os.path.exists(self.model_file_path):
+        if os.path.exists(self.model_file_path):
             self._load_model(self.model_file_path)
 
     def _load_model(self, model_file_path):
