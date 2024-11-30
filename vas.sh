@@ -543,6 +543,24 @@ test_repo() {
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"
     ;;
+    "mysql")
+	mysql_container=$(docker ps -a --format "{{.Names}}" | grep -i mysql_container)
+        if [[ ! -n "$mysql_container" ]]; then
+             # Start docker mysql container
+            docker run -d --name mysql_container \
+                -e MYSQL_ROOT_PASSWORD=root \
+                -e MYSQL_DATABASE=${COMMON_DB} \
+                -e MYSQL_USER=${COMMON_DB} \
+                -e MYSQL_PASSWORD=${COMMON_DB} \
+                -p 3306:3306 \
+                mysql:latest \
+            || die "[ERROR]: Failed to run mysql docker"
+        else
+            docker start mysql_container
+        fi
+       
+        mysql_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container)
+        echo $mysql_IP
     esac
 }
 

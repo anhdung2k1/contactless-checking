@@ -22,6 +22,7 @@ function renderCustomerTable(customers) {
                         <button class="btn btn-danger btn-sm" style="margin-bottom: 10px;" onclick="deleteCustomer(${index})">Delete</button>
                         <button class="btn btn-warning btn-sm" onclick="showUpdateCustomerModal(${index})">Update</button>
                     </div>
+                    <button class="btn btn-primary btn-sm" style="margin-left: 10px;" onclick="getCheckInTime(${index})">CheckInTime</button>
                     <button class="btn btn-primary btn-sm" style="margin-left: 20px;" onclick="openCamera(${index})">Camera</button>
                 </div>
             </td>
@@ -29,6 +30,25 @@ function renderCustomerTable(customers) {
 
         tbody.appendChild(row);
     });
+}
+
+function renderCustomerCheckInTimeModal(customer) {
+    const tbody = document.querySelector('#customerCheckInTable tbody');
+    tbody.innerHTML = '';
+    document.getElementById('customerModalLabel').innerText = 'Customer Check In Time'
+    customer.checkInTime.forEach(checkIn => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${customer.customerName}</td>
+            <td class="d-none d-xl-table-cell">${checkIn}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function showCustomerCheckInModal() {
+    $('#customerCheckInTimeModal').modal('show')
 }
 
 function showAddCustomerModal() {
@@ -50,6 +70,7 @@ function showUpdateCustomerModal(index) {
     $('#customerModal').modal('show');
 }
 
+// Delete Customer
 async function deleteCustomer(index) {
     const customer = customers[index];
     try {
@@ -70,6 +91,32 @@ async function deleteCustomer(index) {
     } catch (error) {
         console.error('Delete Customer failed: ', error);
         alert('Failed to delete customer: ' + error.message);
+    }
+}
+
+// Show Check In time of Customer
+async function getCheckInTime(index) {
+    const customer = customers[index]
+    try {
+        const response = await fetch(`${HOST_IP}/api/customers/getCheckIn/${customer.customerID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${TOKEN}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to get checkInTime of customer');
+        }
+        
+        const data = await response.json();
+        console.log(data);
+        showCustomerCheckInModal();
+        renderCustomerCheckInTimeModal(data);
+
+    } catch (error) {
+        console.error('Failed to fetch checkInTime ', error);
     }
 }
 

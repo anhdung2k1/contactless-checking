@@ -16,6 +16,8 @@ public class Customers {
     private String customerAddress;
     private String customerGender;
     private String customerBirthDay;
+    private String checkInTime;
+    private String checkOutTime;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private String photoUrl;
