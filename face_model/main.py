@@ -108,8 +108,8 @@ def train_images():
     #Import FaceNet Model
     save_path = os.path.join(build_dir, 'face_net_train')
     model_file_path = os.path.join(save_path, 'facenet_model.pth')
-    faceNetModel = FaceNetModel(image_path=arcface_dataset, batch_size=64, lr=0.001,
-                                num_epochs=20, save_path=save_path,
+    faceNetModel = FaceNetModel(image_path=arcface_dataset, batch_size=64, lr=learning_rate,
+                                num_epochs=num_epochs, save_path=save_path,
                                 model_file_path=model_file_path)
     faceNetModel.train()
     return jsonify({'status': 'success', 'message': 'Model trained success'}), 200

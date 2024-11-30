@@ -22,6 +22,8 @@ public class CustomerEntity {
         this.customerGender = "";
         this.customerBirthDay = new Date();
         this.customerEmail = "";
+        this.checkInTime = new Date();
+        this.checkOutTime = new Date();
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
     }
@@ -57,6 +59,14 @@ public class CustomerEntity {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<PhotoEntity> photos = new HashSet<>();
+
+    @Column(name = "CHECK_IN_TIME")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date checkInTime;
+
+    @Column(name = "CHECK_OUT_TIME")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date checkOutTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "CREATE_AT")

@@ -100,3 +100,6 @@ test-face-model:
 test-face-client:
 	@echo "test-face-client"
 	./vas.sh test_repo --name=face_client
+test-mysql:
+	@echo "test-mysql"
+	./vas.sh test_repo --name=mysql

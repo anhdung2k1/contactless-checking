@@ -35,6 +35,25 @@ public class CustomerController {
     public ResponseEntity<Long> getAllRecords() throws Exception {
         return ResponseEntity.ok(customerService.countCustomers());
     }
+
+    // Get Customer Check In Time
+    @GetMapping(value = "/customers/getCheckIn/{customerId}")
+    public ResponseEntity<Map<String, Object>> getCheckIn(@PathVariable("customerId") Long customerId) throws Exception {
+        return ResponseEntity.ok(new HashMap<>() {{
+            put("customerName", customerService.getCustomerByCustomerId(customerId).get("customerName"));
+            put("checkInTime", customerService.getCustomerCheckInTime(customerId));
+        }});
+    }
+
+    // Get Customer Check Out Time
+    @GetMapping(value = "/customers/getCheckOut/{customerId}")
+    public ResponseEntity<Map<String, Object>> getCheckOut(@PathVariable("customerId") Long customerId) throws Exception {
+        return ResponseEntity.ok(new HashMap<>() {{
+            put("customerName", customerService.getCustomerByCustomerId(customerId).get("customerName"));
+            put("checkOutTime", customerService.getCustomerCheckOutTime(customerId));
+        }});
+    }
+
     // Update Customer Information
     @PatchMapping(value = "/customers/{customerId}")
     public ResponseEntity<Customers> updateCustomerInformation(@PathVariable("customerId") Long customerId, @RequestBody Customers customers) throws Exception {

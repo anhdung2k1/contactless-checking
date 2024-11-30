@@ -12,7 +12,9 @@ import com.example.authentication.repository.NotificationRepository;
 import com.example.authentication.repository.PhotoRepository;
 import com.example.authentication.service.interfaces.CustomerService;
 import jakarta.transaction.Transactional;
+import jdk.jshell.execution.Util;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +23,12 @@ import org.springframework.stereotype.Service;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackOn = Exception.class)
 @RequiredArgsConstructor
+@Slf4j
 public class CustomerServiceImpl implements CustomerService {
     private final S3Utils s3Utils;
 
@@ -46,6 +50,8 @@ public class CustomerServiceImpl implements CustomerService {
             put("customerAddress", customerEntity.getCustomerAddress());
             put("customerBirthDay", Utils.dateToString(customerEntity.getCustomerBirthDay()));
             put("customerEmail", customerEntity.getCustomerEmail());
+            put("checkInTime", customerEntity.getCheckInTime());
+            put("checkOutTime", customerEntity.getCheckOutTime());
         }};
     }
     @Override
@@ -53,13 +59,16 @@ public class CustomerServiceImpl implements CustomerService {
         try {
             CustomerEntity customerEntity = new CustomerEntity();
             BeanUtils.copyProperties(customers, customerEntity);
+            log.info("Set customerBirthDat: {}", Utils.stringToDate(customers.getCustomerBirthDay()));
             customerEntity.setCustomerBirthDay(Utils.stringToDate(customers.getCustomerBirthDay()));
             customerRepository.save(customerEntity);
-
+            log.info("Save customer: {}", customerEntity);
             // Create Notification
             String notificationMessage = String.format("New Customer %s created successfully", customers.getCustomerName());
+            log.info("Notification message: {}", notificationMessage);
             NotificationEntity notificationEntity = new NotificationEntity(notificationMessage);
             notificationRepository.save(notificationEntity);
+            log.info("Save notification: {}", notificationEntity);
             return true;
         } catch (Exception e) {
             throw new Exception("Could not create new Customer" + e.getMessage());
@@ -99,6 +108,40 @@ public class CustomerServiceImpl implements CustomerService {
             return customerRepository.countCustomers();
         } catch (NoSuchElementException e) {
             throw new Exception("Could not count customer: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<String> getCustomerCheckInTime(Long customerId) throws Exception {
+        try {
+            List<Date> checkInTime = customerRepository.retrieveCustomerCheckInTimeWithId(customerId).isPresent() ?
+                    customerRepository.retrieveCustomerCheckInTimeWithId(customerId).get() : null;
+            assert checkInTime != null;
+            log.info("Check In Time: {}", checkInTime);
+            List<String> checkInTimeStr = checkInTime.stream().map(
+                    Utils::dateToString
+            ).collect(Collectors.toList());
+            log.info("Check In Time Str: {}", checkInTimeStr);
+            return checkInTimeStr;
+        } catch (Exception e) {
+            throw new Exception("Could not get the customer check in time !! Seems error during fetch data");
+        }
+    }
+
+    @Override
+    public List<String> getCustomerCheckOutTime(Long customerId) throws Exception {
+        try {
+            List<Date> checkOutTime = customerRepository.retrieveCustomerCheckOutTimeWithId(customerId).isPresent() ?
+                    customerRepository.retrieveCustomerCheckOutTimeWithId(customerId).get() : null;
+            assert checkOutTime != null;
+            log.info("Check Out Time: {}", checkOutTime);
+            List<String> checkOutTimeStr = checkOutTime.stream().map(
+                    Utils::dateToString
+            ).collect(Collectors.toList());
+            log.info("Check Out Time Str: {}", checkOutTimeStr);
+            return checkOutTimeStr;
+        } catch (Exception e) {
+            throw new Exception("Could not get the customer check in time !! Seems error during fetch data");
         }
     }
 
