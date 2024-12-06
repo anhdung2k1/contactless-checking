@@ -21,4 +21,8 @@ public class Customers {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private String photoUrl;
+    private int planWeight;
+    private int currWeight;
+    private String planBodyType;
+    private String currBodyType;
 }
