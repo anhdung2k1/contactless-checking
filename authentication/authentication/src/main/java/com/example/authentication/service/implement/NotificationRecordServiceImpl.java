@@ -8,6 +8,8 @@ import com.example.authentication.repository.RecordRepository;
 import com.example.authentication.service.interfaces.NotificationRecordService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.NoSuchElementException;
 @Service
 @Transactional(rollbackOn = Exception.class)
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationRecordServiceImpl implements NotificationRecordService {
     private final NotificationRepository notificationRepository;
     private final RecordRepository recordRepository;
@@ -42,8 +45,9 @@ public class NotificationRecordServiceImpl implements NotificationRecordService 
     @Override
     public List<RecordEntity> getAllRecords(String dateStr) throws Exception {
         try {
-            return recordRepository.findAllRecordsByDateStr(dateStr).isPresent() ?
-                    recordRepository.findAllRecordsByDateStr(dateStr).get() : null;
+            return recordRepository.findAllRecordsByDateStr(dateStr).isPresent()
+                    ? recordRepository.findAllRecordsByDateStr(dateStr).get()
+                    : null;
         } catch (Exception e) {
             throw new Exception("Error retrieving records: " + e.getMessage(), e);
         }
@@ -91,9 +95,11 @@ public class NotificationRecordServiceImpl implements NotificationRecordService 
     @Override
     public Boolean deleteAllRecordsByDate(String dateStr) throws Exception {
         try {
-            List<RecordEntity> recordEntities = recordRepository.findAllRecordsByDateStr(dateStr).isPresent() ?
-                    recordRepository.findAllRecordsByDateStr(dateStr).get() : null;
+            List<RecordEntity> recordEntities = recordRepository.findAllRecordsByDateStr(dateStr).isPresent()
+                    ? recordRepository.findAllRecordsByDateStr(dateStr).get()
+                    : null;
             assert recordEntities != null;
+            log.info("dateStr");
             recordRepository.deleteAll(recordEntities);
             return true;
         } catch (Exception e) {

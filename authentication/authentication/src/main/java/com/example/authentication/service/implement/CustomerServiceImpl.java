@@ -6,7 +6,9 @@ import com.example.authentication.aspect.Utils;
 import com.example.authentication.entity.CustomerEntity;
 import com.example.authentication.entity.NotificationEntity;
 import com.example.authentication.entity.PhotoEntity;
+import com.example.authentication.entity.TaskEntity;
 import com.example.authentication.model.Customers;
+import com.example.authentication.model.Task;
 import com.example.authentication.repository.CustomerRepository;
 import com.example.authentication.repository.NotificationRepository;
 import com.example.authentication.repository.PhotoRepository;
@@ -21,7 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,17 +47,20 @@ public class CustomerServiceImpl implements CustomerService {
     private static String filePath = "arcface_train_dataset/%s/";
 
     private Map<String, Object> customerMap(CustomerEntity customerEntity) {
-        return new HashMap<>() {{
-            put("customerID", customerEntity.getCustomerID());
-            put("customerName", customerEntity.getCustomerName());
-            put("customerGender", customerEntity.getCustomerGender());
-            put("customerAddress", customerEntity.getCustomerAddress());
-            put("customerBirthDay", Utils.dateToString(customerEntity.getCustomerBirthDay()));
-            put("customerEmail", customerEntity.getCustomerEmail());
-            put("checkInTime", customerEntity.getCheckInTime());
-            put("checkOutTime", customerEntity.getCheckOutTime());
-        }};
+        return new HashMap<>() {
+            {
+                put("customerID", customerEntity.getCustomerID());
+                put("customerName", customerEntity.getCustomerName());
+                put("customerGender", customerEntity.getCustomerGender());
+                put("customerAddress", customerEntity.getCustomerAddress());
+                put("customerBirthDay", Utils.dateToString(customerEntity.getCustomerBirthDay()));
+                put("customerEmail", customerEntity.getCustomerEmail());
+                put("checkInTime", customerEntity.getCheckInTime());
+                put("checkOutTime", customerEntity.getCheckOutTime());
+            }
+        };
     }
+
     @Override
     public Boolean createCustomer(Customers customers) throws Exception {
         try {
@@ -64,7 +71,8 @@ public class CustomerServiceImpl implements CustomerService {
             customerRepository.save(customerEntity);
             log.info("Save customer: {}", customerEntity);
             // Create Notification
-            String notificationMessage = String.format("New Customer %s created successfully", customers.getCustomerName());
+            String notificationMessage = String.format("New Customer %s created successfully",
+                    customers.getCustomerName());
             log.info("Notification message: {}", notificationMessage);
             NotificationEntity notificationEntity = new NotificationEntity(notificationMessage);
             notificationRepository.save(notificationEntity);
@@ -79,14 +87,16 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Map<String, Object>> getAllCustomersWithName(String customerName) throws Exception {
         try {
             List<Map<String, Object>> customersMapList = new ArrayList<>();
-            List<CustomerEntity> customerEntities = customerRepository.findAllCustomersByCustomerName(customerName).isPresent()
-                    ? customerRepository.findAllCustomersByCustomerName(customerName).get() : null;
+            List<CustomerEntity> customerEntities = customerRepository.findAllCustomersByCustomerName(customerName)
+                    .isPresent()
+                            ? customerRepository.findAllCustomersByCustomerName(customerName).get()
+                            : null;
             assert customerEntities != null;
-            customerEntities.forEach((customerEntity
-                    -> customersMapList.add(customerMap(customerEntity))));
+            customerEntities.forEach((customerEntity -> customersMapList.add(customerMap(customerEntity))));
             return customersMapList;
         } catch (NoSuchElementException e) {
-            throw new Exception("Could not retrieve all customers with customer Name: " + customerName + e.getMessage());
+            throw new Exception(
+                    "Could not retrieve all customers with customer Name: " + customerName + e.getMessage());
         }
     }
 
@@ -94,7 +104,8 @@ public class CustomerServiceImpl implements CustomerService {
     public Map<String, Object> getCustomerByCustomerId(Long customerId) throws Exception {
         try {
             CustomerEntity customerEntity = customerRepository.findById(customerId).isPresent()
-                    ? customerRepository.findById(customerId).get() : null;
+                    ? customerRepository.findById(customerId).get()
+                    : null;
             assert customerEntity != null;
             return customerMap(customerEntity);
         } catch (NoSuchElementException e) {
@@ -114,13 +125,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<String> getCustomerCheckInTime(Long customerId) throws Exception {
         try {
-            List<Date> checkInTime = customerRepository.retrieveCustomerCheckInTimeWithId(customerId).isPresent() ?
-                    customerRepository.retrieveCustomerCheckInTimeWithId(customerId).get() : null;
+            List<Date> checkInTime = customerRepository.retrieveCustomerCheckInTimeWithId(customerId).isPresent()
+                    ? customerRepository.retrieveCustomerCheckInTimeWithId(customerId).get()
+                    : null;
             assert checkInTime != null;
             log.info("Check In Time: {}", checkInTime);
             List<String> checkInTimeStr = checkInTime.stream().map(
-                    Utils::dateToString
-            ).collect(Collectors.toList());
+                    Utils::dateToString).collect(Collectors.toList());
             log.info("Check In Time Str: {}", checkInTimeStr);
             return checkInTimeStr;
         } catch (Exception e) {
@@ -131,13 +142,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<String> getCustomerCheckOutTime(Long customerId) throws Exception {
         try {
-            List<Date> checkOutTime = customerRepository.retrieveCustomerCheckOutTimeWithId(customerId).isPresent() ?
-                    customerRepository.retrieveCustomerCheckOutTimeWithId(customerId).get() : null;
+            List<Date> checkOutTime = customerRepository.retrieveCustomerCheckOutTimeWithId(customerId).isPresent()
+                    ? customerRepository.retrieveCustomerCheckOutTimeWithId(customerId).get()
+                    : null;
             assert checkOutTime != null;
             log.info("Check Out Time: {}", checkOutTime);
             List<String> checkOutTimeStr = checkOutTime.stream().map(
-                    Utils::dateToString
-            ).collect(Collectors.toList());
+                    Utils::dateToString).collect(Collectors.toList());
             log.info("Check Out Time Str: {}", checkOutTimeStr);
             return checkOutTimeStr;
         } catch (Exception e) {
@@ -149,7 +160,8 @@ public class CustomerServiceImpl implements CustomerService {
     public Customers updateCustomerInformation(Long customerId, Customers customers) throws Exception {
         try {
             CustomerEntity customerEntity = customerRepository.findById(customerId).isPresent()
-                    ? customerRepository.findById(customerId).get() : null;
+                    ? customerRepository.findById(customerId).get()
+                    : null;
             assert customerEntity != null;
 
             if (customers.getCustomerName() != null) {
@@ -190,11 +202,10 @@ public class CustomerServiceImpl implements CustomerService {
         }
     }
 
-
     @Override
     public Boolean deleteCustomer(Long customerId) throws Exception {
         try {
-            if(customerRepository.findById(customerId).isPresent()) {
+            if (customerRepository.findById(customerId).isPresent()) {
                 customerRepository.delete(customerRepository.findById(customerId).get());
                 return true;
             }
@@ -203,4 +214,30 @@ public class CustomerServiceImpl implements CustomerService {
             throw new Exception("Could not found customer with customerId: " + customerId + e.getMessage());
         }
     }
+
+    @Override
+    public List<Customers> getAllCustomers() {
+        List<CustomerEntity> customerEntities = customerRepository.findAll();
+        return customerEntities.stream()
+                .map(entity -> new Customers(
+                        entity.getCustomerID(),
+                        entity.getCustomerName(),
+                        entity.getCustomerEmail(),
+                        entity.getCustomerAddress(),
+                        entity.getCustomerGender(),
+                        new SimpleDateFormat("yyyy-MM-dd").format(entity.getCustomerBirthDay()),
+                        new SimpleDateFormat("yyyy-MM-dd").format(entity.getCheckInTime()),
+                        new SimpleDateFormat("yyyy-MM-dd").format(entity.getCheckOutTime()),
+                        entity.getCreateAt(),
+                        entity.getUpdateAt(),
+                        entity.getPhotos() != null && !entity.getPhotos().isEmpty()
+                                ? entity.getPhotos().iterator().next().getPhotoUrl() // Lấy URL của ảnh đầu tiên
+                                : null,
+                        entity.getPlanWeight(),
+                        entity.getCurrWeight(),
+                        entity.getPlanBodyType(),
+                        entity.getCurrBodyType()))
+                .collect(Collectors.toList());
+    }
+
 }

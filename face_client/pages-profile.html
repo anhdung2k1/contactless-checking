@@ -7,7 +7,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="description" content="Responsive Admin & Dashboard Bootstrap 5">
 	<meta name="author" content="Dung Anh Tran">
-	<meta name="keywords" content="contactless-checking, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+	<meta name="keywords"
+		content="contactless-checking, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
 	<link rel="preconnect" href="//fonts.gstatic.com">
 	<link rel="shortcut icon" href="img/icons/icon-48x48.png" />
@@ -16,7 +17,7 @@
 	<script src="js/actions/tokenValidation.js"></script>
 	<script src="js/actions/logout.js"></script>
 	<script>
-		document.addEventListener("DOMContentLoaded", function() {
+		document.addEventListener("DOMContentLoaded", function () {
 			// Check if token is valid
 			console.log("Check Token Valid: ", isTokenValid())
 			if (!isTokenValid()) {
@@ -45,7 +46,8 @@
 
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="index.html">
-							<i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
+							<i class="align-middle" data-feather="sliders"></i> <span
+								class="align-middle">Dashboard</span>
 						</a>
 					</li>
 
@@ -62,12 +64,21 @@
 					</li>
 
 					<li class="sidebar-item">
-                        <a class="sidebar-link" href="pages-customer.html">
-                            <i class="align-middle" data-feather="user"></i>
+						<a class="sidebar-link" href="pages-customer.html">
+							<i class="align-middle" data-feather="user"></i>
 							<span class="align-middle">Customer</span>
-                        </a>
-                    </li>
-					<li class="sidebar-item"><a class="sidebar-link" href="pages-train.html"><i class="align-middle" data-feather="box"></i> <span class="align-middle">Train</span></a></li>
+						</a>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="pages-task.html">
+							<i class="align-middle" data-feather="user"></i>
+							<span class="align-middle">Task</span>
+						</a>
+					</li>
+
+					<li class="sidebar-item"><a class="sidebar-link" href="pages-train.html"><i class="align-middle"
+								data-feather="box"></i> <span class="align-middle">Train</span></a></li>
 				</ul>
 			</div>
 		</nav>
@@ -87,7 +98,8 @@
 									<span class="indicator">4</span>
 								</div>
 							</a>
-							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="alertsDropdown">
+							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0"
+								aria-labelledby="alertsDropdown">
 								<div class="dropdown-menu-header">
 									<span id="notification-count">0</span> New Notifications
 								</div>
@@ -100,22 +112,29 @@
 							</div>
 
 						</li>
-						
+
 						<li class="nav-item dropdown">
-							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
+							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#"
+								data-bs-toggle="dropdown">
 								<i class="align-middle" data-feather="settings"></i>
 							</a>
 
-							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-								<img class="avatar img-fluid rounded me-1" alt="User Avatar" id="navbarProfilePicture" />
-                                <span class="text-dark" id="navbarUserName">User Name</span>
+							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#"
+								data-bs-toggle="dropdown">
+								<img class="avatar img-fluid rounded me-1" alt="User Avatar"
+									id="navbarProfilePicture" />
+								<span class="text-dark" id="navbarUserName">User Name</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
-								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+								<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1"
+										data-feather="user"></i> Profile</a>
+								<a class="dropdown-item" href="index.html"><i class="align-middle me-1"
+										data-feather="pie-chart"></i> Analytics</a>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+								<a class="dropdown-item" href="index.html"><i class="align-middle me-1"
+										data-feather="settings"></i> Settings & Privacy</a>
+								<a class="dropdown-item" href="index.html"><i class="align-middle me-1"
+										data-feather="help-circle"></i> Help Center</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" id="logout-link" href="#">Log out</a>
 							</div>
@@ -133,8 +152,10 @@
 									<h5 class="card-title mb-0">Profile Details</h5>
 								</div>
 								<div class="card-body text-center">
-									<img src="" alt="Profile Picture" class="img-fluid rounded-circle mb-2" width="128" height="128" id="profilePicture" style="cursor: pointer;" onclick="document.getElementById('profilePictureInput').click();" />
-                                    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+									<img src="" alt="Profile Picture" class="img-fluid rounded-circle mb-2" width="128"
+										height="128" id="profilePicture" style="cursor: pointer;"
+										onclick="document.getElementById('profilePictureInput').click();" />
+									<input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
 									<h5 class="card-title mb-0" id="userName">Loading...</h5>
 								</div>
 								<!-- Additional profile details -->
@@ -150,7 +171,8 @@
 									<form id="editProfileForm">
 										<div class="mb-3">
 											<label for="userNameInput" class="form-label">Username</label>
-											<input type="text" class="form-control" id="userNameInput" value="" disabled>
+											<input type="text" class="form-control" id="userNameInput" value=""
+												disabled>
 										</div>
 										<div class="mb-3">
 											<label for="birthDayInput" class="form-label">Birthday</label>
@@ -182,22 +204,29 @@
 					<div class="row text-muted">
 						<div class="col-6 text-start">
 							<p class="mb-0">
-								<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank"><strong>Contactless Checking</strong></a> - <a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank"><strong>Dung Anh Tran</strong></a>								&copy;
+								<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking"
+									target="_blank"><strong>Contactless Checking</strong></a> - <a class="text-muted"
+									href="//github.com/anhdung2k1/contactless-checking" target="_blank"><strong>Dung Anh
+										Tran</strong></a> &copy;
 							</p>
 						</div>
 						<div class="col-6 text-end">
 							<ul class="list-inline">
 								<li class="list-inline-item">
-									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Support</a>
+									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking"
+										target="_blank">Support</a>
 								</li>
 								<li class="list-inline-item">
-									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Help Center</a>
+									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking"
+										target="_blank">Help Center</a>
 								</li>
 								<li class="list-inline-item">
-									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Privacy</a>
+									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking"
+										target="_blank">Privacy</a>
 								</li>
 								<li class="list-inline-item">
-									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking" target="_blank">Terms</a>
+									<a class="text-muted" href="//github.com/anhdung2k1/contactless-checking"
+										target="_blank">Terms</a>
 								</li>
 							</ul>
 						</div>
