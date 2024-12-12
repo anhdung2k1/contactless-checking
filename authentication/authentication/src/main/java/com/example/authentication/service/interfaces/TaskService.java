@@ -11,7 +11,7 @@ public interface TaskService {
 
     Long countTasks() throws Exception;
 
-    List<Map<String, Object>> getAllTasksWithStatus(String taskStatus) throws Exception;
+    List<Map<String, Object>> getAllTasksWithTaskName(String taskStatus) throws Exception;
 
     Map<String, Object> getTaskByTaskId(Long taskId) throws Exception;
 
@@ -20,4 +20,6 @@ public interface TaskService {
     Boolean deleteTask(Long taskId) throws Exception;
 
     List<Task> getAllTasks();
+
+    List<TaskEntity> getTasksByCustomerName(String customerName);
 }

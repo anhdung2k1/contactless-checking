@@ -75,6 +75,9 @@ public class CustomerEntity {
     @JsonManagedReference
     private Set<PhotoEntity> photos = new HashSet<>();
 
+    @OneToMany(mappedBy = "customer")
+    private Set<TaskEntity> tasks = new HashSet<>();
+
     @Column(name = "CHECK_IN_TIME")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date checkInTime;

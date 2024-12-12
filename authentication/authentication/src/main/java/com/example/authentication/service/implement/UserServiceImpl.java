@@ -22,7 +22,7 @@ import java.util.*;
 @Transactional(rollbackOn = Exception.class)
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final S3Utils s3Utils;
 
@@ -35,19 +35,21 @@ public class UserServiceImpl implements UserService{
     private static final String filePath = "checking_images/";
 
     private Map<String, Object> userMap(UserEntity userEntity) {
-        return new HashMap<>() {{
-            put("id", userEntity.getUser_id());
-            put("userName", userEntity.getUserName());
-            put("address", userEntity.getAddress());
-            put("birthDay", userEntity.getBirthDay());
-            put("gender", userEntity.getGender());
-            put("imageUrl", userEntity.getImageUrl());
-        }};
+        return new HashMap<>() {
+            {
+                put("id", userEntity.getUser_id());
+                put("userName", userEntity.getUserName());
+                put("address", userEntity.getAddress());
+                put("birthDay", userEntity.getBirthDay());
+                put("gender", userEntity.getGender());
+                put("imageUrl", userEntity.getImageUrl());
+            }
+        };
     }
 
     @Override
-    public Users createUsers(Users user) throws Exception{
-        try{
+    public Users createUsers(Users user) throws Exception {
+        try {
             UserEntity userEntity = new UserEntity();
             user.setCreateAt(LocalDateTime.now());
             user.setUpdateAt(LocalDateTime.now());
@@ -58,21 +60,21 @@ public class UserServiceImpl implements UserService{
             }
             BeanUtils.copyProperties(user, userEntity);
             userRepository.save(userEntity);
+            log.info("Save User: {}", userEntity);
             return user;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
     @Override
     public boolean deleteUser(Long id) throws Exception {
-        try{
-            if(userRepository.findById(id).isPresent()) {
+        try {
+            if (userRepository.findById(id).isPresent()) {
                 String fileURI = userRepository.findById(id).get().getImageUrl();
-                String [] fileURISplitted = fileURI.split("/");
+                String[] fileURISplitted = fileURI.split("/");
                 log.info("fileURISplitted: {}", (Object) fileURISplitted);
-                String fileName = fileURISplitted[fileURISplitted.length-1];
+                String fileName = fileURISplitted[fileURISplitted.length - 1];
                 log.info("FileName: {}", fileName);
                 s3Client.deleteObject(bucketName, fileName);
                 log.info("FileName: {} removed", fileName);
@@ -81,7 +83,7 @@ public class UserServiceImpl implements UserService{
                 return true;
             }
             return false;
-        }catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new Exception("User is not found :" + id.toString());
         }
     }
@@ -101,8 +103,7 @@ public class UserServiceImpl implements UserService{
             // Assign all the properties USER Properties to users
             assert userEntity != null;
             return userMap(userEntity);
-        }
-        catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new Exception("User is not found :" + id.toString());
         }
     }
@@ -122,13 +123,14 @@ public class UserServiceImpl implements UserService{
     @Override
     public Map<String, Long> getUserIdByUserName(String userName) throws Exception {
         try {
-            UserEntity userEntity = userRepository.findByUserName(userName).isPresent() ? userRepository.findByUserName(userName).get() : null;
+            UserEntity userEntity = userRepository.findByUserName(userName).isPresent()
+                    ? userRepository.findByUserName(userName).get()
+                    : null;
             Map<String, Long> output = new Hashtable<>();
             assert userEntity != null;
             output.put("id", userEntity.getUser_id());
             return output;
-        }
-        catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new Exception("User is not found :" + userName);
         }
 
@@ -136,7 +138,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Users updateUser(Long id, Users user) throws Exception {
-        try{
+        try {
             UserEntity userEntity = userRepository.findById(id).isPresent() ? userRepository.findById(id).get() : null;
             assert userEntity != null;
             userEntity.setAddress(user.getAddress());
@@ -150,8 +152,7 @@ public class UserServiceImpl implements UserService{
             userRepository.save(userEntity);
             BeanUtils.copyProperties(userEntity, user);
             return user;
-        }
-        catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new Exception("User is not found :" + id.toString());
         }
     }

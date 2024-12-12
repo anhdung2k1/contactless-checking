@@ -29,23 +29,25 @@ import com.example.authentication.service.interfaces.AccountService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Transactional(rollbackOn = Exception.class)
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService{
+@Slf4j
+public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountBuilderRepository accountBuilderRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
+
     @Override
     public AuthenticationResponse authenticate(Accounts accounts) throws AccountNotFoundException {
-        try{
+        try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(accounts.getUserName(), accounts.getPassword())
-            );
+                    new UsernamePasswordAuthenticationToken(accounts.getUserName(), accounts.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             AccountBuilder account = accountBuilderRepository.findByUserName(accounts.getUserName()).orElseThrow();
             var jwtToken = jwtService.generateToken(account);
@@ -56,71 +58,76 @@ public class AccountServiceImpl implements AccountService{
                     .expireDate(expireDate)
                     .userName(accounts.getUserName())
                     .build();
-        }
-        catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new AccountNotFoundException(String.format("Account is existed"));
         }
     }
 
     @Override
     public AuthenticationResponse createAccount(Accounts accounts) throws Exception {
-       try{
-        AccountEntity accountEntity = new AccountEntity();
-        if(accountRepository.findByUserName(accounts.getUserName()).isPresent()){
-            throw new Exception("User exists");
-        }
-        String encodedPassword = passwordEncoder.encode(accounts.getPassword());
-        accounts.setPassword(encodedPassword);
-        accounts.setCreateAt(LocalDateTime.now());
-        accounts.setUpdateAt(LocalDateTime.now());
-        //Create new User when adding new account into database
-        UserEntity users = new UserEntity(accounts.getUserName());
-        users.setAddress("UNKNOWN");
-        users.setGender("UNKNOWN");
-        userRepository.save(users);
-        accounts.setUsers(users);
-        BeanUtils.copyProperties(accounts, accountEntity);
-        accountRepository.save(accountEntity);
-        var user = AccountBuilder.builder()
+        try {
+            AccountEntity accountEntity = new AccountEntity();
+            if (accountRepository.findByUserName(accounts.getUserName()).isPresent()) {
+                throw new Exception("User exists");
+            }
+            String encodedPassword = passwordEncoder.encode(accounts.getPassword());
+            accounts.setPassword(encodedPassword);
+            accounts.setCreateAt(LocalDateTime.now());
+            accounts.setUpdateAt(LocalDateTime.now());
+            // Create new User when adding new account into database
+            UserEntity users = new UserEntity(accounts.getUserName());
+            users.setAddress("UNKNOWN");
+            users.setGender("UNKNOWN");
+            userRepository.save(users);
+            log.info("Save User: {}", users);
+            accounts.setUsers(users);
+            BeanUtils.copyProperties(accounts, accountEntity);
+            accountRepository.save(accountEntity);
+            log.info("Save Account: {}", accountEntity);
+            var user = AccountBuilder.builder()
                     .userName(accounts.getUserName())
                     .password(encodedPassword)
                     .createAt(accounts.getCreateAt())
                     .updateAt(accounts.getUpdateAt())
                     .build();
-        var jwtToken = jwtService.generateToken(user);
-        var expireDate = jwtService.extractExpiration(jwtToken);
+            var jwtToken = jwtService.generateToken(user);
+            var expireDate = jwtService.extractExpiration(jwtToken);
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .expireDate(expireDate)
-                .userName(accounts.getUserName())
-                .build();
-       }catch(Exception e){
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .expireDate(expireDate)
+                    .userName(accounts.getUserName())
+                    .build();
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
-       }
+        }
     }
 
     @Override
     public boolean deleteAccount(Long id) throws AccountNotFoundException {
-        try{
-            AccountEntity accountEntity = accountRepository.findById(id).isPresent() ? accountRepository.findById(id).get() : null;
+        try {
+            AccountEntity accountEntity = accountRepository.findById(id).isPresent()
+                    ? accountRepository.findById(id).get()
+                    : null;
             assert accountEntity != null;
             accountRepository.delete(accountEntity);
             return true;
-        }catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new AccountNotFoundException(String.format("Could not find any account within id: %s", id));
         }
     }
 
     @Override
     public Accounts getAccountsById(Long id) throws AccountNotFoundException {
-        try{
-            AccountEntity accountsEntity = accountRepository.findById(id).isPresent() ? accountRepository.findById(id).get() : null;
+        try {
+            AccountEntity accountsEntity = accountRepository.findById(id).isPresent()
+                    ? accountRepository.findById(id).get()
+                    : null;
             Accounts account = new Accounts();
             assert accountsEntity != null;
             BeanUtils.copyProperties(accountsEntity, account);
             return account;
-        }catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new AccountNotFoundException(String.format("Could not find any account within id: %s", id));
         }
     }
@@ -128,8 +135,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public List<Accounts> getAllAccounts() {
         List<AccountEntity> accountsEntities = accountRepository.findAll();
-        return accountsEntities.
-                stream()
+        return accountsEntities.stream()
                 .map(acc -> new Accounts(
                         acc.getAcc_id(),
                         acc.getUserName(),
@@ -137,42 +143,43 @@ public class AccountServiceImpl implements AccountService{
                         acc.getPhone_number(),
                         acc.getUsers(),
                         acc.getCreateAt(),
-                        acc.getUpdateAt()
-                )).collect(Collectors.toList());
+                        acc.getUpdateAt()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Long getAccIdByUserName (String userName) throws UserNotFoundException {
+    public Long getAccIdByUserName(String userName) throws UserNotFoundException {
         try {
-            UserEntity userEntity = userRepository.findByUserName(userName).isPresent() ? userRepository.findByUserName(userName).get() : null;
+            UserEntity userEntity = userRepository.findByUserName(userName).isPresent()
+                    ? userRepository.findByUserName(userName).get()
+                    : null;
             assert userEntity != null;
             AccountEntity accountEntity = accountRepository.findByUserName(userName).get();
             return accountEntity.getAcc_id();
-        }
-        catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             throw new UserNotFoundException("User is not found :%d");
         }
     }
 
     @Override
     public Accounts updatePasswordAccount(Long id, Accounts accounts) throws AccountNotFoundException {
-       try{
-            AccountEntity accountEntity = accountRepository.findById(id).isPresent() ? accountRepository.findById(id).get() : null;
+        try {
+            AccountEntity accountEntity = accountRepository.findById(id).isPresent()
+                    ? accountRepository.findById(id).get()
+                    : null;
             assert accountEntity != null;
-            if(accounts.getPassword() == null){
+            if (accounts.getPassword() == null) {
                 throw new AccountNotFoundException("Password editing must not be null");
-            }
-            else{
+            } else {
                 accountEntity.setPassword(passwordEncoder.encode(accounts.getPassword()));
                 accountEntity.setCreateAt(LocalDateTime.now());
                 accountEntity.setUpdateAt(LocalDateTime.now());
                 accountRepository.save(accountEntity);
                 return accounts;
             }
-       }
-       catch(NoSuchElementException e){
-        throw new AccountNotFoundException(String.format("Could not find any account within id: %s", id));
+        } catch (NoSuchElementException e) {
+            throw new AccountNotFoundException(String.format("Could not find any account within id: %s", id));
+        }
     }
-    }
-    
+
 }

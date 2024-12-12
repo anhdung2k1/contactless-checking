@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.authentication.entity.TaskEntity;
 import com.example.authentication.model.Task;
 import com.example.authentication.service.interfaces.TaskService;
 
@@ -38,9 +39,9 @@ public class TaskController {
 
     // Get all customers with customer Name
     @GetMapping(value = "/tasks/query")
-    public ResponseEntity<List<Map<String, Object>>> getAllTasksWithStatus(@RequestParam("query") String taskStatus)
+    public ResponseEntity<List<Map<String, Object>>> getAllTasksWithTaskName(@RequestParam("query") String taskName)
             throws Exception {
-        return ResponseEntity.ok(taskService.getAllTasksWithStatus(taskStatus));
+        return ResponseEntity.ok(taskService.getAllTasksWithTaskName(taskName));
     }
 
     // Get Customer by customer ID
@@ -73,4 +74,17 @@ public class TaskController {
             }
         });
     }
+
+    @GetMapping("/tasks/getTask/{customerName}")
+    public ResponseEntity<List<TaskEntity>> getTasksByCustomerName(@PathVariable("customerName") String customerName) {
+        System.out.println("Fetching tasks for customer: " + customerName);
+        List<TaskEntity> tasks = taskService.getTasksByCustomerName(customerName);
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks found for customer: " + customerName);
+            return ResponseEntity.noContent().build();
+        }
+        System.out.println("Tasks found: " + tasks.size());
+        return ResponseEntity.ok(tasks);
+    }
+
 }

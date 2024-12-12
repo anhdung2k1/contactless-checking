@@ -88,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const recordData = `${personName} has checked in at ${getCurrentDate()}`;
             record(recordData, 'success');
             sendNotification(recordData);
+            //TO DO: 
+            
         } else {
             alert(`Invalid Person! Similarity: ${similarity}`);
             const recordData = `${personName} has failed to check in at ${getCurrentDate()}`;
