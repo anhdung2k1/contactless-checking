@@ -3,33 +3,39 @@ const MODEL_URL = window.config.MODEL_URL;
 let tasks = [];
 let currentTaskIndex = -1;
 
-function renderTaskTable(tasks)
-{
+function renderTaskTable(tasks, includeCustomerName = true) {
     const tbody = document.querySelector('#taskTable tbody');
     tbody.innerHTML = '';
 
+    if (tasks.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center;">No tasks found</td>
+            </tr>
+        `;
+        return;
+    }
+
     tasks.forEach((task, index) => {
         const row = document.createElement('tr');
-        console.log("renderTaskTable: (), task: " + JSON.stringify(task));
-
         row.innerHTML = `
-    <td>${task.taskName}</td>
-    <td class="d-none d-xl-table-cell">${task.taskDesc}</td>
-    <td class="d-none d-xl-table-cell">${task.taskStatus}</td>
-    <td class="d-none d-xl-table-cell">${task.customerName != '' ? task.customerName : 'N/A'}</td>
-    <td>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; flex-direction: column;">
-                <button class="btn btn-danger btn-sm" style="margin-bottom: 10px;" onclick="deleteTask(${index})">Delete</button>
-                <button class="btn btn-warning btn-sm" onclick="showUpdateTaskModal(${index})">Update</button>
-            </div>
-        </div>
-    </td>
-`;
-
+            <td>${task.taskName}</td>
+            <td class="d-none d-xl-table-cell">${task.taskDesc}</td>
+            <td class="d-none d-xl-table-cell">${task.taskStatus}</td>
+            ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customerName || 'N/A'}</td>` : ''}
+            <td>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; flex-direction: column;">
+                        <button class="btn btn-danger btn-sm" style="margin-bottom: 10px;" onclick="deleteTask(${index})">Delete</button>
+                        <button class="btn btn-warning btn-sm" onclick="showUpdateTaskModal(${index})">Update</button>
+                    </div>
+                </div>
+            </td>
+        `;
         tbody.appendChild(row);
     });
 }
+
 
 function loadCustomers() {
     fetch(`${HOST_IP}/api/customers`, {
@@ -106,6 +112,7 @@ async function deleteTask(index) {
     }
 }
 
+
 document.getElementById('taskForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -123,7 +130,7 @@ document.getElementById('taskForm').addEventListener('submit', async function(ev
     }
 
     $('#taskModal').modal('hide');
-    searchTask();
+    search();
 });
 
 const addTask = async (formData) => {
@@ -148,7 +155,7 @@ const addTask = async (formData) => {
         const data = await response.json();
         tasks.push(data);
         alert("Add Task Successfully");
-        searchTask(); // Reload danh sách sau khi thêm
+        search(); // Reload danh sách sau khi thêm
     } catch (error) {
         console.error('Add Task failed: ', error);
         alert('Failed to add task: ' + error.message);
@@ -177,7 +184,7 @@ const updateTask = async (formData) => {
         const data = await response.json();
         tasks[currentTaskIndex] = data;
         alert("Update Task Successfully");
-        searchTask(); // Reload danh sách sau khi cập nhật
+        search(); // Reload danh sách sau khi cập nhật
     } catch (error) {
         console.error('Update Task failed: ', error);
         alert('Failed to update task: ' + error.message);
@@ -188,11 +195,20 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const searchCusTask = async () => {
-    const cusName = document.getElementById('searchCusInput').value;
-    const query = cusName ? `${encodeURIComponent(cusName)}` : '';
+const search = async () => {
+    const searchType = document.getElementById('searchType').value; // Lấy kiểu tìm kiếm: taskName hoặc customerName
+    const searchInput = document.getElementById('searchInput').value.trim(); // Từ khóa tìm kiếm
+    const query = searchInput ? encodeURIComponent(searchInput) : '';
+
     try {
-        const response = await fetch(`${HOST_IP}/api/tasks/query?query=${query}`, {
+        let url = '';
+        if (searchType === 'taskName') {
+            url = `${HOST_IP}/api/tasks/query?query=${query}`;
+        } else if (searchType === 'customerName') {
+            url = `${HOST_IP}/api/tasks/getTask/${query}`;
+        }
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -201,44 +217,24 @@ const searchCusTask = async () => {
         });
 
         if (!response.ok) {
-            throw new Error('Cannot retrieve tasks');
-        }   
+            throw new Error(`Cannot retrieve tasks. Status: ${response.status}`);
+        }
 
         const data = await response.json();
-        tasks = data;
-        renderTaskTable(data);
+        if (searchType === 'taskName') {
+            tasks = data; // Lưu vào danh sách tasks toàn cục
+            renderTaskTable(data);
+        } else if (searchType === 'customerName') {
+            renderTaskTable(data, false);
+        }
     } catch (error) {
         console.error('Get Tasks failed: ', error);
         alert('Failed to get tasks: ' + error.message);
     }
 };
 
-const searchTask = async () => {
-    const taskName = document.getElementById('searchInput').value;
-    const query = taskName ? `${encodeURIComponent(taskName)}` : '';
-    try {
-        const response = await fetch(`${HOST_IP}/api/tasks/query?query=${query}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${TOKEN}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Cannot retrieve tasks');
-        }   
-
-        const data = await response.json();
-        tasks = data;
-        renderTaskTable(data);
-    } catch (error) {
-        console.error('Get Tasks failed: ', error);
-        alert('Failed to get tasks: ' + error.message);
-    }
-};
 
 document.addEventListener('DOMContentLoaded', () => {
-    searchTask(); // Fetch all customers when the page loads
+    search();
     loadCustomers();
 });

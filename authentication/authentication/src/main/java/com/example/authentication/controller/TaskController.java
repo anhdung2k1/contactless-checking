@@ -1,5 +1,6 @@
 package com.example.authentication.controller;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,13 +79,14 @@ public class TaskController {
     @GetMapping("/tasks/getTask/{customerName}")
     public ResponseEntity<List<TaskEntity>> getTasksByCustomerName(@PathVariable("customerName") String customerName) {
         System.out.println("Fetching tasks for customer: " + customerName);
+
         List<TaskEntity> tasks = taskService.getTasksByCustomerName(customerName);
-        if (tasks.isEmpty()) {
+        if (tasks == null || tasks.isEmpty()) {
             System.out.println("No tasks found for customer: " + customerName);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(Collections.emptyList());
         }
+
         System.out.println("Tasks found: " + tasks.size());
         return ResponseEntity.ok(tasks);
     }
-
 }

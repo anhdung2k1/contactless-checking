@@ -21,6 +21,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -84,19 +87,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Map<String, Object>> getAllCustomersWithName(String customerName) throws Exception {
+    public Page<Map<String, Object>> getAllCustomersWithName(String customerName, int page, int size) throws Exception {
         try {
-            List<Map<String, Object>> customersMapList = new ArrayList<>();
-            List<CustomerEntity> customerEntities = customerRepository.findAllCustomersByCustomerName(customerName)
-                    .isPresent()
-                            ? customerRepository.findAllCustomersByCustomerName(customerName).get()
-                            : null;
-            assert customerEntities != null;
-            customerEntities.forEach((customerEntity -> customersMapList.add(customerMap(customerEntity))));
-            return customersMapList;
-        } catch (NoSuchElementException e) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<CustomerEntity> customerPage = customerRepository.findAllCustomersByCustomerName(customerName,
+                    pageable);
+
+            // Map từng CustomerEntity sang Map<String, Object>
+            return customerPage.map(this::customerMap);
+        } catch (Exception e) {
             throw new Exception(
-                    "Could not retrieve all customers with customer Name: " + customerName + e.getMessage());
+                    "Could not retrieve all customers with customer name: " + customerName + e.getMessage());
         }
     }
 
@@ -216,28 +217,28 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Customers> getAllCustomers() {
-        List<CustomerEntity> customerEntities = customerRepository.findAll();
-        return customerEntities.stream()
-                .map(entity -> new Customers(
-                        entity.getCustomerID(),
-                        entity.getCustomerName(),
-                        entity.getCustomerEmail(),
-                        entity.getCustomerAddress(),
-                        entity.getCustomerGender(),
-                        new SimpleDateFormat("yyyy-MM-dd").format(entity.getCustomerBirthDay()),
-                        new SimpleDateFormat("yyyy-MM-dd").format(entity.getCheckInTime()),
-                        new SimpleDateFormat("yyyy-MM-dd").format(entity.getCheckOutTime()),
-                        entity.getCreateAt(),
-                        entity.getUpdateAt(),
-                        entity.getPhotos() != null && !entity.getPhotos().isEmpty()
-                                ? entity.getPhotos().iterator().next().getPhotoUrl() // Lấy URL của ảnh đầu tiên
-                                : null,
-                        entity.getPlanWeight(),
-                        entity.getCurrWeight(),
-                        entity.getPlanBodyType(),
-                        entity.getCurrBodyType()))
-                .collect(Collectors.toList());
-    }
+    public Page<Customers> getAllCustomers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CustomerEntity> customerEntities = customerRepository.findAll(pageable);
 
+        // Chuyển đổi từ CustomerEntity sang Customers
+        return customerEntities.map(entity -> new Customers(
+                entity.getCustomerID(),
+                entity.getCustomerName(),
+                entity.getCustomerEmail(),
+                entity.getCustomerAddress(),
+                entity.getCustomerGender(),
+                new SimpleDateFormat("yyyy-MM-dd").format(entity.getCustomerBirthDay()),
+                new SimpleDateFormat("yyyy-MM-dd").format(entity.getCheckInTime()),
+                new SimpleDateFormat("yyyy-MM-dd").format(entity.getCheckOutTime()),
+                entity.getCreateAt(),
+                entity.getUpdateAt(),
+                entity.getPhotos() != null && !entity.getPhotos().isEmpty()
+                        ? entity.getPhotos().iterator().next().getPhotoUrl()
+                        : null,
+                entity.getPlanWeight(),
+                entity.getCurrWeight(),
+                entity.getPlanBodyType(),
+                entity.getCurrBodyType()));
+    }
 }

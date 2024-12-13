@@ -155,11 +155,17 @@
                                 <button class="btn btn-primary" onclick="showAddTaskModal()">Add Task</button>
                             </div>
                             <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <select id="searchType" class="form-select" style="width: 150px;"
+                                        aria-label="Search type">
+                                        <option value="taskName">Search by Task Name</option>
+                                        <option value="customerName">Search by Customer Name</option>
+                                    </select>
+                                </div>
                                 <input type="text" id="searchInput" class="form-control"
-                                    placeholder="Search task by name" aria-label="Search task by name"
-                                    aria-describedby="button-search">
+                                    placeholder="Enter search keyword" aria-label="Search input">
                                 <button class="btn btn-outline-secondary" type="button" id="button-search"
-                                    onclick="searchTask()">Search</button>
+                                    onclick="search()">Search</button>
                             </div>
                             <div class="card flex-fill">
                                 <div class="card-header">

@@ -5,6 +5,8 @@ import com.example.authentication.model.Customers;
 import com.example.authentication.model.Task;
 import com.example.authentication.service.interfaces.CustomerService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +26,12 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.createCustomer(customers));
     }
 
-    // Get all customers with customer Name
     @GetMapping(value = "/customers/query")
-    public ResponseEntity<List<Map<String, Object>>> getAllCustomersWithName(@RequestParam("query") String customerName)
-            throws Exception {
-        return ResponseEntity.ok(customerService.getAllCustomersWithName(customerName));
+    public ResponseEntity<Page<Map<String, Object>>> getAllCustomersWithName(
+            @RequestParam("query") String customerName,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size) throws Exception {
+        return ResponseEntity.ok(customerService.getAllCustomersWithName(customerName, page, size));
     }
 
     // Get Customer by customer ID
@@ -87,9 +90,9 @@ public class CustomerController {
     }
 
     @GetMapping("/customers")
-    public ResponseEntity<List<Customers>> getAllCustomers() {
-        List<Customers> customers = customerService.getAllCustomers();
-        return ResponseEntity.ok(customers);
+    public ResponseEntity<Page<Customers>> getAllCustomers(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size) {
+        return ResponseEntity.ok(customerService.getAllCustomers(page, size));
     }
-
 }

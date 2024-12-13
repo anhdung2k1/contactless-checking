@@ -3,6 +3,9 @@ const MODEL_URL = window.config.MODEL_URL;
 let customers = [];
 let currentCustomerIndex = -1;
 
+let currentPage = 0;
+const pageSize = 5;
+
 function renderCustomerTable(customers) {
     const tbody = document.querySelector('#customerTable tbody');
     tbody.innerHTML = '';
@@ -227,7 +230,7 @@ const searchCustomer = async () => {
     const customerName = document.getElementById('searchInput').value;
     const query = customerName ? `${encodeURIComponent(customerName)}` : '';
     try {
-        const response = await fetch(`${HOST_IP}/api/customers/query?query=${query}`, {
+        const response = await fetch(`${HOST_IP}/api/customers/query?query=${query}&page=${currentPage}&size=${pageSize}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -240,8 +243,12 @@ const searchCustomer = async () => {
         }
 
         const data = await response.json();
-        customers = data;
-        renderCustomerTable(data);
+        customers = data.content; // Giả sử backend trả về content chứa dữ liệu khách hàng
+        renderCustomerTable(customers);
+
+        // Cập nhật phân trang (Hiển thị tổng số trang và trang hiện tại)
+        renderPagination(data.totalPages, currentPage);
+
     } catch (error) {
         console.error('Get Customers failed: ', error);
         alert('Failed to get customers: ' + error.message);
@@ -438,4 +445,72 @@ document.getElementById('uploadImagesButton').addEventListener('click', async ()
     }
 
     alert('All images uploaded successfully');
+});
+
+function renderPagination(totalPages, currentPage) {
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = ''; // Xóa các nút cũ
+
+    // Nút "Trang trước"
+    const prevButton = document.createElement('li');
+    prevButton.classList.add('page-item');
+    const prevLink = document.createElement('a');
+    prevLink.classList.add('page-link');
+    prevLink.innerText = 'Previous Page';
+    prevLink.href = '#';
+    prevLink.disabled = currentPage === 0;
+    prevLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        changePage(currentPage - 1);
+    });
+    prevButton.appendChild(prevLink);
+    paginationContainer.appendChild(prevButton);
+
+    // Nút các trang
+    for (let i = 0; i < totalPages; i++) {
+        const pageButton = document.createElement('li');
+        pageButton.classList.add('page-item');
+        if (i === currentPage) {
+            pageButton.classList.add('active');
+        }
+
+        const pageLink = document.createElement('a');
+        pageLink.classList.add('page-link');
+        pageLink.innerText = i + 1;
+        pageLink.href = '#';
+        pageLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            changePage(i);
+        });
+
+        pageButton.appendChild(pageLink);
+        paginationContainer.appendChild(pageButton);
+    }
+
+    // Nút "Trang sau"
+    const nextButton = document.createElement('li');
+    nextButton.classList.add('page-item');
+    const nextLink = document.createElement('a');
+    nextLink.classList.add('page-link');
+    nextLink.innerText = 'Next Page';
+    nextLink.href = '#';
+    nextLink.disabled = currentPage === totalPages - 1;
+    nextLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        changePage(currentPage + 1);
+    });
+    nextButton.appendChild(nextLink);
+    paginationContainer.appendChild(nextButton);
+}
+
+
+// Hàm thay đổi trang
+function changePage(page) {
+    currentPage = page;
+    searchCustomer(); // Gọi lại hàm search để tải dữ liệu của trang mới
+}
+
+document.getElementById('searchInput').addEventListener('input', () => {
+    currentPage = 0; // Khi tìm kiếm lại, quay về trang đầu tiên
+    searchCustomer();
 });
