@@ -155,11 +155,17 @@
                                 <button class="btn btn-primary" onclick="showAddTaskModal()">Add Task</button>
                             </div>
                             <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <select id="searchType" class="form-select" style="width: 150px;"
+                                        aria-label="Search type">
+                                        <option value="taskName">Search by Task Name</option>
+                                        <option value="customerName">Search by Customer Name</option>
+                                    </select>
+                                </div>
                                 <input type="text" id="searchInput" class="form-control"
-                                    placeholder="Search task by name" aria-label="Search task by name"
-                                    aria-describedby="button-search">
+                                    placeholder="Enter search keyword" aria-label="Search input">
                                 <button class="btn btn-outline-secondary" type="button" id="button-search"
-                                    onclick="searchTask()">Search</button>
+                                    onclick="search()">Search</button>
                             </div>
                             <div class="card flex-fill">
                                 <div class="card-header">
@@ -173,12 +179,19 @@
                                                 <th class="d-none d-xl-table-cell">Description</th>
                                                 <th class="d-none d-xl-table-cell">Status</th>
                                                 <th class="d-none d-xl-table-cell">Customer</th>
+                                                <th class="d-none d-xl-table-cell">Estimate Hours</th>
+                                                <th class="d-none d-xl-table-cell">Log Hours</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <!-- Dynamic rows will be inserted here -->
                                         </tbody>
                                     </table>
+                                    <nav aria-label="Page navigation">
+                                        <ul id="pagination" class="pagination justify-content-end">
+                                            <!-- Pagination items will be inserted here -->
+                                        </ul>
+                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -207,7 +220,7 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="customerSelect" class="form-label">Customer</label>
+                                    <label for="customerSelect" class="form-label">Assign To</label>
                                     <select class="form-select" id="customerSelect" required>
                                         <!-- Các options sẽ được load từ API -->
                                     </select>
@@ -216,6 +229,16 @@
                                 <div class="mb-3">
                                     <label for="taskDescInput" class="form-label">Description</label>
                                     <input type="text" class="form-control" id="taskDescInput" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="estimateHoursInput" class="form-label">Estimate Hours</label>
+                                    <input type="text" class="form-control" id="estimateHoursInput">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="logHoursInput" class="form-label">Log Hours</label>
+                                    <input type="text" class="form-control" id="logHoursInput">
                                 </div>
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                             </form>
