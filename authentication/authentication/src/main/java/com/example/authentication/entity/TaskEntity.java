@@ -2,17 +2,13 @@ package com.example.authentication.entity;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
@@ -28,6 +24,8 @@ public class TaskEntity {
         this.taskStatus = "";
         this.taskDesc = "";
         this.taskName = "";
+        this.estimateHours = 0L;
+        this.logHours = 0L;
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
     }
@@ -49,6 +47,12 @@ public class TaskEntity {
 
     @Column(name = "TASK_NAME")
     private String taskName;
+
+    @Column(name = "ESTIMATE_HOUR")
+    private Long estimateHours;
+
+    @Column(name = "LOG_HOUR")
+    private Long logHours;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "CREATE_AT")

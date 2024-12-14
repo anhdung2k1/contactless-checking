@@ -1,9 +1,11 @@
 package com.example.authentication.controller;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,15 +35,29 @@ public class TaskController {
     }
 
     @GetMapping(value = "/tasks")
-    public ResponseEntity<List<Task>> getAllTasks() {
-        return ResponseEntity.ok(taskService.getAllTasks());
+    public ResponseEntity<Page<Task>> getAllTasks(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size) {
+        return ResponseEntity.ok(taskService.getAllTasks(page, size));
     }
 
     // Get all customers with customer Name
     @GetMapping(value = "/tasks/query")
-    public ResponseEntity<List<Map<String, Object>>> getAllTasksWithTaskName(@RequestParam("query") String taskName)
+    public ResponseEntity<Page<Map<String, Object>>> getAllTasksWithTaskName(
+            @RequestParam("query") String taskName,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size)
             throws Exception {
-        return ResponseEntity.ok(taskService.getAllTasksWithTaskName(taskName));
+        return ResponseEntity.ok(taskService.getAllTasksWithTaskName(taskName, page, size));
+    }
+
+    @GetMapping(value = "/tasks/getTask/customer/query")
+    public ResponseEntity<Page<Map<String, Object>>> getAllTasksByCustomerName(
+            @RequestParam("query") String customerName,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size)
+            throws Exception {
+        return ResponseEntity.ok(taskService.getAllTasksByCustomerName(customerName, page, size));
     }
 
     // Get Customer by customer ID
@@ -77,14 +93,10 @@ public class TaskController {
 
     @GetMapping("/tasks/getTask/{customerName}")
     public ResponseEntity<List<TaskEntity>> getTasksByCustomerName(@PathVariable("customerName") String customerName) {
-        System.out.println("Fetching tasks for customer: " + customerName);
         List<TaskEntity> tasks = taskService.getTasksByCustomerName(customerName);
-        if (tasks.isEmpty()) {
-            System.out.println("No tasks found for customer: " + customerName);
-            return ResponseEntity.noContent().build();
+        if (tasks == null || tasks.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
         }
-        System.out.println("Tasks found: " + tasks.size());
         return ResponseEntity.ok(tasks);
     }
-
 }

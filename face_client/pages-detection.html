@@ -29,6 +29,10 @@
 
 	<link href="css/app.css" rel="stylesheet">
 	<link href="//fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<script src="//code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="//cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+	<script src="//stackpath.bootstrapcdn.com/bootstrap/5.2.3/js/bootstrap.min.js"></script>
 </head>
 
 <body>
@@ -179,6 +183,41 @@
 					</div>
 				</div>
 			</main>
+			
+			<div class="modal fade" id="customerTaskModal" tabindex="-1"
+			aria-labelledby="customerTaskModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="customerTaskModalLabel">Customer Task</h5>
+						</div>
+						<div class="modal-body">
+							<div class="row justify-content-center">
+								<div class="card flex-fill">
+									<div class="table-responsive">
+										<table class="table table-hover my-0" id="customerTaskTable"
+											style="width: 100%;">
+											<thead>
+												<tr>
+													<th class="d-none d-xl-table-cell" style="width: 150px;">Name</th>
+													<th class="d-none d-xl-table-cell">Description</th>
+													<th class="d-none d-xl-table-cell">Status</th>
+													<th class="d-none d-xl-table-cell">Customer</th>
+													<th class="d-none d-xl-table-cell">Estimate Hours</th>
+													<th class="d-none d-xl-table-cell">Log Hours</th>
+												</tr>
+											</thead>
+											<tbody>
+												<!-- Dynamic rows will be inserted here -->
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			<footer class="footer">
 				<div class="container-fluid">
