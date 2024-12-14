@@ -9,6 +9,9 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.authentication.entity.CustomerEntity;
@@ -76,19 +79,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Map<String, Object>> getAllTasksWithTaskName(String taskName) throws Exception {
+    public Page<Map<String, Object>> getAllTasksWithTaskName(String taskName, int page, int size) throws Exception {
         try {
-            List<Map<String, Object>> tasksMapList = new ArrayList<>();
-            List<TaskEntity> taskEntities = taskRepository.findAllTasksByTaskName(taskName)
-                    .isPresent()
-                            ? taskRepository.findAllTasksByTaskName(taskName).get()
-                            : null;
-            assert taskEntities != null;
-            taskEntities.forEach((taskEntity -> {
-                log.info("taskEntity: {}", taskEntity);
-                tasksMapList.add(taskMap(taskEntity));
-            }));
-            return tasksMapList;
+            Pageable pageable = PageRequest.of(page, size);
+            Page<TaskEntity> taskPage = taskRepository.findAllTasksByTaskName(taskName, pageable);
+
+            return taskPage.map(this::taskMap);
         } catch (NoSuchElementException e) {
             throw new Exception(
                     "Could not retrieve all task with task Name: " + taskName + e.getMessage());
@@ -167,10 +163,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getAllTasks() {
-        List<TaskEntity> taskEntities = taskRepository.findAll();
+    public Page<Task> getAllTasks(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TaskEntity> taskEntities = taskRepository.findAll(pageable);
         log.info("GetAllTasks: {}", taskEntities);
-        return taskEntities.stream()
+        return taskEntities
                 .map(task -> new Task(
                         task.getTaskId(),
                         task.getTaskStatus(),
@@ -178,8 +175,7 @@ public class TaskServiceImpl implements TaskService {
                         task.getTaskName(),
                         task.getCustomer(),
                         task.getCreateAt(),
-                        task.getUpdateAt()))
-                .collect(Collectors.toList());
+                        task.getUpdateAt()));
     }
 
     public List<TaskEntity> getTasksByCustomerName(String customerName) {
