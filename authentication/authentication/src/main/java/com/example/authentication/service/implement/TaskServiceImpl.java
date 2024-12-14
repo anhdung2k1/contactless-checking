@@ -1,13 +1,10 @@
 package com.example.authentication.service.implement;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +41,8 @@ public class TaskServiceImpl implements TaskService {
                 put("taskDesc", taskEntity.getTaskDesc());
                 put("taskName", taskEntity.getTaskName());
                 put("customerName", taskEntity.getCustomer() != null ? taskEntity.getCustomer().getCustomerName() : "");
+                put("estimateHours", taskEntity.getEstimateHours());
+                put("logHours", taskEntity.getLogHours());
             }
         };
     }
@@ -108,6 +107,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task updateTaskDescription(Long taskId, Task tasks) throws Exception {
         try {
+            log.info("updateTaskDescription: (), tasks: {}", tasks);
             TaskEntity taskEntity = taskRepository.findById(taskId).isPresent()
                     ? taskRepository.findById(taskId).get()
                     : null;
@@ -130,6 +130,14 @@ public class TaskServiceImpl implements TaskService {
                     taskEntity.setCustomer(customerEntity);
                 }
             }
+            if (tasks.getEstimateHours() != null) {
+                taskEntity.setEstimateHours(tasks.getEstimateHours());
+            }
+
+            if (tasks.getLogHours() != null) {
+                taskEntity.setLogHours(tasks.getLogHours());
+            }
+
             taskEntity.setUpdateAt(LocalDateTime.now());
             log.info("updateTaskDescription:(), taskEntity: {}", taskEntity);
 
@@ -174,6 +182,8 @@ public class TaskServiceImpl implements TaskService {
                         task.getTaskDesc(),
                         task.getTaskName(),
                         task.getCustomer(),
+                        task.getEstimateHours(),
+                        task.getLogHours(),
                         task.getCreateAt(),
                         task.getUpdateAt()));
     }

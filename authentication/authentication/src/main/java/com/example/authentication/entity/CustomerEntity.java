@@ -1,6 +1,5 @@
 package com.example.authentication.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -25,10 +24,6 @@ public class CustomerEntity {
         this.customerEmail = "";
         this.checkInTime = new Date();
         this.checkOutTime = new Date();
-        this.planWeight = 0;
-        this.currWeight = 0;
-        this.planBodyType = "";
-        this.currBodyType = "";
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
     }
@@ -39,10 +34,6 @@ public class CustomerEntity {
         this.customerGender = "";
         this.customerBirthDay = new Date();
         this.customerEmail = "";
-        this.planWeight = 0;
-        this.currWeight = 0;
-        this.planBodyType = "";
-        this.currBodyType = "";
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
     }
@@ -93,16 +84,4 @@ public class CustomerEntity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "UPDATE_AT")
     private LocalDateTime updateAt;
-
-    @Column(name = "CUS_PLAN_WEIGHT")
-    private int planWeight;
-
-    @Column(name = "CUS_CURR_WEIGHT")
-    private int currWeight;
-
-    @Column(name = "CUS_PLAN_BODYTYPE")
-    private String planBodyType;
-
-    @Column(name = "CUS_CURR_BODYTYPE")
-    private String currBodyType;
 }

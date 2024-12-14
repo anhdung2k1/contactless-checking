@@ -179,6 +179,8 @@
                                                 <th class="d-none d-xl-table-cell">Description</th>
                                                 <th class="d-none d-xl-table-cell">Status</th>
                                                 <th class="d-none d-xl-table-cell">Customer</th>
+                                                <th class="d-none d-xl-table-cell">Estimate Hours</th>
+                                                <th class="d-none d-xl-table-cell">Log Hours</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -218,7 +220,7 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="customerSelect" class="form-label">Customer</label>
+                                    <label for="customerSelect" class="form-label">Assign To</label>
                                     <select class="form-select" id="customerSelect" required>
                                         <!-- Các options sẽ được load từ API -->
                                     </select>
@@ -227,6 +229,16 @@
                                 <div class="mb-3">
                                     <label for="taskDescInput" class="form-label">Description</label>
                                     <input type="text" class="form-control" id="taskDescInput" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="estimateHoursInput" class="form-label">Estimate Hours</label>
+                                    <input type="text" class="form-control" id="estimateHoursInput">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="logHoursInput" class="form-label">Log Hours</label>
+                                    <input type="text" class="form-control" id="logHoursInput">
                                 </div>
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                             </form>

@@ -6,15 +6,12 @@ import com.example.authentication.aspect.Utils;
 import com.example.authentication.entity.CustomerEntity;
 import com.example.authentication.entity.NotificationEntity;
 import com.example.authentication.entity.PhotoEntity;
-import com.example.authentication.entity.TaskEntity;
 import com.example.authentication.model.Customers;
-import com.example.authentication.model.Task;
 import com.example.authentication.repository.CustomerRepository;
 import com.example.authentication.repository.NotificationRepository;
 import com.example.authentication.repository.PhotoRepository;
 import com.example.authentication.service.interfaces.CustomerService;
 import jakarta.transaction.Transactional;
-import jdk.jshell.execution.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -235,10 +231,7 @@ public class CustomerServiceImpl implements CustomerService {
                 entity.getUpdateAt(),
                 entity.getPhotos() != null && !entity.getPhotos().isEmpty()
                         ? entity.getPhotos().iterator().next().getPhotoUrl()
-                        : null,
-                entity.getPlanWeight(),
-                entity.getCurrWeight(),
-                entity.getPlanBodyType(),
-                entity.getCurrBodyType()));
+                        : null
+                ));
     }
 }

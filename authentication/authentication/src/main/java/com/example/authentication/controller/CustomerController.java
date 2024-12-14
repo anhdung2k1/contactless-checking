@@ -1,8 +1,6 @@
 package com.example.authentication.controller;
 
-import com.example.authentication.entity.CustomerEntity;
 import com.example.authentication.model.Customers;
-import com.example.authentication.model.Task;
 import com.example.authentication.service.interfaces.CustomerService;
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController

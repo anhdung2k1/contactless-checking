@@ -26,6 +26,8 @@ function renderTaskTable(tasks, includeCustomerName = true) {
             <td class="d-none d-xl-table-cell">${task.taskDesc}</td>
             <td class="d-none d-xl-table-cell">${task.taskStatus}</td>
             ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customer ? task.customer.customerName : 'N/A'}</td>` : ''}
+            <td class="d-none d-xl-table-cell">${task.estimateHours ? task.estimateHours : 'N/A'}</td>
+            <td class="d-none d-xl-table-cell">${task.logHours ? task.logHours : 'N/A'}</td>
             <td>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; flex-direction: column;">
@@ -107,9 +109,12 @@ function showUpdateTaskModal(index) {
     currentTaskIndex = index;
     const task = tasks[index];
 
+    document.getElementById('taskModalLabel').innerText = 'Update Task';
     document.getElementById('taskStatusInput').value = task.taskStatus;
     document.getElementById('taskDescInput').value = task.taskDesc;
     document.getElementById('taskNameInput').value = task.taskName;
+    document.getElementById('estimateHoursInput').value = task.estimateHours;
+    document.getElementById('logHoursInput').value = task.logHours;
 
     if (task.customer) {
         document.getElementById('customerSelect').value = task.customer.customerId; // ID của Customer
@@ -153,7 +158,16 @@ document.getElementById('taskForm').addEventListener('submit', async function(ev
         taskStatus: document.getElementById('taskStatusInput').value,
         taskDesc: document.getElementById('taskDescInput').value,
         taskName: document.getElementById('taskNameInput').value,
+        estimateHours: parseInt(document.getElementById('estimateHoursInput').value, 10),
+        logHours: parseInt(document.getElementById('logHoursInput').value, 10),  
     };
+
+    if (isNaN(task.estimateHours)) {
+        task.estimateHours = 0;
+    }
+    if (isNaN(task.logHours)) {
+        task.logHours = 0;
+    }
 
     if (currentTaskIndex === -1) {
         await addTask(task);

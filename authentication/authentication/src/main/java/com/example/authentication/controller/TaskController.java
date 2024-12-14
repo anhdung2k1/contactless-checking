@@ -84,15 +84,10 @@ public class TaskController {
 
     @GetMapping("/tasks/getTask/{customerName}")
     public ResponseEntity<List<TaskEntity>> getTasksByCustomerName(@PathVariable("customerName") String customerName) {
-        System.out.println("Fetching tasks for customer: " + customerName);
-
         List<TaskEntity> tasks = taskService.getTasksByCustomerName(customerName);
         if (tasks == null || tasks.isEmpty()) {
-            System.out.println("No tasks found for customer: " + customerName);
             return ResponseEntity.ok(Collections.emptyList());
         }
-
-        System.out.println("Tasks found: " + tasks.size());
         return ResponseEntity.ok(tasks);
     }
 }

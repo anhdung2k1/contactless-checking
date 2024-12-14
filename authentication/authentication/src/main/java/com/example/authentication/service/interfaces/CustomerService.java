@@ -1,9 +1,6 @@
 package com.example.authentication.service.interfaces;
 
-import com.example.authentication.entity.CustomerEntity;
 import com.example.authentication.model.Customers;
-import com.example.authentication.model.Task;
-
 import java.util.List;
 import java.util.Map;
 

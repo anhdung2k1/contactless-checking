@@ -17,6 +17,8 @@ public class Task {
     private String taskDesc;
     private String taskName;
     private CustomerEntity customer;
+    private Long estimateHours;
+    private Long logHours;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 }

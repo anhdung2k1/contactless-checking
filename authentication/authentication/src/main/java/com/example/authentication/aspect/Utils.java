@@ -4,6 +4,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Utils {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public static String dateToString(Date date) {
@@ -16,7 +19,7 @@ public class Utils {
                 return dateFormat.parse(dateStr);
             }
         } catch (ParseException e) {
-            System.out.println("Error parsing date: " + e.getMessage());
+            log.error("Error parsing date: " + e.getMessage());
         }
         return null;
     }
