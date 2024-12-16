@@ -45,6 +45,8 @@
     value: {{ $top.Values.server.secretsPath.certPath }}/tls.crt
   - name: KEY_PATH
     value: {{ $top.Values.server.secretsPath.certPath }}/tls.key
+  - name: CA_PATH
+    value: {{ $top.Values.server.secretsPath.certPath }}/ca.crt
   {{- end }}
   - name: TLS_ENABLED
   {{- if $g.security.tls.enabled }}
