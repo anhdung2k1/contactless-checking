@@ -51,6 +51,15 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasksWithTaskName(taskName, page, size));
     }
 
+    @GetMapping(value = "/tasks/getTask/customer/query")
+    public ResponseEntity<Page<Map<String, Object>>> getAllTasksByCustomerName(
+            @RequestParam("query") String customerName,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size)
+            throws Exception {
+        return ResponseEntity.ok(taskService.getAllTasksByCustomerName(customerName, page, size));
+    }
+
     // Get Customer by customer ID
     @GetMapping(value = "/tasks/{taskId}")
     public ResponseEntity<Map<String, Object>> getTaskByTaskId(@PathVariable("taskId") Long taskId)

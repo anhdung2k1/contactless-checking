@@ -13,10 +13,15 @@ import com.example.authentication.entity.TaskEntity;
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query(value = "SELECT t.* FROM task t " +
-            "WHERE t.task_name LIKE %:taskName% ", nativeQuery = true)
+                   "WHERE t.task_name LIKE CONCAT('%', :taskName, '%')", nativeQuery = true)
     Page<TaskEntity> findAllTasksByTaskName(String taskName, Pageable pageable);
 
-    @Query(value = "SELECT COUNT(1) FROM task", nativeQuery = true)
+    @Query(value = "SELECT t.* " +
+                   "FROM task t INNER JOIN customers cus ON cus.cus_id = t.customer_cus_id " +
+                   "WHERE cus.cus_name LIKE CONCAT('%', :customerName, '%')", nativeQuery = true)
+    Page<TaskEntity> findAllTasksByCustomerName(String customerName, Pageable pageable);
+
+    @Query(value = "SELECT COUNT(*) FROM task", nativeQuery = true)
     Long countTasks();
 
     List<TaskEntity> findByCustomer_CustomerName(String customerName);

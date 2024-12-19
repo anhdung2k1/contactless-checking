@@ -15,6 +15,8 @@ public interface TaskService {
 
     Page<Map<String, Object>> getAllTasksWithTaskName(String taskName, int page, int size) throws Exception;
 
+    Page<Map<String, Object>> getAllTasksByCustomerName(String customerName, int page, int size) throws Exception;
+
     Map<String, Object> getTaskByTaskId(Long taskId) throws Exception;
 
     Task updateTaskDescription(Long taskId, Task tasks) throws Exception;

@@ -12,12 +12,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultCanvas = document.getElementById('resultCanvas');
     const resultCtx = resultCanvas.getContext('2d');
 
-    // Start video stream for camera
+    // Start high-quality video stream for camera
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-            video.srcObject = stream;
-            video.play();
-        });
+        const constraints = {
+            video: {
+                facingMode: 'environment', // Use the rear camera (if available)
+                width: { ideal: 1920 },  // Ideal width (Full HD)
+                height: { ideal: 1080 }, // Ideal height (Full HD)
+                frameRate: { ideal: 30 } // Ideal frame rate (30 fps)
+            }
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then((stream) => {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch((error) => {
+                console.error('Error accessing the camera: ', error);
+                alert('Could not access the camera. Please check permissions.');
+            });
     }
 
     // Handle image upload form submission
@@ -67,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.status === 'success') {
                 displayResults(data, imageSource);
-                verifyPerson(data);
+                await verifyPerson(data);
             } else {
                 console.error(`Error: ${data.message}`);
             }
@@ -76,7 +90,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function verifyPerson(data) {
+    function renderCustomerTaskModal(tasks) {
+        const tbody = document.querySelector('#customerTaskTable tbody');
+        tbody.innerHTML = '';
+        document.getElementById('customerTaskModalLabel').innerText = 'Customer Task';
+        tasks.forEach((task) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${task.taskName}</td>
+                <td class="d-none d-xl-table-cell">${task.taskDesc}</td>
+                <td class="d-none d-xl-table-cell">${task.taskStatus}</td>
+                <td class="d-none d-xl-table-cell">${task.customer ? task.customer.customerName : 'N/A'}</td>
+                <td class="d-none d-xl-table-cell">${task.estimateHours ? task.estimateHours : 'N/A'}</td>
+                <td class="d-none d-xl-table-cell">${task.logHours ? task.logHours : 'N/A'}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function showCustomerTaskModal() {
+        $('#customerTaskModal').modal('show');
+    }
+
+    async function verifyPerson(data) {
          // Use fallback values if data fields are undefined
         const isSamePerson = data.is_same_person !== undefined ? data.is_same_person : false;
         const similarity = data.similarity !== undefined ? data.similarity : 0;
@@ -88,13 +124,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const recordData = `${personName} has checked in at ${getCurrentDate()}`;
             record(recordData, 'success');
             sendNotification(recordData);
-            //TO DO: 
-            
+            //TO DO: Show the Task Modal according to customer name if the customer is valid detected
+            if (isSamePerson) {
+                await getTaskByCustomerName(personName);
+            }
         } else {
             alert(`Invalid Person! Similarity: ${similarity}`);
             const recordData = `${personName} has failed to check in at ${getCurrentDate()}`;
             record(recordData, 'failed');
             sendNotification(recordData);
+        }
+    }
+
+    async function getTaskByCustomerName(customerName) {
+        try {
+            const query = encodeURIComponent(customerName);
+            const response = await fetch(`${HOST_IP}/api/tasks/getTask/${query}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${TOKEN}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Cannot retrieve tasks. Status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(`getTaskByCustomerName ${customerName}: ${data}`);
+            showCustomerTaskModal();
+            renderCustomerTaskModal(data);
+        } catch (error) {
+            console.log('Error in getTaskByCustomerName: ' + customerName, error);
+            alert(`Error in getTaskByCustomerName: ${customerName} ${error.message}`);
         }
     }
 

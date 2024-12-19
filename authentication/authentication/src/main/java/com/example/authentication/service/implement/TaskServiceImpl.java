@@ -82,11 +82,24 @@ public class TaskServiceImpl implements TaskService {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<TaskEntity> taskPage = taskRepository.findAllTasksByTaskName(taskName, pageable);
-
+            log.info("getAllTasksWithTaskName {}: {}", taskName, taskPage);
             return taskPage.map(this::taskMap);
         } catch (NoSuchElementException e) {
             throw new Exception(
                     "Could not retrieve all task with task Name: " + taskName + e.getMessage());
+        }
+    }
+
+    @Override
+    public Page<Map<String, Object>> getAllTasksByCustomerName(String customerName, int page, int size) throws Exception {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<TaskEntity> taskPage = taskRepository.findAllTasksByCustomerName(customerName, pageable);
+            log.info("getAllTasksByCustomerName {}: {}", customerName, taskPage);
+            return taskPage.map(this::taskMap);
+        } catch (NoSuchElementException e) {
+            throw new Exception(
+                "Could not retrieve all task with customerName: " + customerName + e.getMessage());
         }
     }
 
@@ -122,10 +135,10 @@ public class TaskServiceImpl implements TaskService {
             if (tasks.getTaskDesc() != null) {
                 taskEntity.setTaskDesc(tasks.getTaskDesc());
             }
-            if (tasks.getCustomer().getCustomerName() != null || !tasks.getCustomer().getCustomerName().isEmpty()) {
-                if (customerRepository.findCustomerByCustomerName(tasks.getCustomer().getCustomerName()).isPresent()) {
+            if (tasks.getCustomerName() != null) {
+                if (customerRepository.findCustomerByCustomerName(tasks.getCustomerName()).isPresent()) {
                     CustomerEntity customerEntity = customerRepository
-                            .findCustomerByCustomerName(tasks.getCustomer().getCustomerName()).get();
+                            .findCustomerByCustomerName(tasks.getCustomerName()).get();
                     log.info("updateTaskDescription:(), customerEntity: {}", customerEntity);
                     taskEntity.setCustomer(customerEntity);
                 }
@@ -181,7 +194,7 @@ public class TaskServiceImpl implements TaskService {
                         task.getTaskStatus(),
                         task.getTaskDesc(),
                         task.getTaskName(),
-                        task.getCustomer(),
+                        task.getCustomer().getCustomerName(),
                         task.getEstimateHours(),
                         task.getLogHours(),
                         task.getCreateAt(),

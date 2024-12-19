@@ -38,7 +38,7 @@ function renderCustomerTable(customers) {
 function renderCustomerCheckInTimeModal(customer) {
     const tbody = document.querySelector('#customerCheckInTable tbody');
     tbody.innerHTML = '';
-    document.getElementById('customerModalLabel').innerText = 'Customer Check In Time'
+    document.getElementById('customerCheckInTimeModalLabel').innerText = `Customer ${customer.customerName} Check In Time`
     customer.checkInTime.forEach(checkIn => {
         const row = document.createElement('tr');
 

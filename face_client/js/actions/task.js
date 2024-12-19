@@ -25,7 +25,7 @@ function renderTaskTable(tasks, includeCustomerName = true) {
             <td>${task.taskName}</td>
             <td class="d-none d-xl-table-cell">${task.taskDesc}</td>
             <td class="d-none d-xl-table-cell">${task.taskStatus}</td>
-            ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customer ? task.customer.customerName : 'N/A'}</td>` : ''}
+            ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customerName != null ? task.customerName : 'N/A'}</td>` : ''}
             <td class="d-none d-xl-table-cell">${task.estimateHours ? task.estimateHours : 'N/A'}</td>
             <td class="d-none d-xl-table-cell">${task.logHours ? task.logHours : 'N/A'}</td>
             <td>
@@ -258,9 +258,9 @@ const search = async () => {
         }
     } else if (searchType === 'customerName') {
         if (query) {
-            url = `${HOST_IP}/api/tasks/getTask/${query}`;
+            url = `${HOST_IP}/api/tasks/getTask/customer/query?query=${query}&page=${currentPage}&size=${pageSize}`;
         } else {
-            url = `${HOST_IP}/api/tasks/getTask/`;
+            url = `${HOST_IP}/api/tasks?page=${currentPage}&size=${pageSize}`;
         }
     }
 

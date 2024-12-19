@@ -5,9 +5,12 @@ function renderRecordTable(records) {
     records.forEach((record) => {
         const row = document.createElement('tr');
 
+        // Set badge class based on record.status
+        const badgeClass = record.status === 'success' ? 'badge bg-success' : 'badge bg-danger';
+
         row.innerHTML = `
             <td class="d-none d-md-table-cell">${record.recordData}</td>
-            <td><span class="badge bg-success">${record.status}</span></td>
+            <td><span class="${badgeClass}">${record.status}</span></td>
             <td class="d-none d-xl-table-cell">${record.createAt}</td>
         `;
 
