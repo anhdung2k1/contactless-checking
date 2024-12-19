@@ -26,7 +26,7 @@ init:
 build: 	package-helm \
 		build-authentication \
 		build-face-client \
-       	build-face-model	
+       	build-face-model
 
 ## Package the helm chart
 package-helm:
@@ -103,3 +103,7 @@ test-face-client:
 test-mysql:
 	@echo "test-mysql"
 	./vas.sh test_repo --name=mysql
+
+generate-ca:
+	@echo "Generate CA files"
+	./vas.sh generate_ca

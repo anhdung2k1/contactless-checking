@@ -48,6 +48,6 @@ volumes:
 {{- if $g.security.tls.enabled }}
 - name: tls-client-cert
   secret:
-    secretName: {{ template "ck-client.name" $top }}-cert
+    secretName: {{ template "ck-application.name" $top }}-cert
 {{- end }}
 {{- end -}}

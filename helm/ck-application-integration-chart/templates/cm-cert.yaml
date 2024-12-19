@@ -21,10 +21,10 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: ck-application-client-tls
+  name: ck-application-tls
   namespace: {{ .Release.Namespace }}
 spec:
-  secretName: ck-application-client-cert
+  secretName: ck-application-cert
   duration: 2160h
   renewBefore: 360h
   commonName: ck-application
@@ -34,51 +34,11 @@ spec:
     - ck-application-client.{{ .Release.Namespace }}.svc
     - ck-application-client.{{ .Release.Namespace }}.svc.cluster.local
     - ck-application-client.cluster-intern.site
-  ipAddresses:
-    - 192.168.122.70
-    - 192.168.122.65
-    - 192.168.122.64
-  issuerRef:
-    name: ca-issuer
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: ck-application-authentication-tls
-  namespace: {{ .Release.Namespace }}
-spec:
-  secretName: ck-application-authentication-cert
-  duration: 2160h
-  renewBefore: 360h
-  commonName: ck-application
-  dnsNames:
     - ck-application-authentication
     - ck-application-authentication.{{ .Release.Namespace }}
     - ck-application-authentication.{{ .Release.Namespace }}.svc
     - ck-application-authentication.{{ .Release.Namespace }}.svc.cluster.local
     - ck-application-authentication.cluster-intern.site
-  ipAddresses:
-    - 192.168.122.70
-    - 192.168.122.65
-    - 192.168.122.64
-  issuerRef:
-    name: ca-issuer
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: ck-application-server-tls
-  namespace: {{ .Release.Namespace }}
-spec:
-  secretName: ck-application-server-cert
-  duration: 2160h
-  renewBefore: 360h
-  commonName: ck-application
-  dnsNames:
     - ck-application-server
     - ck-application-server.{{ .Release.Namespace }}
     - ck-application-server.{{ .Release.Namespace }}.svc
