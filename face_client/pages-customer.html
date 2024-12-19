@@ -276,8 +276,14 @@
 							</button>
 						</div>
 						<div class="modal-body">
-							<video id="video" style="width: 100%;" autoplay></video>
-							<canvas id="canvas" class="d-none"></canvas>
+							<!-- <video id="video" style="width: 100%;" autoplay></video> -->
+							<div class="mb-4 text-center">
+								<video id="video" class="video-styled" autoplay></video>
+							</div>
+							<!-- <canvas id="canvas" class="d-none"></canvas> -->
+							<div class="mt-3 mb-4 text-center">
+								<canvas id="canvas" class="canvas-styled d-none"></canvas>
+							</div>
 							<input type="file" id="imageUpload" multiple class="d-none">
 							<div id="imageList" class="mt-3 d-flex flex-wrap">
 								<!-- Image list will be populated here -->
