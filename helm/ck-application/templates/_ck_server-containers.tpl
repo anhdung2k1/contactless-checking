@@ -66,6 +66,8 @@
     mountPath: {{ $top.Values.server.secretsPath.certPath }}
     readOnly: true
   {{- end }}
+{{ include "ck-application.readinessProbe" (list $top "/health") | indent 2 }}
+{{ include "ck-application.livenessProbe" (list $top "/health") | indent 2 }}
 volumes:
 {{- if $top.Values.storage.enabled }}
 - name: {{ template "ck-server.name" $top }}-persistent-storage
@@ -78,6 +80,6 @@ volumes:
 {{- if $g.security.tls.enabled }}
 - name: tls-server-cert
   secret:
-    secretName: {{ template "ck-server.name" $top }}-cert
+    secretName: {{ template "ck-application.name" $top }}-cert
 {{- end }}
 {{- end -}}

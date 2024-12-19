@@ -41,6 +41,14 @@ if not os.path.exists(yolo_path):
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    try:
+        return jsonify({'status': 'ready', 'message': 'Service is healthy'}), 200
+    except Exception as e:
+        error(f"Health check failed: {str(e)}")
+        return jsonify({'status': 'unhealthy', 'message': str(e)}), 500
+
 @app.route('/upload', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
@@ -122,11 +130,10 @@ if __name__ == '__main__':
         cert_path = os.getenv("CERT_PATH")
         key_path = os.getenv("KEY_PATH")
         context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        context.verify_mode = ssl.CERT_OPTIONAL
         context.load_cert_chain(certfile=cert_path, keyfile=key_path)
         if ca_path:
             context.load_verify_locations(cafile=ca_path)
-            context.verify_mode = ssl.CERT_REQUIRED
+        context.verify_mode = ssl.CERT_OPTIONAL
         app.run(host='0.0.0.0', port=5443, ssl_context=context)
     else:
         app.run(host='0.0.0.0', port=5000)

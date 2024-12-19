@@ -23,11 +23,16 @@ Get current Namespace
 {{- printf "%s" $namespace -}}
 {{- end -}}
 
+{{- define "ck-application.name" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- print $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{/*
 Expand the name of the mysql chart
 */}}
 {{- define "ck-mysql.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.name" .) -}}
 {{- printf "%s-mysql" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -35,7 +40,7 @@ Expand the name of the mysql chart
 Expand the name of the authentication chart
 */}}
 {{- define "ck-authentication.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.name" .) -}}
 {{- printf "%s-authentication" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -43,7 +48,7 @@ Expand the name of the authentication chart
 Expand the name of the server chart
 */}}
 {{- define "ck-server.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.name" .) -}}
 {{- printf "%s-server" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -51,7 +56,7 @@ Expand the name of the server chart
 Expand the name of the server chart
 */}}
 {{- define "ck-client.name" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := (include "ck-application.name" .) -}}
 {{- printf "%s-client" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -460,13 +465,14 @@ Connection services via Ingress or LoadBalanacer
 {{- end -}}
 {{- end -}}
 
-{{- define "ck-authentication.readinessProbe" -}}
-{{- $global := . -}}
+{{- define "ck-application.readinessProbe" -}}
+{{- $global := index . 0 -}}
+{{- $path := index . 1 -}}
 {{- $g := fromJson (include "ck-application.global" $global) -}}
 {{- with $global.Values.server.authentication.probes.readiness }}
 readinessProbe:
   httpGet:
-    path: /actuator/health
+    path: {{ $path }}
     {{- if $g.security.tls.enabled }}
     port: {{ $global.Values.server.authentication.httpsPort }}
     scheme: HTTPS
@@ -482,13 +488,14 @@ readinessProbe:
 {{- end }}
 {{- end -}}
 
-{{- define "ck-authentication.livenessProbe" -}}
-{{- $global := . -}}
+{{- define "ck-application.livenessProbe" -}}
+{{- $global := index . 0 -}}
+{{- $path := index . 1 -}}
 {{- $g := fromJson (include "ck-application.global" $global) -}}
 {{- with $global.Values.server.authentication.probes.liveness }}
 livenessProbe:
   httpGet:
-    path: /actuator/health
+    path: {{ $path }}
     {{- if $g.security.tls.enabled }}
     port: {{ $global.Values.server.authentication.httpsPort }}
     scheme: HTTPS
