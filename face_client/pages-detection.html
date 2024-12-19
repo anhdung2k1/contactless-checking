@@ -162,14 +162,22 @@
 										<button type="submit" class="btn btn-primary">Upload Image</button>
 									</form>
 
-									<div class="mb-4 text-center">
+									<!-- <div class="mb-4 text-center">
 										<video id="video" width="710" height="400" autoplay class="border"></video>
+									</div> -->
+									<div class="mb-4 text-center">
+										<video id="video" class="video-styled" autoplay></video>
 									</div>
+
+
 									<div class="text-center">
 										<button id="captureButton" class="btn btn-primary mt-3">Capture Image</button>
 									</div>
 
-									<canvas id="canvas" class="d-none"></canvas>
+									<div class="mt-3 mb-4 text-center">
+										<canvas id="canvas" class="canvas-styled d-none"></canvas>
+									</div>
+
 									<div class="mt-4">
 										<button id="submitCaptureButton" class="btn btn-success d-none">Submit Captured
 											Image</button>
@@ -183,9 +191,9 @@
 					</div>
 				</div>
 			</main>
-			
-			<div class="modal fade" id="customerTaskModal" tabindex="-1"
-			aria-labelledby="customerTaskModalLabel" aria-hidden="true">
+
+			<div class="modal fade" id="customerTaskModal" tabindex="-1" aria-labelledby="customerTaskModalLabel"
+				aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered modal-lg">
 					<div class="modal-content">
 						<div class="modal-header">
