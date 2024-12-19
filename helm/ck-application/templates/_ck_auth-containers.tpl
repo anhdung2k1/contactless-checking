@@ -88,8 +88,8 @@
   - name: keystore-cert
     mountPath: {{ $top.Values.server.secretsPath.keyStorePath }}
   {{- end }}
-{{ include "ck-application.readinessProbe" (list $top "/actuator/health") | indent 2 }}
-{{ include "ck-application.livenessProbe" (list $top "/actuator/health") | indent 2 }}
+{{ include "ck-application.readinessProbe" (list $top "/actuator/health" "authentication") | indent 2 }}
+{{ include "ck-application.livenessProbe" (list $top "/actuator/health" "authentication") | indent 2 }}
 volumes:
 - name: config-properties
   configMap:

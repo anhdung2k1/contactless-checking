@@ -36,6 +36,20 @@ server:
     name: xtrabackup
     port: "3307"
 
+  probes:
+    readiness:
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 3
+      successThreshold: 1
+      failureThreshold: 3
+    liveness:
+      initialDelaySeconds: 15
+      periodSeconds: 20
+      timeoutSeconds: 3
+      successThreshold: 1
+      failureThreshold: 5
+
   #serviceAccountName: ""
   authentication:
     name: authentication
@@ -44,19 +58,6 @@ server:
     httpsPort: "8443"
     httpNodePort: "30800"
     httpsNodePort: "30844"
-    probes:
-      readiness:
-        initialDelaySeconds: 5
-        periodSeconds: 10
-        timeoutSeconds: 3
-        successThreshold: 1
-        failureThreshold: 3
-      liveness:
-        initialDelaySeconds: 15
-        periodSeconds: 20
-        timeoutSeconds: 3
-        successThreshold: 1
-        failureThreshold: 5
 
   faceModel:
     name: face-model

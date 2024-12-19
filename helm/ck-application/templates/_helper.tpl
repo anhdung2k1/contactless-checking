@@ -468,16 +468,17 @@ Connection services via Ingress or LoadBalanacer
 {{- define "ck-application.readinessProbe" -}}
 {{- $global := index . 0 -}}
 {{- $path := index . 1 -}}
+{{- $service := index . 2 -}}
 {{- $g := fromJson (include "ck-application.global" $global) -}}
-{{- with $global.Values.server.authentication.probes.readiness }}
+{{- with $global.Values.server.probes.readiness }}
 readinessProbe:
   httpGet:
     path: {{ $path }}
     {{- if $g.security.tls.enabled }}
-    port: {{ $global.Values.server.authentication.httpsPort }}
+    port: {{ index $global.Values.server $service "httpsPort" }}
     scheme: HTTPS
     {{- else }}
-    port: {{ $global.Values.server.authentication.httpPort }}
+    port: {{ index $global.Values.server $service "httpPort" }}
     scheme: HTTP
     {{- end }}
   initialDelaySeconds: {{ .initialDelaySeconds }}
@@ -491,16 +492,17 @@ readinessProbe:
 {{- define "ck-application.livenessProbe" -}}
 {{- $global := index . 0 -}}
 {{- $path := index . 1 -}}
+{{- $service := index . 2 -}}
 {{- $g := fromJson (include "ck-application.global" $global) -}}
-{{- with $global.Values.server.authentication.probes.liveness }}
+{{- with $global.Values.server.probes.liveness }}
 livenessProbe:
   httpGet:
     path: {{ $path }}
     {{- if $g.security.tls.enabled }}
-    port: {{ $global.Values.server.authentication.httpsPort }}
+    port: {{ index $global.Values.server $service "httpsPort" }}
     scheme: HTTPS
     {{- else }}
-    port: {{ $global.Values.server.authentication.httpPort }}
+    port: {{ index $global.Values.server $service "httpPort" }}
     scheme: HTTP
     {{- end }}
   initialDelaySeconds: {{ .initialDelaySeconds }}
