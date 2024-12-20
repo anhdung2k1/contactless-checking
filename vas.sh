@@ -202,8 +202,6 @@ build_repo() {
     echo "##################################"
 
     COMMON_DB="checking"
-    # Generate CA files
-    $vas generate_ca
 
     case $__name in
     "authentication")

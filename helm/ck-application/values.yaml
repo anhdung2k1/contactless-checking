@@ -36,6 +36,20 @@ server:
     name: xtrabackup
     port: "3307"
 
+  probes:
+    readiness:
+      initialDelaySeconds: 60
+      periodSeconds: 120
+      timeoutSeconds: 10
+      successThreshold: 1
+      failureThreshold: 10
+    liveness:
+      initialDelaySeconds: 60
+      periodSeconds: 120
+      timeoutSeconds: 10
+      successThreshold: 1
+      failureThreshold: 10
+
   #serviceAccountName: ""
   authentication:
     name: authentication
@@ -44,19 +58,6 @@ server:
     httpsPort: "8443"
     httpNodePort: "30800"
     httpsNodePort: "30844"
-    probes:
-      readiness:
-        initialDelaySeconds: 5
-        periodSeconds: 10
-        timeoutSeconds: 3
-        successThreshold: 1
-        failureThreshold: 3
-      liveness:
-        initialDelaySeconds: 15
-        periodSeconds: 20
-        timeoutSeconds: 3
-        successThreshold: 1
-        failureThreshold: 5
 
   faceModel:
     name: face-model
@@ -71,8 +72,8 @@ server:
     serviceType: LoadBalancer
     httpPort: "80"
     httpsPort: "443"
-    httpNodePort: "30080"
-    httpsNodePort: "30443"
+    httpNodePort: "31080"
+    httpsNodePort: "31443"
 
 resources:
   initcontainer:
@@ -176,7 +177,7 @@ password:
   keystorePass: ""
 
 ingress:
-  enabled: true
+  enabled: false
   hostName: cluster-intern.site
 
 aws:

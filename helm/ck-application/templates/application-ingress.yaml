@@ -10,7 +10,7 @@ spec:
   tls:
     - hosts:
         - {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }}
-      secretName: {{ template "ck-client.name" . }}-cert
+      secretName: {{ template "ck-application.name" . }}-cert
   {{- end }}
   rules:
   - host: {{ include "ck-application.ingressPath" (list . (include "ck-client.name" . )) }}
@@ -38,7 +38,7 @@ spec:
   tls:
     - hosts:
         - {{ include "ck-application.ingressPath" (list . (include "ck-authentication.name" . )) }}
-      secretName: {{ template "ck-authentication.name" . }}-cert
+      secretName: {{ template "ck-application.name" . }}-cert
   {{- end }}
   rules:
   - host: {{ include "ck-application.ingressPath" (list . (include "ck-authentication.name" . )) }}
@@ -66,7 +66,7 @@ spec:
   tls:
     - hosts:
         - {{ include "ck-application.ingressPath" (list . (include "ck-server.name" . )) }}
-      secretName: {{ template "ck-server.name" . }}-cert
+      secretName: {{ template "ck-application.name" . }}-cert
   {{- end }}
   rules:
   - host: {{ include "ck-application.ingressPath" (list . (include "ck-server.name" . )) }}

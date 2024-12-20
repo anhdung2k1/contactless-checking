@@ -48,11 +48,15 @@ class FaceNetModel:
         if os.path.exists(self.model_file_path):
             self._load_model(self.model_file_path)
 
-    def _load_model(self, model_file_path):
+    def _load_model(self, model_path):
         """Load a pre-trained model if the model file exists."""
-        checkpoint = torch.load(model_file_path)
+        if not os.path.isfile(model_path):
+            error(f"Invalid model file path: {model_path}")
+            return
+
+        checkpoint = torch.load(model_path)
         self.model.load_state_dict(checkpoint, strict=False)
-        info(f"Model loaded from {model_file_path}")
+        info(f"Model loaded from {model_path}")
         
     def _save_model(self, save_path):
         """Save the model state to a file."""
