@@ -16,7 +16,7 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> 
 
         // Phân trang theo tên khách hàng
         @Query(value = "SELECT cus.* FROM customers cus " +
-                        "WHERE cus.cus_name LIKE %:customerName% ", countQuery = "SELECT COUNT(1) FROM customers cus WHERE cus.cus_name LIKE %:customerName%", nativeQuery = true)
+                        "WHERE cus.cus_name LIKE CONCAT('%', :customerName, '%') ", countQuery = "SELECT COUNT(1) FROM customers cus WHERE cus.cus_name LIKE %:customerName%", nativeQuery = true)
         Page<CustomerEntity> findAllCustomersByCustomerName(String customerName, Pageable pageable);
 
         // Tìm một khách hàng cụ thể theo tên

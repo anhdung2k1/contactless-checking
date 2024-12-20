@@ -40,7 +40,7 @@ public class TaskServiceImpl implements TaskService {
                 put("taskStatus", taskEntity.getTaskStatus());
                 put("taskDesc", taskEntity.getTaskDesc());
                 put("taskName", taskEntity.getTaskName());
-                put("customerName", taskEntity.getCustomer() != null ? taskEntity.getCustomer().getCustomerName() : "");
+                put("customer", taskEntity.getCustomer() != null ? taskEntity.getCustomer() : new CustomerEntity());
                 put("estimateHours", taskEntity.getEstimateHours());
                 put("logHours", taskEntity.getLogHours());
             }
@@ -135,10 +135,10 @@ public class TaskServiceImpl implements TaskService {
             if (tasks.getTaskDesc() != null) {
                 taskEntity.setTaskDesc(tasks.getTaskDesc());
             }
-            if (tasks.getCustomerName() != null) {
-                if (customerRepository.findCustomerByCustomerName(tasks.getCustomerName()).isPresent()) {
+            if (tasks.getCustomer() != null) {
+                if (customerRepository.findById(tasks.getCustomer().getCustomerID()).isPresent()) {
                     CustomerEntity customerEntity = customerRepository
-                            .findCustomerByCustomerName(tasks.getCustomerName()).get();
+                            .findById(tasks.getCustomer().getCustomerID()).get();
                     log.info("updateTaskDescription:(), customerEntity: {}", customerEntity);
                     taskEntity.setCustomer(customerEntity);
                 }
@@ -156,6 +156,7 @@ public class TaskServiceImpl implements TaskService {
 
             taskRepository.save(taskEntity);
             BeanUtils.copyProperties(taskEntity, tasks);
+            log.info("updateTaskDescription:(), tasks: {}", tasks);
 
             // Create Notification
             String notificationMessage = String.format("Task %s updated successfully", tasks.getTaskStatus());
@@ -194,7 +195,7 @@ public class TaskServiceImpl implements TaskService {
                         task.getTaskStatus(),
                         task.getTaskDesc(),
                         task.getTaskName(),
-                        task.getCustomer().getCustomerName(),
+                        task.getCustomer() != null ? task.getCustomer() : new CustomerEntity(),
                         task.getEstimateHours(),
                         task.getLogHours(),
                         task.getCreateAt(),

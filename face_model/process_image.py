@@ -140,6 +140,7 @@ class ImageProcessor:
                 detection['is_same_person'] = is_same_person
                 detection['similarity'] = similarity
                 detection['person_name'] = self.person_name
+                info(f"process_image: detection: {detection}")
 
             os.remove(temp_face_path)
             info(f"Person identified: {self.person_name}")

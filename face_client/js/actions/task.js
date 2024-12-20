@@ -25,7 +25,7 @@ function renderTaskTable(tasks, includeCustomerName = true) {
             <td>${task.taskName}</td>
             <td class="d-none d-xl-table-cell">${task.taskDesc}</td>
             <td class="d-none d-xl-table-cell">${task.taskStatus}</td>
-            ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customerName != null ? task.customerName : 'N/A'}</td>` : ''}
+            ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customer.customerName != null ? task.customer.customerName : 'N/A'}</td>` : ''}
             <td class="d-none d-xl-table-cell">${task.estimateHours ? task.estimateHours : 'N/A'}</td>
             <td class="d-none d-xl-table-cell">${task.logHours ? task.logHours : 'N/A'}</td>
             <td>
@@ -194,6 +194,7 @@ const addTask = async (formData) => {
             },
             body: JSON.stringify(formData)
         });
+        console.log("addTask body: ", JSON.stringify(formData));
 
         if (!response.ok) {
             throw new Error('Failed to add task');
@@ -213,8 +214,8 @@ const addTask = async (formData) => {
 const updateTask = async (formData) => {
     try {
         // Thêm customerId vào formData
-        const customerId = document.getElementById('customerSelect').value;
-        formData.customer = { customerId };
+        const customerID = document.getElementById('customerSelect').value;
+        formData.customer = { customerID };
 
         const response = await fetch(`${HOST_IP}/api/tasks/${formData.taskId}`, {
             method: 'PATCH',
@@ -224,6 +225,7 @@ const updateTask = async (formData) => {
             },
             body: JSON.stringify(formData)
         });
+        console.log("updateTask, body: ", JSON.stringify(formData));
 
         if (!response.ok) {
             throw new Error('Failed to update task');
