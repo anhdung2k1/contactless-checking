@@ -81,7 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.status === 'success') {
                 displayResults(data, imageSource);
-                await verifyPerson(data);
+                data.detections.forEach(detection => {
+                    console.log("sendImage detection: ", detection);
+                    verifyPerson(detection);
+                });
             } else {
                 console.error(`Error: ${data.message}`);
             }
@@ -112,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#customerTaskModal').modal('show');
     }
 
-    async function verifyPerson(data) {
+    function verifyPerson(data) {
          // Use fallback values if data fields are undefined
         const isSamePerson = data.is_same_person !== undefined ? data.is_same_person : false;
         const similarity = data.similarity !== undefined ? data.similarity : 0;
@@ -126,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sendNotification(recordData);
             //TO DO: Show the Task Modal according to customer name if the customer is valid detected
             if (isSamePerson) {
-                await getTaskByCustomerName(personName);
+                getTaskByCustomerName(personName);
             }
         } else {
             alert(`Invalid Person! Similarity: ${similarity}`);
@@ -224,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayResults(data, imageSource) {
         const image = new Image();
-        const personName = data.person_name || 'Unknown';
 
         image.onload = () => {
             resultCanvas.width = image.width;
@@ -232,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultCtx.drawImage(image, 0, 0);
             data.detections.forEach(detection => {
                 const { bbox, confidence } = detection;
+                const personName = detection.person_name;
                 const [x1, y1, x2, y2] = bbox;
                 resultCtx.strokeStyle = 'red';
                 resultCtx.lineWidth = 2;

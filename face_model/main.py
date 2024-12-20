@@ -4,6 +4,7 @@ from PIL import Image
 import io
 import os
 import ssl
+import threading
 from process_image import ImageProcessor
 from s3_config.s3Config import S3Config
 from logger import info, error
@@ -40,6 +41,12 @@ if not os.path.exists(yolo_path):
 
 # Initialize the ImageProcessor
 image_processor = ImageProcessor(yolo_path)
+
+def run_in_thread(target, *args, **kwargs):
+    """Utility to run a function in a separate thread."""
+    thread = threading.Thread(target=target, args=args, kwargs=kwargs, daemon=True)
+    thread.start()
+    return thread
 
 @app.route('/health', methods=['GET'])
 def health_check():
