@@ -280,25 +280,40 @@ document.getElementById('captureButton').addEventListener('click', () => {
     const video = document.getElementById('video');
     const ctx = canvas.getContext('2d');
 
-    // Resize canvas to match video size
-    const maxWidth = 130;
+    // Resize canvas to match video size (large size for data)
+    const maxWidth = 768;
     const scale = maxWidth / video.videoWidth;
     canvas.width = maxWidth;
     canvas.height = video.videoHeight * scale;
 
+    // Draw the video frame on the large canvas
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Convert canvas to data URL (base64 format)
+    // Convert canvas to data URL (base64 format) for large image
     const imageData = canvas.toDataURL('image/png');
+    images.push(imageData); // Store large image data
 
-    images.push(imageData);
+    // Create a small version of the image for display
+    const smallCanvas = document.createElement('canvas');
+    const smallCtx = smallCanvas.getContext('2d');
+    const smallWidth = 130;
+    const smallScale = smallWidth / canvas.width;
 
-    const imageContainer = createImageContainer(imageData);
+    smallCanvas.width = smallWidth;
+    smallCanvas.height = canvas.height * smallScale;
+
+    // Draw the large canvas onto the small canvas for display
+    smallCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, smallCanvas.width, smallCanvas.height);
+    const smallImageData = smallCanvas.toDataURL('image/png');
+
+    // Add small image to the list for display
+    const imageContainer = createImageContainer(smallImageData); // Use small image data for display
     imageList.appendChild(imageContainer);
 
     canvas.classList.add('d-none');
     document.getElementById('downloadButton').classList.remove('d-none');
 });
+
 
 
 
@@ -313,12 +328,12 @@ document.getElementById('downloadButton').addEventListener('click', async () => 
         await sendImageDataToModelHost(formData);
 
         // Send to API host base64 image
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const base64Image = e.target.result;
-            addCustomerImage(customers[currentCustomerIndex].customerID, base64Image);
-        };
-        reader.readAsDataURL(blob);
+        // const reader = new FileReader();
+        // reader.onload = function (e) {
+        //     const base64Image = e.target.result;
+        //     addCustomerImage(customers[currentCustomerIndex].customerID, base64Image);
+        // };
+        // reader.readAsDataURL(blob);
     }, 'image/png');
 });
 
@@ -333,8 +348,6 @@ async function sendImageDataToModelHost(formData) {
         const data = await response.json();
         if (data.status === 'success') {
             console.log('Download Image success');
-        } else {
-            alert(`Error: ${data.error}`);
         }
     } catch (error) {
         alert(`Error: ${error.message}`);

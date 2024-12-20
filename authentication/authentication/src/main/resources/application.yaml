@@ -34,7 +34,7 @@ spring:
 cloud:
   aws:
     credentials:
-      access-key:
+      access-key: 
       secret-key:
     region:
       static: us-east-1
