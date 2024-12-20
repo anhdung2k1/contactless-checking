@@ -17,11 +17,11 @@ import java.util.*;
 @Transactional(rollbackOn = Exception.class)
 public class CustomerEntity {
     public CustomerEntity() {
-        this.customerName = "";
-        this.customerAddress = "";
-        this.customerGender = "";
+        this.customerName = "N/A";
+        this.customerAddress = "N/A";
+        this.customerGender = "Male";
         this.customerBirthDay = new Date();
-        this.customerEmail = "";
+        this.customerEmail = "N/A@gmail.com";
         this.checkInTime = new Date();
         this.checkOutTime = new Date();
         this.createAt = LocalDateTime.now();
@@ -30,10 +30,10 @@ public class CustomerEntity {
 
     public CustomerEntity(String customerName) {
         this.customerName = customerName;
-        this.customerAddress = "";
-        this.customerGender = "";
+        this.customerAddress = "N/A";
+        this.customerGender = "Male";
         this.customerBirthDay = new Date();
-        this.customerEmail = "";
+        this.customerEmail = "N/A@gmail.com";
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
     }

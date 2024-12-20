@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface RecordRepository extends JpaRepository<RecordEntity, Long> {
     @Query(value = "SELECT rc.* FROM records rc " +
-            "WHERE rc.create_at LIKE %:dateStr%", nativeQuery = true)
+            "WHERE rc.create_at LIKE CONCAT ('%', :dateStr, '%')", nativeQuery = true)
     Optional<List<RecordEntity>> findAllRecordsByDateStr(String dateStr);
 
     @Query(value = "SELECT COUNT(1) FROM records", nativeQuery = true)

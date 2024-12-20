@@ -137,6 +137,10 @@ class ImageProcessor:
                 embedding_count += 1
                 info(f"is_same_person: {is_same_person}")
                 info(f"similarity: {similarity}")
+                detection['is_same_person'] = is_same_person
+                detection['similarity'] = similarity
+                detection['person_name'] = self.person_name
+                info(f"process_image: detection: {detection}")
 
             os.remove(temp_face_path)
             info(f"Person identified: {self.person_name}")
@@ -147,9 +151,6 @@ class ImageProcessor:
             'status': 'success',
             'message': 'Image processed',
             'detections': detections,
-            'is_same_person': is_same_person,
-            'similarity': similarity,
-            'person_name': self.person_name,
             'embeddings': embedding_count
         }
     
