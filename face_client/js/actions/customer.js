@@ -6,6 +6,9 @@ let currentCustomerIndex = -1;
 let currentPage = 0;
 const pageSize = 5;
 
+const imageList = document.getElementById('imageList'); 
+let images = [];
+
 function renderCustomerTable(customers) {
     const tbody = document.querySelector('#customerTable tbody');
     tbody.innerHTML = '';
@@ -243,10 +246,9 @@ const searchCustomer = async () => {
         }
 
         const data = await response.json();
-        customers = data.content; // Giả sử backend trả về content chứa dữ liệu khách hàng
+        customers = data.content; 
         renderCustomerTable(customers);
 
-        // Cập nhật phân trang (Hiển thị tổng số trang và trang hiện tại)
         renderPagination(data.totalPages, currentPage);
 
     } catch (error) {
@@ -273,22 +275,32 @@ async function startVideo() {
     video.srcObject = stream;
 }
 
-// Capture image from video stream
 document.getElementById('captureButton').addEventListener('click', () => {
     const canvas = document.getElementById('canvas');
     const video = document.getElementById('video');
     const ctx = canvas.getContext('2d');
 
     // Resize canvas to match video size
-    const maxWidth = 768; // Set the maximum width of the canvas
+    const maxWidth = 130;
     const scale = maxWidth / video.videoWidth;
     canvas.width = maxWidth;
     canvas.height = video.videoHeight * scale;
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.classList.remove('d-none');
+
+    // Convert canvas to data URL (base64 format)
+    const imageData = canvas.toDataURL('image/png');
+
+    images.push(imageData);
+
+    const imageContainer = createImageContainer(imageData);
+    imageList.appendChild(imageContainer);
+
+    canvas.classList.add('d-none');
     document.getElementById('downloadButton').classList.remove('d-none');
 });
+
+
 
 // Handle download captured image
 document.getElementById('downloadButton').addEventListener('click', async () => {
@@ -409,49 +421,40 @@ function addPlaceholder() {
     });
 }
 
-// Handle the form submission to upload multiple images
 document.getElementById('uploadImagesButton').addEventListener('click', async () => {
-    const imageList = document.getElementById('imageList');
-    const imageContainers = imageList.getElementsByClassName('image-container');
     const customerName = customers[currentCustomerIndex].customerName;
 
-    let files = [];
-    for (let container of imageContainers) {
-        let input = container.querySelector('input[type="file"]');
-        if (input && input.files.length > 0) {
-            files.push(input.files[0]);
-        }
-    }
-
-    if (files.length === 0) {
-        alert('Please select at least one image.');
-        return;
-    }
+    const fileInput = document.getElementById('imageUpload');
+    const files = fileInput.files;
 
     for (const file of files) {
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('customerName', customerName);
-
-        await sendImageDataToModelHost(formData); // Wait for each image to be uploaded before continuing
-
-        // Send to API host base64 image
         const reader = new FileReader();
         reader.onload = function (e) {
             const base64Image = e.target.result;
-            addCustomerImage(customers[currentCustomerIndex].customerID, base64Image);
+            images.push(base64Image);
+
+            const imageContainer = createImageContainer(base64Image);
+            imageList.appendChild(imageContainer);
         };
         reader.readAsDataURL(file);
+    }
+
+    for (const imageData of images) {
+        const formData = new FormData();
+        formData.append('image', imageData);
+        formData.append('customerName', customerName);
+
+        await sendImageDataToModelHost(formData);
     }
 
     alert('All images uploaded successfully');
 });
 
+
 function renderPagination(totalPages, currentPage) {
     const paginationContainer = document.getElementById('pagination');
-    paginationContainer.innerHTML = ''; // Xóa các nút cũ
+    paginationContainer.innerHTML = ''; 
 
-    // Nút "Trang trước"
     const prevButton = document.createElement('li');
     prevButton.classList.add('page-item');
     const prevLink = document.createElement('a');
@@ -466,7 +469,6 @@ function renderPagination(totalPages, currentPage) {
     prevButton.appendChild(prevLink);
     paginationContainer.appendChild(prevButton);
 
-    // Nút các trang
     for (let i = 0; i < totalPages; i++) {
         const pageButton = document.createElement('li');
         pageButton.classList.add('page-item');
@@ -487,7 +489,6 @@ function renderPagination(totalPages, currentPage) {
         paginationContainer.appendChild(pageButton);
     }
 
-    // Nút "Trang sau"
     const nextButton = document.createElement('li');
     nextButton.classList.add('page-item');
     const nextLink = document.createElement('a');
@@ -504,13 +505,42 @@ function renderPagination(totalPages, currentPage) {
 }
 
 
-// Hàm thay đổi trang
 function changePage(page) {
     currentPage = page;
-    searchCustomer(); // Gọi lại hàm search để tải dữ liệu của trang mới
+    searchCustomer(); 
 }
 
 document.getElementById('searchInput').addEventListener('input', () => {
-    currentPage = 0; // Khi tìm kiếm lại, quay về trang đầu tiên
+    currentPage = 0;
     searchCustomer();
 });
+
+
+function createImageContainer(base64Image) {
+    const imageContainer = document.createElement('div');
+    imageContainer.classList.add('image-container');
+    imageContainer.style.position = 'relative';
+
+    const img = document.createElement('img');
+    img.src = base64Image;
+    img.style.width = '100px';
+    img.style.height = '100px';
+    img.style.objectFit = 'cover';
+    imageContainer.appendChild(img);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'btn btn-danger btn-sm';
+    deleteButton.style.position = 'absolute';
+    deleteButton.style.top = '5px';
+    deleteButton.style.right = '5px';
+    deleteButton.innerText = 'X';
+    imageContainer.appendChild(deleteButton);
+
+    deleteButton.addEventListener('click', () => {
+        const index = images.indexOf(base64Image);
+        if (index > -1) images.splice(index, 1); 
+        imageContainer.remove();
+    });
+
+    return imageContainer;
+}

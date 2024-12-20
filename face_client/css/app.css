@@ -14697,12 +14697,24 @@ a.sidebar-link svg {
     color: #e9ecef
 }
 
-.sidebar-brand {
+/* .sidebar-brand {
     color: #f8f9fa;
     display: block;
     font-size: 1.15rem;
     font-weight: 600;
     padding: 1.15rem 1.5rem
+} */
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+}
+
+.logo_image {
+    margin-top: 10px;
+    /* object-fit: contain; */
 }
 
 .sidebar-brand:hover {
@@ -16192,4 +16204,28 @@ span.flatpickr-weekday {
 
 .d-none {
     display: none;
+}
+
+.logo_image {
+    height: 100%;
+    weight: 100%;
+}
+
+#imageList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    /* Đảm bảo các ảnh căn đều từ bên trái */
+}
+
+#imageList .image-container {
+    margin: 10px;
+    text-align: center;
+}
+
+#imageList img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    /* Đảm bảo ảnh hiển thị block để tránh bị tràn */
 }

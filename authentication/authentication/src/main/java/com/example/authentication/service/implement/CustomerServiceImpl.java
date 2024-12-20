@@ -217,7 +217,6 @@ public class CustomerServiceImpl implements CustomerService {
         Pageable pageable = PageRequest.of(page, size);
         Page<CustomerEntity> customerEntities = customerRepository.findAll(pageable);
 
-        // Chuyển đổi từ CustomerEntity sang Customers
         return customerEntities.map(entity -> new Customers(
                 entity.getCustomerID(),
                 entity.getCustomerName(),
@@ -231,7 +230,6 @@ public class CustomerServiceImpl implements CustomerService {
                 entity.getUpdateAt(),
                 entity.getPhotos() != null && !entity.getPhotos().isEmpty()
                         ? entity.getPhotos().iterator().next().getPhotoUrl()
-                        : null
-                ));
+                        : null));
     }
 }
