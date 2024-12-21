@@ -1,0 +1,99 @@
+variables:
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  DOCKER_REGISTRY: "$CI_REGISTRY_IMAGE"
+  USER: "emkiba_01"
+
+stages:
+  - Debug
+  - Prepare
+  - Lint
+  - Build-Image-Push
+  - Remove
+
+default:
+  interruptible: true
+  tags:
+    - shell-em
+
+before_script:
+  - chmod -R +wx test/ || exit_code=$?
+
+house-keeping:
+    stage: .pre
+    variables:
+        GIT_CLEAN_FLAGS: -ffdx
+        GIT_SUBMODULE_STRATEY: none
+    dependencies: []
+    script:
+        - export CACHE_PATH=/home/$USER/cache/$CI_PROJECT_NAMESPACE
+        - export PROJECT_PATH=$CI_BUILDS_DIR/$CI_RUNNER_SHORT_TOKEN/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
+        - echo $PROJECT_PATH
+        - rm -rfv $CACHE_PATH/*
+        - rm -rfv $PROJECT_PATH/*
+
+debug:
+    stage: Debug
+    script:
+    - echo "Gitlab CI/CD | Print all environment variables"
+    - env | sort
+
+prepare:
+  stage: Prepare
+  retry: 2
+  script:
+    - make clean
+    - make init
+  artifacts:
+    when: always 
+    expire_in: 1 day
+    paths:
+      - "build/**/*"
+
+lint-helm-job:
+  stage: Lint
+  needs:
+    - prepare
+  before_script:
+    - test/install_3pp.sh
+  script:
+    - make lint
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - "build/**/*"
+
+build-image-push-combined:
+  stage: Build-Image-Push
+  before_script:
+    - docker info
+    - chmod -R +x build/ || exit_code=$?
+    - rm -rf build/helm-build/**/*.tgz
+    - rm -rf build/helm-build/**/*.sha256
+  script:    
+    - make build image
+    # - make push
+    - chmod -R +w build/ || exit_code=$?
+  needs:
+    - job: prepare
+    - job: lint-helm-job
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - build/helm-build/**/*.tgz
+      - docker/**/*
+
+remove:
+  stage: Remove
+  when: always
+  before_script:
+    - docker images
+  needs:
+    - job: build-image-push-combined
+  script:
+    - make remove
+
+## TODO(): THIS FOR AUTOMATION TEST
+##################################
+##################################

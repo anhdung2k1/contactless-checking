@@ -21,6 +21,7 @@
 helm/ck-application-integration-chart/Chart.lock
 helm/ck-application-integration-chart/charts/
 helm/ck-application-integration-chart/files/
+/test/helm-validation/__pycache__/
 
 /venv/
 /authentication/authentication/target/

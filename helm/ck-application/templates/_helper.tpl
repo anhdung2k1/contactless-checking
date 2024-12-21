@@ -522,7 +522,7 @@ Define ck-application.appArmorProfileAnnotation
 {{- $minKubeVersionMinor := 30 -}}
 {{- $minKubeVersionMajor := 1 -}}
 {{- if or (lt $kubeVersionMajor $minKubeVersionMajor) (and (eq $kubeVersionMajor $minKubeVersionMajor) (lt $kubeVersionMinor $minKubeVersionMinor)) }}
-  {{- $acceptedProfiles := list "unconfined" "runtime/default" "localhost" }}
+  {{- $acceptedProfiles := list "Unconfined" "RuntimeDefault" "Localhost" "unconfined" "runtime/default" "localhost" }}
   {{- $commonProfile := dict -}}
   {{- if .Values.appArmorProfile.type -}}
     {{- $_ := set $commonProfile "type" .Values.appArmorProfile.type -}}
@@ -531,6 +531,7 @@ Define ck-application.appArmorProfileAnnotation
     {{- end -}}
   {{- end -}}
   {{- $profiles := dict -}}
+  {{- $profileType := "" -}}
   {{- $containers := list "authentication" "face-model" "face-client" -}}
   {{- range $container := $containers -}}
     {{- $_ := set $profiles $container $commonProfile -}}
@@ -545,10 +546,19 @@ Define ck-application.appArmorProfileAnnotation
       {{- if not (has $value.type $acceptedProfiles) -}}
         {{- fail (printf "Unsupported appArmor profile type: %s, use one of the supported profiles %s" $value.type $acceptedProfiles) -}}
       {{- end -}}
-      {{- if and (eq $value.type "localhost") (empty $value.localhostProfile) -}}
-        {{- fail "The 'localhost' appArmor profile requires a profile name to be provided in localhostProfile parameter." -}}
+      {{- if eq (lower $value.type) "localhost" -}}
+        {{- if empty $value.localhostProfile -}}
+          {{- fail "The 'localhost' appArmor profile requires a profile name to be provided in localhostProfile parameter." -}}
+        {{- end }}
+        {{- $profileType = "localhost" -}}
+      {{- else if eq $value.type "RuntimeDefault" -}}
+        {{- $profileType = "runtime/default" -}}
+      {{- else if eq $value.type "Unconfined" -}}
+        {{- $profileType = "unconfined" -}}
+      {{- else -}}
+        {{- $profileType = $value.type -}}
       {{- end }}
-container.apparmor.security.beta.kubernetes.io/{{ $key }}: {{ $value.type }}{{ eq $value.type "localhost" | ternary (printf "/%s" $value.localhostProfile) "" }}
+container.apparmor.security.beta.kubernetes.io/{{ $key }}: {{ $profileType }}{{ eq $profileType "localhost" | ternary (printf "/%s" $value.localhostProfile) "" }}
     {{- end -}}
   {{- end -}}
 {{- end -}}
@@ -565,10 +575,10 @@ Common function to render ck-application.appArmorProfile.securityContext (Kubern
   {{- if not (has $profile.type $acceptedProfiles) -}}
     {{- fail (printf "Unsupported appArmor profile type: %s, use one of the supported profiles %s" $profile.type $acceptedProfiles) -}}
   {{- end -}}
-  {{- if and (eq (lower $profile.type) "localhost") (empty $profile.localhostProfile) -}}
-    {{- fail "The 'localhost' appArmor profile requires a profile name to be provided in localhostProfile parameter." -}}
-  {{- end }}
   {{- if eq (lower $profile.type) "localhost" -}}
+    {{- if empty $profile.localhostProfile -}}
+      {{- fail "The 'localhost' appArmor profile requires a profile name to be provided in localhostProfile parameter." -}}
+    {{- end }}
     {{- $profileType = "Localhost" -}}
   {{- else if eq $profile.type "runtime/default" -}}
     {{- $profileType = "RuntimeDefault" -}}
