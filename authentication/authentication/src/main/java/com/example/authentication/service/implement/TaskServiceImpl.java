@@ -81,6 +81,7 @@ public class TaskServiceImpl implements TaskService {
     public Page<Map<String, Object>> getAllTasksWithTaskName(String taskName, int page, int size) throws Exception {
         try {
             Pageable pageable = PageRequest.of(page, size);
+            log.info("getAllTasksWithTaskName, taskName: {}, page: {}, size: {}", taskName, page, size);
             Page<TaskEntity> taskPage = taskRepository.findAllTasksByTaskName(taskName, pageable);
             log.info("getAllTasksWithTaskName {}: {}", taskName, taskPage);
             return taskPage.map(this::taskMap);
@@ -94,6 +95,7 @@ public class TaskServiceImpl implements TaskService {
     public Page<Map<String, Object>> getAllTasksByCustomerName(String customerName, int page, int size) throws Exception {
         try {
             Pageable pageable = PageRequest.of(page, size);
+            log.info("getAllTasksByCustomerName, customerName: {}, page: {}, size: {}", customerName, page, size);
             Page<TaskEntity> taskPage = taskRepository.findAllTasksByCustomerName(customerName, pageable);
             log.info("getAllTasksByCustomerName {}: {}", customerName, taskPage);
             return taskPage.map(this::taskMap);
@@ -136,11 +138,15 @@ public class TaskServiceImpl implements TaskService {
                 taskEntity.setTaskDesc(tasks.getTaskDesc());
             }
             if (tasks.getCustomer() != null) {
-                if (customerRepository.findById(tasks.getCustomer().getCustomerID()).isPresent()) {
-                    CustomerEntity customerEntity = customerRepository
-                            .findById(tasks.getCustomer().getCustomerID()).get();
-                    log.info("updateTaskDescription:(), customerEntity: {}", customerEntity);
-                    taskEntity.setCustomer(customerEntity);
+                if (tasks.getCustomer().getCustomerID() != null) {
+                Long customerID = tasks.getCustomer().getCustomerID();
+                    log.info("customerID: {}", customerID);
+                    if (customerRepository.findById(customerID).isPresent()) {
+                        CustomerEntity customerEntity = customerRepository
+                                .findById(customerID).get();
+                        log.info("updateTaskDescription:(), customerEntity: {}", customerEntity);
+                        taskEntity.setCustomer(customerEntity);
+                    }
                 }
             }
             if (tasks.getEstimateHours() != null) {
