@@ -61,7 +61,7 @@ class ImageProcessor:
             info(f"Euclidean distance between embeddings: {similarity}")
 
             # Decide based on a threshold
-            threshold = 1.5
+            threshold = 2
             is_same_person = similarity < threshold
             info("Images are of the same person" if is_same_person else "Images are of different persons")
 

@@ -16207,7 +16207,7 @@ span.flatpickr-weekday {
 }
 
 #resultCanvas {
-    width: 700px !important;
+    width: 100% !important;
     object-fit: contain;
     border: 3px solid #4CAF50;
     border-radius: 12px;
@@ -16221,14 +16221,15 @@ span.flatpickr-weekday {
 }
 
 #captureAndSubmitButton {
-    width: 120px !important;
+    width: 15% !important;
     object-fit: contain;
     position: absolute;
     margin: auto;
-    right: 40px;
-    top: 430px;
+    right: 5%;
+    top: 33%;
     color: #fff;
     opacity: 0.6;
+    z-index: 9999;
 }
 
 #captureAndSubmitButton:hover {
