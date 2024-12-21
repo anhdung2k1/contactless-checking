@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log(`is_same_person: ${isSamePerson}, similarity: ${similarity}, person_name: ${personName}`);
         if (isSamePerson) {
-            alert(`Valid Person! Similarity: ${similarity}`);
+            console.log(`Valid Person! Similarity: ${similarity}`);
             const recordData = `${personName} has checked in at ${getCurrentDate()}`;
             record(recordData, 'success');
             sendNotification(recordData);
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 getTaskByCustomerName(personName);
             }
         } else {
-            alert(`Invalid Person! Similarity: ${similarity}`);
+            console.log(`Invalid Person! Similarity: ${similarity}`);
             const recordData = `${personName} has failed to check in at ${getCurrentDate()}`;
             record(recordData, 'failed');
             sendNotification(recordData);
@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data.detections.forEach(detection => {
                 const { bbox, confidence } = detection;
                 const personName = detection.person_name;
+                const validPerson = detection.is_same_person
                 const [x1, y1, x2, y2] = bbox;
                 resultCtx.strokeStyle = 'red';
                 resultCtx.lineWidth = 2;
@@ -243,6 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultCtx.font = '16px Arial';
                 resultCtx.fillText(`confidence: (${confidence.toFixed(2)})`, x1, y1 - 10);
                 resultCtx.fillText(`person_name: ${personName}`, x1, y1 - 30);
+                resultCtx.fillText(`valid_person: ${validPerson}`, x1, y1 - 50);
             });
         };
         if (imageSource instanceof Blob) {

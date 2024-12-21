@@ -31,17 +31,18 @@ def save_detected_image(image, result, output_path):
     draw = ImageDraw.Draw(image)
     
     # Use the default font with the default size
-    font = ImageFont.load_default()
-    text_color = (0, 255, 0)  # Green color in RGB
+    font = ImageFont.truetype("arial.ttf", 24)
+    text_color = (255, 0, 0)  # Green color in RGB
 
     for detection in result['detections']:
         bbox = detection['bbox']
-        person_name = result['person_name']
+        person_name = detection['person_name']
         confidence = detection.get('confidence', 0)
+        is_same_person = detection['is_same_person']
 
         # Draw the bounding box and text
         draw.rectangle(bbox, outline='red', width=2)
-        draw.text((bbox[0], bbox[1] - 10), f"{person_name} ({confidence:.2f})", fill=text_color, font=font)
+        draw.text((bbox[0], bbox[1] - 10), f"{person_name} ({confidence:.2f}) valid_person: ${is_same_person}", fill=text_color, font=font)
     
     # Ensure the output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
