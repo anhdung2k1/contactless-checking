@@ -146,7 +146,6 @@ async function deleteTask(index) {
         search();
     } catch (error) {
         console.error('Delete task failed: ', error);
-        alert('Failed to delete task: ' + error.message);
     }
 }
 
@@ -206,7 +205,6 @@ const addTask = async (formData) => {
         search(); // Reload danh sách sau khi thêm
     } catch (error) {
         console.error('Add Task failed: ', error);
-        alert('Failed to add task: ' + error.message);
     }
 };
 
@@ -233,11 +231,10 @@ const updateTask = async (formData) => {
 
         const data = await response.json();
         tasks[currentTaskIndex] = data;
-        alert("Update Task Successfully");
+        console.log("Update Task Successfully");
         search(); // Reload danh sách sau khi cập nhật
     } catch (error) {
         console.error('Update Task failed: ', error);
-        alert('Failed to update task: ' + error.message);
     }
 };
 
@@ -293,7 +290,6 @@ const search = async () => {
 
     } catch (error) {
         console.error('Get Tasks failed: ', error);
-        alert('Failed to get tasks: ' + error.message);
     }
 };
 

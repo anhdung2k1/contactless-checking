@@ -59,7 +59,6 @@ const getUser = async () => {
         return userData;
     } catch (error) {
         console.error('Fetch User failed:', error);
-        console.error('Fetch User Failed: ' + error.message);
     }
 };
 

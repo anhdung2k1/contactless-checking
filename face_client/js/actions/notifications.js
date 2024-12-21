@@ -16,7 +16,6 @@ const getNotifications = async () => {
         renderNotifications(data);
     } catch (error) {
         console.error('Fetch Notifications failed: ', error);
-        alert('Failed to fetch notifications: ' + error.message);
     }
 };
 

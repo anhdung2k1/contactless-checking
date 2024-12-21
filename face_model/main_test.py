@@ -77,7 +77,7 @@ def main():
                                  model_file_path=faceNet_model)
     facenet_model.train()
     
-    distances, labels = facenet_model.verify_images(threshold=0.5)
+    distances, labels = facenet_model.verify_images(threshold=2)
     info(f"Verification Results: {len(distances)} comparisons made.")
     info(f"Distances: {distances}")
     info(f"Labels: {labels}")

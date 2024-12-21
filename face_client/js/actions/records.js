@@ -36,7 +36,6 @@ const getAllRecords = async (dateStr) => {
         renderRecordTable(recordData);
     } catch (error) {
         console.error('Get Records failed: ', error);
-        alert('Failed to get records: ' + error.message);
     }
 };
 

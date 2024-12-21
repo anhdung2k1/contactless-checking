@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 facingMode: 'environment', // Use the rear camera (if available)
                 width: { ideal: 1920 },  // Ideal width (Full HD)
                 height: { ideal: 1080 }, // Ideal height (Full HD)
-                frameRate: { ideal: 144 } // Ideal frame rate (30 fps)
+                frameRate: { ideal: 60 } // Ideal frame rate (60 fps)
             }
         };
 
@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch((error) => {
                 console.error('Error accessing the camera: ', error);
-                alert('Could not access the camera. Please check permissions.');
             });
     }
 
@@ -41,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         const file = imageInput.files[0];
         if (!file) {
-            alert('Please select an image file.');
+            console.log('Please select an image file.');
             return;
         }
         formData.append('image', file);
@@ -152,8 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomerTaskModal();
             renderCustomerTaskModal(data);
         } catch (error) {
-            console.log('Error in getTaskByCustomerName: ' + customerName, error);
-            alert(`Error in getTaskByCustomerName: ${customerName} ${error.message}`);
+            console.error('Error in getTaskByCustomerName: ' + customerName, error);
         }
     }
 
@@ -179,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error in record:', error);
-            alert(`Error: ${error.message}`);
         }
     }
 
@@ -205,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error in sendNotification:', error);
-            alert(`Error: ${error.message}`);
         }
     }
 
