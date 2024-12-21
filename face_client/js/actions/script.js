@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('uploadForm');
     const imageInput = document.getElementById('imageInput');
     const video = document.getElementById('video');
-    const captureButton = document.getElementById('captureButton');
+    // const captureButton = document.getElementById('captureButton');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    const submitCaptureButton = document.getElementById('submitCaptureButton');
+    // const submitCaptureButton = document.getElementById('submitCaptureButton');
+    const captureAndSubmitButton = document.getElementById('captureAndSubmitButton');
     const resultCanvas = document.getElementById('resultCanvas');
     const resultCtx = resultCanvas.getContext('2d');
 
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 facingMode: 'environment', // Use the rear camera (if available)
                 width: { ideal: 1920 },  // Ideal width (Full HD)
                 height: { ideal: 1080 }, // Ideal height (Full HD)
-                frameRate: { ideal: 30 } // Ideal frame rate (30 fps)
+                frameRate: { ideal: 144 } // Ideal frame rate (30 fps)
             }
         };
 
@@ -47,17 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await sendImage(formData, file);
     });
 
-    // Capture image from video stream
-    captureButton.addEventListener('click', () => {
+    captureAndSubmitButton.addEventListener('click', async () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        canvas.classList.remove('d-none');
-        submitCaptureButton.classList.remove('d-none');
-    });
-
-    // Handle captured image submission
-    submitCaptureButton.addEventListener('click', async () => {
         canvas.toBlob(async (blob) => {
             const formData = new FormData();
             formData.append('image', blob, 'captured_image.png');

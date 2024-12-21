@@ -14697,12 +14697,24 @@ a.sidebar-link svg {
     color: #e9ecef
 }
 
-.sidebar-brand {
+/* .sidebar-brand {
     color: #f8f9fa;
     display: block;
     font-size: 1.15rem;
     font-weight: 600;
     padding: 1.15rem 1.5rem
+} */
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+}
+
+.logo_image {
+    margin-top: 10px;
+    /* object-fit: contain; */
 }
 
 .sidebar-brand:hover {
@@ -16167,4 +16179,73 @@ span.flatpickr-weekday {
 .pagination-item.active .pagination-link {
     background-color: #28a745;
     border-color: #28a745;
+}
+
+.video-styled,
+.canvas-styled {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #4CAF50;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+.video-styled:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+.canvas-styled:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+.logo_image {
+    height: 100%;
+}
+
+#resultCanvas {
+    width: 700px !important;
+    object-fit: contain;
+    border: 3px solid #4CAF50;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+#video {
+    position: relative;
+}
+
+#captureAndSubmitButton {
+    width: 120px !important;
+    object-fit: contain;
+    position: absolute;
+    margin: auto;
+    right: 40px;
+    top: 430px;
+    color: #fff;
+    opacity: 0.6;
+}
+
+#captureAndSubmitButton:hover {
+    cursor: pointer;
+}
+
+#captureButton {
+    width: 120px !important;
+    object-fit: contain;
+    position: absolute;
+    margin: auto;
+    right: 40px;
+    top: 450px;
+    color: #fff;
+    opacity: 0.6;
+}
+
+#captureButton:hover {
+    cursor: pointer;
 }
