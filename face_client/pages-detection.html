@@ -11,7 +11,7 @@
 		content="contactless-checking, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
 	<link rel="preconnect" href="//fonts.gstatic.com">
-	<link rel="shortcut icon" href="img/icons/icon-48x48.png" />
+	<link rel="shortcut icon" href="img/icons/cctv.png" />
 
 	<title>Page Detection | Contactless Checking</title>
 	<script src="js/actions/tokenValidation.js"></script>
@@ -40,7 +40,9 @@
 		<nav id="sidebar" class="sidebar js-sidebar">
 			<div class="sidebar-content js-simplebar">
 				<a class="sidebar-brand" href="index.html">
-					<span class="align-middle">Contactless Checking</span>
+					<img class="logo_image" src="img/logo/cctv.png" alt="Contactless Checking">
+					<span class="align-middle" style="color: #fff; line-height: 60px; font-size: 16px;">Contactless
+						Checking</span>
 				</a>
 
 				<ul class="sidebar-nav">
@@ -162,20 +164,18 @@
 										<button type="submit" class="btn btn-primary">Upload Image</button>
 									</form>
 
-									<div class="mb-4 text-center">
-										<video id="video" width="710" height="400" autoplay class="border"></video>
-									</div>
-									<div class="text-center">
-										<button id="captureButton" class="btn btn-primary mt-3">Capture Image</button>
+									<div class="mb-4 text-center video">
+										<video id="video" class="video-styled" autoplay>
+										</video>
+										<img id="captureAndSubmitButton" src="img/icons/camera.png" alt="">
 									</div>
 
-									<canvas id="canvas" class="d-none"></canvas>
-									<div class="mt-4">
-										<button id="submitCaptureButton" class="btn btn-success d-none">Submit Captured
-											Image</button>
+									<div class="mt-3 mb-4 text-center">
+										<canvas id="canvas" class="canvas-styled d-none"></canvas>
 									</div>
+
 									<div class="mt-4">
-										<canvas id="resultCanvas" width="710" height="400" class="border"></canvas>
+										<canvas id="resultCanvas" width="400px" height="400px" class="border"></canvas>
 									</div>
 								</div>
 							</div>
@@ -183,9 +183,9 @@
 					</div>
 				</div>
 			</main>
-			
-			<div class="modal fade" id="customerTaskModal" tabindex="-1"
-			aria-labelledby="customerTaskModalLabel" aria-hidden="true">
+
+			<div class="modal fade" id="customerTaskModal" tabindex="-1" aria-labelledby="customerTaskModalLabel"
+				aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered modal-lg">
 					<div class="modal-content">
 						<div class="modal-header">

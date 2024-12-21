@@ -93,7 +93,6 @@ async function deleteCustomer(index) {
         renderCustomerTable(customers);
     } catch (error) {
         console.error('Delete Customer failed: ', error);
-        alert('Failed to delete customer: ' + error.message);
     }
 }
 
@@ -161,11 +160,11 @@ const addCustomer = async (formData) => {
         }
 
         const data = await response.json();
+        console.log(data);
         customers.push(data);
-        alert("Add Customer Successfully");
+        console.log("Add Customer Successfully");
     } catch (error) {
         console.error('Add Customer failed: ', error);
-        alert('Failed to add customer: ' + error.message);
     }
 };
 
@@ -185,11 +184,11 @@ const updateCustomer = async (formData) => {
         }
 
         const data = await response.json();
+        console.log(data);
         customers[currentCustomerIndex] = data;
-        alert("Update Customer Successfully");
+        console.log("Update Customer Successfully");
     } catch (error) {
         console.error('Update Customer failed: ', error);
-        alert('Failed to update customer: ' + error.message);
     }
 };
 
@@ -222,7 +221,6 @@ const addCustomerImage = async (customerID, base64Image) => {
         await delay(2000); // 2s delay for stable
     } catch (error) {
         console.error('Update Customer Image failed:', error);
-        alert('Add Customer Image Failed: ' + error.message);
     }
 };
 
@@ -243,6 +241,7 @@ const searchCustomer = async () => {
         }
 
         const data = await response.json();
+        console.log(data.content);
         customers = data.content; // Giả sử backend trả về content chứa dữ liệu khách hàng
         renderCustomerTable(customers);
 
@@ -251,7 +250,6 @@ const searchCustomer = async () => {
 
     } catch (error) {
         console.error('Get Customers failed: ', error);
-        alert('Failed to get customers: ' + error.message);
     }
 };
 
@@ -322,10 +320,10 @@ async function sendImageDataToModelHost(formData) {
         if (data.status === 'success') {
             console.log('Download Image success');
         } else {
-            alert(`Error: ${data.error}`);
+            console.error(`Error: ${data.error}`);
         }
     } catch (error) {
-        alert(`Error: ${error.message}`);
+        console.error(`Error: ${error.message}`);
     }
 }
 
@@ -444,7 +442,7 @@ document.getElementById('uploadImagesButton').addEventListener('click', async ()
         reader.readAsDataURL(file);
     }
 
-    alert('All images uploaded successfully');
+    console.log('All images uploaded successfully');
 });
 
 function renderPagination(totalPages, currentPage) {
