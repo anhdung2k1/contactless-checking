@@ -26,4 +26,6 @@ public interface TaskService {
     Page<Task> getAllTasks(int page, int size);
 
     List<TaskEntity> getTasksByCustomerName(String customerName);
+
+    List<TaskEntity> getTasksByListCustomerName(List<String> customerNameList);
 }

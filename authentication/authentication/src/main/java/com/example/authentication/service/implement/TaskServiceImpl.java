@@ -3,6 +3,7 @@ package com.example.authentication.service.implement;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.springframework.beans.BeanUtils;
@@ -211,5 +212,15 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskEntity> getTasksByCustomerName(String customerName) {
         log.info("getTaskByCustomerName: {}", taskRepository.findByCustomer_CustomerName(customerName));
         return taskRepository.findByCustomer_CustomerName(customerName);
+    }
+
+    public List<TaskEntity> getTasksByListCustomerName(List<String> customerNameList) {
+        List<TaskEntity> resultList = new ArrayList<TaskEntity>();
+        for (String customerName : customerNameList) {
+            List<TaskEntity> listTasks = getTasksByCustomerName(customerName);
+            resultList.addAll(listTasks);
+        }
+        log.info("getTasksByListCustomerName: resultList: {}", resultList);
+        return resultList;
     }
 }

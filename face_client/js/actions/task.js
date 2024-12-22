@@ -25,7 +25,7 @@ function renderTaskTable(tasks, includeCustomerName = true) {
             <td>${task.taskName}</td>
             <td class="d-none d-xl-table-cell">${task.taskDesc}</td>
             <td class="d-none d-xl-table-cell">${task.taskStatus}</td>
-            ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customer.customerName != null ? task.customer.customerName : 'N/A'}</td>` : ''}
+            ${includeCustomerName ? `<td class="d-none d-xl-table-cell">${task.customer != null ? task.customer.customerName : 'N/A'}</td>` : ''}
             <td class="d-none d-xl-table-cell">${task.estimateHours ? task.estimateHours : 'N/A'}</td>
             <td class="d-none d-xl-table-cell">${task.logHours ? task.logHours : 'N/A'}</td>
             <td>

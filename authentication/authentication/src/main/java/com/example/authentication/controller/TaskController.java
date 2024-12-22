@@ -99,4 +99,16 @@ public class TaskController {
         }
         return ResponseEntity.ok(tasks);
     }
+
+    @GetMapping("/tasks/getTask")
+    public ResponseEntity<List<TaskEntity>> getTasksByListCustomerName(
+        @RequestParam("customerList") String listCustomerName
+    ) {
+        List<String> customerNames = List.of(listCustomerName.split(","));
+        List<TaskEntity> tasks = taskService.getTasksByListCustomerName(customerNames);
+        if (tasks == null || tasks.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(tasks);
+    }
 }

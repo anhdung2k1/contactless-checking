@@ -7,7 +7,7 @@ from PIL import Image
 from ultralytics import YOLO
 from argface_model.argface_classifier import ArcFaceClassifier
 from facenet_model.facenet_model import FaceNetModel
-from logger import info, error
+from logger import info, debug, error
 
 file_location = os.path.abspath(__file__)  # Get current file abspath
 root_directory = os.path.dirname(file_location)  # Get root dir
@@ -161,6 +161,19 @@ class ImageProcessor:
         os.makedirs(label_dir, exist_ok=True)
         face_img = f"{self.person_name}_{uuid.uuid4()}.png"
         face_save_path = os.path.join(label_dir, face_img)
-        image.convert('RGB').save(face_save_path)
-        info(f"Saved processed face image to {face_save_path}")
+        image = image.convert('RGB')
+        image_np = np.array(image)
+        debug(f"Image shape after conversion: {image_np.shape}")
+
+        face_results = self.yolo_model(image_np)
+        
+        for face_result in face_results:
+            for box in face_result.boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                if box.cls == 0:
+                    cropped_face = image.crop((x1, y1, x2, y2))
+                    cropped_face = cropped_face.resize((640, 640))
+
+                    cropped_face.save(face_save_path, quality=95)
+                    info(f"Saved processed face image to {face_save_path}")
         return {'status': 'success', 'message': 'Image downloaded'}

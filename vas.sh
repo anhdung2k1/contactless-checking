@@ -268,7 +268,6 @@ build_image() {
     version=$(get_version)
 
     #remove the docker images before create new ones
-    docker rmi -f $image_name:$version
     docker build $VAS_GIT/docker/$__name \
             --file $VAS_GIT/docker/$__name/Dockerfile \
             --tag "$DOCKER_REGISTRY/$image_name:$version" \
@@ -376,17 +375,22 @@ push_image() {
 ## --name=<module name>
 ##
 push_helm() {
-   test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
-   test -n "$DOCKER_REGISTRY" || die "Not set [DOCKER_REGISTRY]"
-   test -n "$HELM_DIR" || die "Not set [HELM_DIR]"
-   image_name=ck-$__name
-   version=$(get_version)
-   registry=oci://registry-1.docker.io
+    if [ $RELEASE == true ]; then
+        test -n "$VAS_GIT" || die "Not set [VAS_GIT]"
+        test -n "$DOCKER_REGISTRY" || die "Not set [DOCKER_REGISTRY]"
+        test -n "$HELM_DIR" || die "Not set [HELM_DIR]"
+        image_name=ck-$__name
+        version=$(get_version)
+        registry=oci://registry-1.docker.io
 
-   ## Helm push to docker registry
-   helm push $HELM_DIR/ck-application-$version.tgz \
-        $registry/$DOCKER_REGISTRY \
-        || die "Failed to push helm chart to $registry/$DOCKER_REGISTRY"
+        echo "RELEASE is true. Push helm chart to $registry/$DOCKER_REGISTRY"
+        ## Helm push to docker registry
+        helm push $HELM_DIR/ck-application-$version.tgz \
+                $registry/$DOCKER_REGISTRY \
+                || die "Failed to push helm chart to $registry/$DOCKER_REGISTRY"
+    else
+        echo "RELEASE is false. Skip to push helm chart"
+    fi
 }
 
 ## Train the dataset

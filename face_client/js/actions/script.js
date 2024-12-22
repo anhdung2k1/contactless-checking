@@ -71,13 +71,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             console.log('Upload response data:', data); // Log the response data
+            customerNameList = [];
 
             if (data.status === 'success') {
                 displayResults(data, imageSource);
                 data.detections.forEach(detection => {
                     console.log("sendImage detection: ", detection);
-                    verifyPerson(detection);
+                    const personDetected = verifyPerson(detection);
+                    console.log("personDetected: ", personDetected);
+                    if (personDetected) {
+                        console.log(`Add person_name: ${detection.person_name} to customerNameList`);
+                        customerNameList.push(detection.person_name);
+                    }
                 });
+                if (customerNameList.length > 0) {
+                    // Get All Tasks with List of Customer Name
+                    getAllTasksByListCustomerName(customerNameList);
+                }
             } else {
                 console.error(`Error: ${data.message}`);
             }
@@ -89,6 +99,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCustomerTaskModal(tasks) {
         const tbody = document.querySelector('#customerTaskTable tbody');
         tbody.innerHTML = '';
+
+        if (tasks.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center;">No tasks found</td>
+                </tr>
+            `;
+            return;
+        }
+
         document.getElementById('customerTaskModalLabel').innerText = 'Customer Task';
         tasks.forEach((task) => {
             const row = document.createElement('tr');
@@ -109,33 +129,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function verifyPerson(data) {
-         // Use fallback values if data fields are undefined
-        const isSamePerson = data.is_same_person !== undefined ? data.is_same_person : false;
-        const similarity = data.similarity !== undefined ? data.similarity : 0;
-        const personName = data.person_name || 'Unknown';
-
-        console.log(`is_same_person: ${isSamePerson}, similarity: ${similarity}, person_name: ${personName}`);
-        if (isSamePerson) {
+        if (typeof data !== 'object' || data === null) {
+            throw new Error('Invalid input: data must be a non-null object');
+        }
+    
+        const { is_same_person = false, similarity = 0, person_name = 'Unknown' } = data;
+    
+        let recordData = "";
+        let recordStatus = "";
+    
+        console.log(`is_same_person: ${is_same_person}, similarity: ${similarity}, person_name: ${person_name}`);
+        if (is_same_person) {
             console.log(`Valid Person! Similarity: ${similarity}`);
-            const recordData = `${personName} has checked in at ${getCurrentDate()}`;
-            record(recordData, 'success');
-            sendNotification(recordData);
-            //TO DO: Show the Task Modal according to customer name if the customer is valid detected
-            if (isSamePerson) {
-                getTaskByCustomerName(personName);
-            }
+            recordData = `${person_name} has checked in at ${getCurrentDate()}`;
+            recordStatus = 'success';
         } else {
             console.log(`Invalid Person! Similarity: ${similarity}`);
-            const recordData = `${personName} has failed to check in at ${getCurrentDate()}`;
-            record(recordData, 'failed');
-            sendNotification(recordData);
+            recordData = `${person_name} has failed to check in at ${getCurrentDate()}`;
+            recordStatus = 'failed';
         }
-    }
-
-    async function getTaskByCustomerName(customerName) {
+    
         try {
-            const query = encodeURIComponent(customerName);
-            const response = await fetch(`${HOST_IP}/api/tasks/getTask/${query}`, {
+            record(recordData, recordStatus);
+            sendNotification(recordData);
+        } catch (error) {
+            console.error('Error during record or notification process:', error);
+        }
+    
+        return is_same_person;
+    }    
+
+    async function getAllTasksByListCustomerName(customerNameList) {
+        try {
+            // Need to add new API from customerName list
+            const query = encodeURIComponent(customerNameList.join(','));
+            const response = await fetch(`${HOST_IP}/api/tasks/getTask?customerList=${query}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -147,11 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Cannot retrieve tasks. Status: ${response.status}`);
             }
             const data = await response.json();
-            console.log(`getTaskByCustomerName ${customerName}: ${data}`);
+            console.log(`getTaskByCustomerName: ${data}`);
             showCustomerTaskModal();
             renderCustomerTaskModal(data);
         } catch (error) {
-            console.error('Error in getTaskByCustomerName: ' + customerName, error);
+            console.error('Error in getTaskByCustomerName: ', error);
         }
     }
 
