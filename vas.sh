@@ -223,7 +223,7 @@ build_repo() {
             || die "[ERROR]: Failed to run mysql docker"
         mysql_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container)
         echo $mysql_IP
-        docker run -it --rm -v "$(pwd -P)":/app \
+        docker run --rm -v "$(pwd -P)":/app \
                     -w /app \
                     -e DB_HOST=$mysql_IP \
                     -e DB_USERNAME=$COMMON_DB \
@@ -512,7 +512,7 @@ test_repo() {
         # Remove existing authentication repo
         docker ps -a | grep -i $__name | awk '$1 {print $1}' | xargs docker rm -f
 
-        docker run -it --rm -d --name $__name \
+        docker run --rm -d --name $__name \
                 -e DB_HOST=${mysql_IP} \
                 -e DB_USERNAME=${COMMON_DB} \
                 -e DB_NAME=${COMMON_DB} \
@@ -527,7 +527,7 @@ test_repo() {
             docker rm -f $__name
         fi
 
-        docker run -it --rm -d --name $__name \
+        docker run --rm -d --name $__name \
                 -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
                 -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
                 -p 5000:5000 \
@@ -540,7 +540,7 @@ test_repo() {
             docker rm -f $__name
         fi
 
-        docker run -it --rm -d --name $__name \
+        docker run --rm -d --name $__name \
                 -p 80:80 \
                 ${DOCKER_REGISTRY}/${image_name}:${version} \
                 || die "[ERROR]: Failed to run docker $__name"
