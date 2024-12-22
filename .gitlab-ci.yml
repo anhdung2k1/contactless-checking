@@ -55,7 +55,7 @@ lint-helm-job:
     - prepare
   before_script:
     - test/install_3pp.sh
-    - chmod +x test/
+    - chmod -R +x test/ || exit_code=$?
   script:
     - make lint
   artifacts:
