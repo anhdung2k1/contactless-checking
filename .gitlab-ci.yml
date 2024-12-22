@@ -13,7 +13,7 @@ stages:
 default:
   interruptible: true
   tags:
-    - shell-em
+    - shell-ck
 
 before_script:
   - chmod -R +wx test/ || exit_code=$?
