@@ -139,24 +139,61 @@ public class SecurityConfiguration {
 ---
 <a><strong>API Requests</strong></a>
 
-|.No | Path | Status | Notes | Description | Method | Authorization | User Required | Param | RequestBody | Response |  
+|.No | Path | Status | Notes | Description | Method | Authorization | User Required | Param | RequestBody | Response |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | User |
 | 1 | /api/users | Done | - | - | Get | Bearer | client | - | - | userName |
 | 2 | /api/users | Done | - | When Account is register user is create too | POST | Bearer | client | - | userName [type] |  User |
 | 3 | /api/users/:id | Done | - | | GET | Bearer | client | id | - | userName, address, gender |
 | 4 | /api/users/search | Done | - | Search By Name | GET | Bearer | client | - | keyword | userId, userName |
-| 5 | /api/users/block | To-Do | - | Type: 0 is unblock, 1 is block | POST | Bearer | room-admin | - | user_id [type] | - | 
+| 5 | /api/users/block | To-Do | - | Type: 0 is unblock, 1 is block | POST | Bearer | room-admin | - | user_id [type] | - |
 | 6 | /api/users/:id | Done | Update User Information | - | PUT | Bearer | client | - | user_id [type] | User |
 | 7 | /api/users/:id | Done | Delete User | - | DELETE | Bearer | admin | id | user_id [type] | boolean |
 | |
 | Account |
-| 1 | /api/accounts/signin | Done | - | - | POST | no-auth | client | - | userName, password | token | 
+| 1 | /api/accounts/signin | Done | - | - | POST | no-auth | client | - | userName, password | token |
 | 2 | /api/accounts/signup | Done | - | - | POST | no-auth | client | - | userName, password | token |
 | 3 | /api/accounts | Done | - | - | GET | Bearer | admin | - | - | Accounts |
 | 4 | /api/account/:id | Done | - | - | GET | Bearer | admin | id | - | Account |
 | 5 | /api/account/:userName | Done | - | Get Account ID | GET | Bearer | client | - | - | acc_id |
-| 6 | /api/accounts/:id | Done | - | Update Account Password | PUT | Bearer | admin | id | attributes | Account | 
+| 6 | /api/accounts/:id | Done | - | Update Account Password | PUT | Bearer | admin | id | attributes | Account |
 | 7 | /api/accounts/:id | Done | Delete Account need delete User respective with that account | Delete Account | DELETE | Bearer | admin | id | - | boolean |
 | |
+| Customer |
+| 1 | /api/customers | Done | - | Create new Customer | POST | Bearer | client | - | Customers | Boolean |
+| 2 | /api/customers/query | Done | - | Get all customers with name | GET | Bearer | client | query, page, size | - | Page<Map<String, Object>> |
+| 3 | /api/customers/{customerId} | Done | - | Get customer by customer ID | GET | Bearer | client | customerId | - | Map<String, Object> |
+| 4 | /api/customers/count | Done | - | Count customers | GET | Bearer | client | - | - | Long |
+| 5 | /api/customers/getCheckIn/{customerId} | Done | - | Get customer check-in time | GET | Bearer | client | customerId | - | Map<String, Object> |
+| 6 | /api/customers/getCheckOut/{customerId} | Done | - | Get customer check-out time | GET | Bearer | client | customerId | - | Map<String, Object> |
+| 7 | /api/customers/{customerId} | Done | - | Update customer information | PATCH | Bearer | client | customerId | Customers | Customers |
+| 8 | /api/customers/{customerId} | Done | - | Delete customer | DELETE | Bearer | client | customerId | - | Map<String, Boolean> |
+| 9 | /api/customers | Done | - | Get all customers with pagination | GET | Bearer | client | page, size | - | Page<Customers> |
+| |
+| Notification |
+| 1 | /api/notifications | Done | - | Create new Notification | POST | Bearer | client | - | String (message) | Boolean |
+| 2 | /api/notifications | Done | - | Get all Notifications | GET | Bearer | client | - | - | List<NotificationEntity> |
+| 3 | /api/notifications | Done | - | Delete all Notifications | DELETE | Bearer | client | - | - | Boolean |
+| |
+| Record |
+| 1 | /api/records | Done | - | Create new Record | POST | Bearer | client | - | Records | Boolean |
+| 2 | /api/records/query | Done | - | Get all Records by date | GET | Bearer | client | date | - | List<RecordEntity> |
+| 3 | /api/records/count | Done | - | Count Records | GET | Bearer | client | - | - | Long |
+| 4 | /api/records/{recordId} | Done | - | Delete one Record | DELETE | Bearer | client | recordId | - | Boolean |
+| 5 | /api/records/query | Done | - | Delete all Records by date | DELETE | Bearer | client | date | - | Boolean |
+| |
+| Task |
+| 1 | /api/tasks | Done | - | Create new Task | POST | Bearer | client | - | Task | Boolean |
+| 2 | /api/tasks | Done | - | Get all Tasks with pagination | GET | Bearer | client | page, size | - | Page<Task> |
+| 3 | /api/tasks/query | Done | - | Get all Tasks by Task Name | GET | Bearer | client | query, page, size | - | Page<Map<String, Object>> |
+| 4 | /api/tasks/getTask/customer/query | Done | - | Get all Tasks by Customer Name | GET | Bearer | client | query, page, size | - | Page<Map<String, Object>> |
+| 5 | /api/tasks/getTask/customers/query | Done | - | Get all Tasks by multiple Customer Names | GET | Bearer | client | queries, page, size | - | Page<Map<String, Object>> |
+| 6 | /api/tasks/{taskId} | Done | - | Get Task by Task ID | GET | Bearer | client | taskId | - | Map<String, Object> |
+| 7 | /api/tasks/count | Done | - | Count all Tasks | GET | Bearer | client | - | - | Long |
+| 8 | /api/tasks/{taskId} | Done | - | Update Task Description | PATCH | Bearer | client | taskId | Task | Task |
+| 9 | /api/tasks/{taskId} | Done | - | Delete Task by Task ID | DELETE | Bearer | client | taskId | - | Map<String, Boolean> |
+| 10 | /api/tasks/getTask/{customerName} | Done | - | Get all Tasks by Customer Name (Exact Match) | GET | Bearer | client | customerName | - | List<TaskEntity> |
+
+
+
 
