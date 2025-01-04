@@ -1,7 +1,7 @@
 facenet-pytorch
-flask
-flask-cors
-flask-socketio
+fastapi
+uvicorn
+python-multipart
 insightface
 numpy
 onnxruntime

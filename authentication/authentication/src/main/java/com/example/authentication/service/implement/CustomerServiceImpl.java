@@ -161,6 +161,8 @@ public class CustomerServiceImpl implements CustomerService {
                     : null;
             assert customerEntity != null;
 
+            log.info("updateCustomerInformation: {}", customerEntity);
+
             if (customers.getCustomerName() != null) {
                 customerEntity.setCustomerName(customers.getCustomerName());
             }
@@ -180,8 +182,8 @@ public class CustomerServiceImpl implements CustomerService {
             customerEntity.setUpdateAt(LocalDateTime.now());
             if (customers.getPhotoUrl() != null) {
                 String photo = customers.getPhotoUrl();
-                filePath = String.format(filePath, customerEntity.getCustomerName());
-                URL objectURL = s3Utils.getS3URL(filePath, photo);
+                String customerFilePath = String.format(filePath, customerEntity.getCustomerName());
+                URL objectURL = s3Utils.getS3URL(customerFilePath, photo);
                 PhotoEntity photoEntity = new PhotoEntity(objectURL.toString());
                 photoEntity.setCustomer(customerEntity);
                 photoRepository.save(photoEntity);
