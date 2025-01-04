@@ -28,8 +28,6 @@ house-keeping:
         - export CACHE_PATH=/home/$USER/cache/$CI_PROJECT_NAMESPACE
         - export PROJECT_PATH=$CI_BUILDS_DIR/$CI_RUNNER_SHORT_TOKEN/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
         - echo $PROJECT_PATH
-        - echo $CACHE_PATH
-        - chmod -R +x $CACHE_PATH
         - chmod -R +x $PROJECT_PATH
         - rm -rfv $CACHE_PATH/*
         - rm -rfv $PROJECT_PATH/*
