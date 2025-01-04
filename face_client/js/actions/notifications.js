@@ -11,23 +11,26 @@ const getNotifications = async () => {
         if (!response.ok) {
             throw new Error('Cannot fetch notifications');
         }
-
         const data = await response.json();
-        renderNotifications(data);
+        
+        // Render for headers
+        renderNotifications(data, "notification-list", "notification-count");
+        // Render for page
+        renderNotifications(data, "page-notification-list", "page-notification-count");
     } catch (error) {
         console.error('Fetch Notifications failed: ', error);
     }
 };
 
-const renderNotifications = (notifications) => {
-    const notificationList = document.getElementById('notification-list');
-    const notificationCount = document.getElementById('notification-count');
+const renderNotifications = (notifications, notificationID, notificationCountID) => {
+    const notificationList = document.getElementById(notificationID);
+    const notificationCount = document.getElementById(notificationCountID);
     notificationList.innerHTML = '';
 
     notifications.forEach((notification) => {
-        const { notificationMessage, createdAt } = notification;
-
-        const timeAgo = getTimeAgo(createdAt);
+        const { notificationMessage, createAt } = notification;
+        console.log(`notification: ${JSON.stringify(notification)}`);
+        const timeAgo = getTimeAgo(createAt);
 
         const notificationItem = `
             <a href="#" class="list-group-item">

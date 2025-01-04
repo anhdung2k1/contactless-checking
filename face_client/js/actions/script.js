@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Cannot retrieve tasks. Status: ${response.status}`);
             }
             const data = await response.json();
-            console.log(`getTaskByCustomerName: ${data}`);
+            console.log(`getAllTasksByListCustomerName: ${data}`);
             showCustomerTaskModal();
             renderCustomerTaskModal(data);
         } catch (error) {
