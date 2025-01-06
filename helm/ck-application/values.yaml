@@ -38,22 +38,22 @@ server:
 
   probes:
     readiness:
-      initialDelaySeconds: 15
+      initialDelaySeconds: 60
       periodSeconds: 60
       timeoutSeconds: 15
       successThreshold: 1
-      failureThreshold: 2
+      failureThreshold: 5
     liveness:
-      initialDelaySeconds: 15
+      initialDelaySeconds: 60
       periodSeconds: 60
       timeoutSeconds: 15
       successThreshold: 1
-      failureThreshold: 2
+      failureThreshold: 5
 
   #serviceAccountName: ""
   authentication:
     name: authentication
-    serviceType: LoadBalancer
+    serviceType: NodePort
     httpPort: "8080"
     httpsPort: "8443"
     httpNodePort: "30800"
@@ -61,7 +61,7 @@ server:
 
   faceModel:
     name: face-model
-    serviceType: LoadBalancer
+    serviceType: NodePort
     httpPort: "5000"
     httpsPort: "5443"
     httpNodePort: "30500"
@@ -69,7 +69,7 @@ server:
 
   faceClient:
     name: face-client
-    serviceType: LoadBalancer
+    serviceType: NodePort
     httpPort: "80"
     httpsPort: "443"
     httpNodePort: "31080"

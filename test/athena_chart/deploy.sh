@@ -14,25 +14,6 @@ function dependency_update() {
     echo "Done."
 }
 
-function replace_with_local_build() {
-    echo "Copying local helm chart to integrated chart..."
-    pushd $TOP_DIR &>/dev/null
-
-    local version=$($TOP_DIR/vas.sh get_version)
-    local build_dir=${TOP_DIR}/build/helm-build/ck-application
-    local int_char_dir=${TOP_DIR}/helm/ck-application-integration-chart/charts
-    local chart=${build_dir}/ck-application-${version}.tgz
-
-    [[ -f ${chart} ]] || die "The chart ${chart} does not exist! Need to build first..."
-
-    # replace the official with the local build
-    rm -f ${int_char_dir}/ck-application-* || die "failed to remove CK App official helm chart"
-    cp ${chart} ${int_char_dir} || die "failed to copy local CK App chart to integrated chart"
-
-    popd &>/dev/null
-    echo "Done."
-}
-
 function cleanup_ns() {
     echo "Cleaning up $namespace..."
     kubectl get ns $namespace &>/dev/null || { kubectl create ns $namespace ; return ; }
@@ -43,6 +24,7 @@ function cleanup_ns() {
     fi
     cleanup_resources pvc
     cleanup_resources secret
+    cleanup_crd_certmanager
     echo "Done."
 }
 
@@ -50,6 +32,15 @@ function cleanup_resources() {
     for name in $($k get $1 -o jsonpath={.items[*].metadata.name}); do
         $k delete $1 $name;
     done
+}
+
+function cleanup_crd_certmanager() {
+   $k delete crd issuers.cert-manager.io \
+	  clusterissuers.cert-manager.io \
+	  certificates.cert-manager.io \
+	  certificaterequests.cert-manager.io \
+	  orders.acme.cert-manager.io \
+	  challenges.acme.cert-manager.io
 }
 
 function run_helm_command() {
@@ -97,8 +88,6 @@ where:
         show this help text
     --upgrade
         Helm upgrade the integrated helm chart
-    -l, --local
-        if given, the local build of PMS is used
     -n, --namespace <ns>
         namespace for the deployment. The default is ${USER}-ns.
     -r, --remove
@@ -115,7 +104,6 @@ $ ./deploy.sh -n zrdtuan-ns
 "
 
 # Default values
-use_local_build=false
 run_update_dependency=false
 namespace=${USER}-ns
 watching=false
@@ -134,9 +122,6 @@ while [[ "$#" -gt 0 && $1 != "--set" ]]; do
         -n|--namespace)
             namespace=$2
             shift
-            ;;
-        -l|--local)
-            use_local_build=true
             ;;
         -r|--remove)
             undeploy=true
@@ -160,7 +145,7 @@ k="kubectl -n $namespace"
 h="helm -n $namespace"
 [[ $helm_debug = true ]] && h="helm -n $namespace --debug"
 
-release_name="cert-manager"
+release_name="athena-monitoring"
 if [ $undeploy = true ] ; then
   cleanup_ns
   echo "Finished cleanup namespace $namespace of $release_name. Exit!!! "
@@ -170,11 +155,8 @@ fi
 # force 'update' if the charts folder does not exist even told 'ignnore update'
 [[ $run_update_dependency = false && -d "charts" ]] || dependency_update
 
-# replace official PMS helm chart with local build
-[ $use_local_build = true ] && replace_with_local_build
-
 if [ $helm_upgrade = true ] ; then
-    run_helm_command upgrade $@ --set ck-application.aws.key=$AWS_ACCESS_KEY_ID --set ck-application.aws.secret=$AWS_SECRET_ACCESS_KEY --set ck-application.ingress.enabled=false
+    run_helm_command upgrade $@
 else
-    run_helm_command install $@ --set ck-application.aws.key=$AWS_ACCESS_KEY_ID --set ck-application.aws.secret=$AWS_SECRET_ACCESS_KEY --set ck-application.ingress.enabled=false
+    run_helm_command install $@
 fi

@@ -18,9 +18,9 @@
 /client-server/__pycache__/
 /build/
 /test/ssl/
-helm/ck-application-integration-chart/Chart.lock
-helm/ck-application-integration-chart/charts/
-helm/ck-application-integration-chart/files/
+helm/ck-application/Chart.lock
+helm/ck-application/files/ca.crt
+helm/ck-application/files/ca.key
 /test/helm-validation/__pycache__/
 
 /venv/

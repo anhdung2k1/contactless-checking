@@ -618,3 +618,21 @@ Define ck-application.appArmorProfile.securityContext (Kubernetes version >= 1.3
   {{- include "ck-application.renderAppArmorProfile.securityContext" (list $profile) -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Define FQDN
+*/}}
+{{- define "ck-application.FQDN" -}}
+{{- $root := index . 0 -}}
+{{- $services := list (include "ck-client.name" $root) (include "ck-server.name" $root) (include "ck-authentication.name" $root) -}}
+{{- $namespace := (include "ck-application.namespace" $root) -}}
+{{- range $service := $services }}
+  - {{ $service }}
+  - {{ $service }}.{{ $namespace }}
+  - {{ $service }}.{{ $namespace }}.svc
+  - {{ $service }}.{{ $namespace }}.svc.cluster.local
+  {{- if $root.Values.ingress.enabled }}
+  - {{ $service }}.{{ $root.Values.ingress.hostName }}
+  {{- end }}
+{{- end -}}
+{{- end -}}

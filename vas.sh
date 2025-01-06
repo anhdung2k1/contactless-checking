@@ -14,7 +14,7 @@ test -n "$MODEL_DIR" || export MODEL_DIR="$BUILD_DIR/yolo_model"
 test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightface"
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
-test -n "$INT_HELM_DIR" || export INT_HELM_DIR="$VAS_GIT/helm/ck-application-integration-chart"
+test -n "$HELM_CHART_DIR" || export HELM_CHART_DIR="$VAS_GIT/helm/ck-application"
 test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
 
 # Prequiste compiler
@@ -158,11 +158,11 @@ get_user_id() {
 
 # Copy CA file to integration charts
 generate_ca() {
-    test -n "$INT_HELM_DIR" || die "Module [INT_HELM_DIR] not set"
+    test -n "$HELM_CHART_DIR" || die "Module [HELM_CHART_DIR] not set"
     test -n "$TEST_DIR" || die "Module [TEST_DIR] not set"
 
     SSL_TEST_DIR="$TEST_DIR/ssl"
-    HELM_TEMPLATE_FILE_DIR="$INT_HELM_DIR/files"
+    HELM_TEMPLATE_FILE_DIR="$HELM_CHART_DIR/files"
     gen_ca_path="$TEST_DIR/generate_ca.sh"
     key_file="ca.key"
     cert_file="ca.crt"

@@ -7,7 +7,7 @@ logging:
   level:
     org:
       springframework:
-        web: debug
+        web: info
 #Get the ENV from k8s, docker env
 spring:
   datasource:

@@ -1,0 +1,19 @@
+nameOverride: ""
+
+cert-manager:
+  enabled: true
+  crds:
+    enabled: true
+kube-prometheus-stack:
+  grafana:
+    ingress:
+      enabled: true
+      hosts:
+      - grafana.cluster-intern.site
+      ingressClassName: nginx
+  prometheus-community:
+    ingress:
+      enabled: true
+      hosts:
+      - prometheus.cluster-intern.site
+      ingressClassName: nginx
