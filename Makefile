@@ -4,11 +4,22 @@ RELEASE := $(RELEASE)
 USERNAME := $(USER)
 TOP_DIR := $(CURDIR)
 version := $(shell $(TOP_DIR)/vas.sh get_version)
+DOCKER_CONFIG_DIR ?= build/docker
 
 # Clean the repository
 clean:
 	@echo "Clean Repository"
 	./vas.sh clean
+
+# Step 1: Login into private docker registry
+# Step 2: Run this job to copy docker config to build/docker/config.json
+# Step 3: Create docker secret harbordocker
+#	kubectl -n <namespace> create secret generic harbordocker \
+	--from-file=.dockerconfigjson=build/docker/config.json \
+	--type=kubernetes.io/dockerconfigjson
+prepare:
+	mkdir -p $(DOCKER_CONFIG_DIR)
+	cp -rf ~/.docker/config.json $(DOCKER_CONFIG_DIR)/config.json
 
 # Init the repository
 init:

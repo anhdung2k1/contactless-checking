@@ -31,3 +31,7 @@ spec:
       {{- include "ck-initContainers" (list . "authentication") | indent 6 }}
       containers:
       {{- include "ck-auth-containers" (list .) | nindent 6 }}
+    {{- if include "ck-application.pullSecrets" . }}
+      imagePullSecrets:
+        - name: {{ template "ck-application.pullSecrets" . }}
+    {{- end }}

@@ -15,7 +15,7 @@ test -n "$ARC_FACE_MODEL_DIR" || export ARC_FACE_MODEL_DIR="$BUILD_DIR/.insightf
 test -n "$API_DIR" || export API_DIR="$VAS_GIT/authentication/authentication"
 test -n "$DOCKER_DIR" || export DOCKER_DIR="$VAS_GIT/docker"
 test -n "$HELM_CHART_DIR" || export HELM_CHART_DIR="$VAS_GIT/helm/ck-application"
-test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="anhdung12399"
+test -n "$DOCKER_REGISTRY" || export DOCKER_REGISTRY="192.168.122.65:30443/contactless-checking"
 
 # Prequiste compiler
 test -n "$MAVEN_IMAGE" || export MAVEN_IMAGE="maven:latest"
@@ -334,9 +334,17 @@ build_helm() {
 
     mkdir -p "$destination/$ck_chart_name"
 
-    sed -i -e "s/^version: .*/version: ${version}/" $source/Chart.yaml
-    sed -i -e "s/%%VERSION%%/${version}/" $source/ck-product-info.yaml
-    sed -i -e "s/%%REGISTRY%%/${DOCKER_REGISTRY}/" $source/ck-product-info.yaml
+    # Update Chart.yaml version
+    sed -i -e "s|^version: .*|version: ${version}|" $source/Chart.yaml \
+        || die "[FAILED] Unable to change version: ${version} in $source/Chart.yaml"
+
+    # Update ck-product-info.yaml with version
+    sed -i -e "s|%%VERSION%%|${version}|" $source/ck-product-info.yaml \
+        || die "[FAILED] Unable to change version: ${version} in $source/ck-product-info.yaml"
+
+    # Update ck-product-info.yaml with Docker registry
+    sed -i -e "s|%%REGISTRY%%|${DOCKER_REGISTRY}|" $source/ck-product-info.yaml \
+        || die "[FAILED] Unable to change %%REGISTRY%% to ${DOCKER_REGISTRY} in $source/ck-product-info.yaml"
     
     helm package $source \
         --dependency-update \

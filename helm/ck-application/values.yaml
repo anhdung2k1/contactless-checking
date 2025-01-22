@@ -141,6 +141,7 @@ seccompProfile:
 
 imageCredentials:
   pullPolicy: IfNotPresent
+# pullSecret:
 
 appArmorProfile:
   type: ""
@@ -156,7 +157,10 @@ appArmorProfile:
     localhostProfile:
 
 storage:
-  enabled: true
+  # Storage enabled => PV and PVC will be used
+  enabled: false
+  # Storage enabled & PV disabled => only PVC used
+  # Storage enabled & PV enabled => Both PV and PVC are used
   persistentVolume:
     enabled: true
     hostPath:
