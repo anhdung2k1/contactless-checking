@@ -114,9 +114,32 @@ $ make package-helm
 $ helm $NAME install ck-app build/helm-build/ck-application/ck-application-<version>.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY
 ```
 
-For TLS, in this lab I config K8s resource in Docker Desktop => Running on WSL. To check the kubernetes IP.
+If you pull from private docker registry, you will need to add imagePullSecrets with following steps:
+1. Login and copy config.json to build/docker
+    ```bash
+    docker login <private_docker_url>
+    make prepare
+    ```
+2. Create the docker secret harbordocker
+    ```bash
+    kubectl $NAME create secret generic harbordocker \
+        --from-file=.dockerconfigjson=build/docker/config.json \
+        --type=kubernetes.io/dockerconfigjson
+    ```
+3. When install the helm chart parse `--global.pullSecret=harbordocker`
+    ```bash
+    helm $NAME install ck-app build/helm-build/ck-application/ck-application-<version>.tgz --set aws.key=$AWS_ACCESS_KEY_ID --set aws.secret=$AWS_SECRET_ACCESS_KEY --set global.pullSecret=harbordocker
+    ```
+
+For TLS, in this lab I config K8s resource with 3 nodes (master + 2 worker nodes).
 ```bash
 $ kubectl get nodes -o wide
+```
+```bash
+NAME            STATUS   ROLES           AGE    VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+intern-master   Ready    control-plane   173d   v1.30.3   192.168.122.70   <none>        Ubuntu 24.04 LTS   6.8.0-49-generic   containerd://1.7.12
+intern-node01   Ready    worker          173d   v1.30.3   192.168.122.65   <none>        Ubuntu 24.04 LTS   6.8.0-51-generic   containerd://1.7.12
+intern-node02   Ready    worker          168d   v1.30.0   192.168.122.64   <none>        Ubuntu 24.04 LTS   6.8.0-51-generic   containerd://1.7.19
 ```
 8. After install helm chart, the container will pull from docker registry to initial the pod running in k8s. Check out the deploy is up and health state.
 ```bash

@@ -127,6 +127,20 @@ Create version
 {{- end -}}
 
 {{/*
+Create image pull secrets
+*/}}
+{{- define "ck-application.pullSecrets" -}}
+  {{- if .Values.imageCredentials.pullSecret -}}
+    {{- print .Values.imageCredentials.pullSecret }}
+  {{- else -}}
+    {{- $g := fromJson (include "ck-application.global" .) -}}
+    {{- if $g.pullSecret }}
+      {{- print $g.pullSecret }}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Define imagePath
 */}}
 {{- define "ck-application.imagePath" -}}

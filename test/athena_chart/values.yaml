@@ -11,7 +11,7 @@ kube-prometheus-stack:
       hosts:
       - grafana.cluster-intern.site
       ingressClassName: nginx
-  prometheus-community:
+  prometheus:
     ingress:
       enabled: true
       hosts:

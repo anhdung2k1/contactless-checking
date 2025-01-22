@@ -26,3 +26,7 @@ spec:
         {{- include "ck-application.supplementalGroups" . }}
       containers:
       {{- include "ck-client-containers" (list .) | nindent 6 }}
+    {{- if include "ck-application.pullSecrets" . }}
+      imagePullSecrets:
+        - name: {{ template "ck-application.pullSecrets" . }}
+    {{- end }}
